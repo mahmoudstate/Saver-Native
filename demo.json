@@ -1,0 +1,261 @@
+{
+  "theme": "light",
+  "currency": "GBP",
+  "username": "Mahmoud",
+  "banks": [
+    {
+      "id": "hsbc",
+      "name": "HSBC",
+      "color": "#ec1623"
+    },
+    {
+      "id": "rev",
+      "name": "Revolut",
+      "color": "#3a3f66"
+    },
+    {
+      "id": "cash",
+      "name": "Cash wallet",
+      "color": "#f59e0b",
+      "lowBalanceThreshold": 200
+    }
+  ],
+  "savings": [
+    {
+      "id": "laptop",
+      "name": "New laptop",
+      "goal": 1800,
+      "status": "active",
+      "spendingMode": false
+    },
+    {
+      "id": "holiday",
+      "name": "Holiday",
+      "goal": 900,
+      "status": "active",
+      "spendingMode": false
+    }
+  ],
+  "txns": [
+    {
+      "id": "1",
+      "type": "income",
+      "amount": 1406,
+      "date": "2026-06-02",
+      "bankId": "hsbc",
+      "catId": "salary",
+      "catName": "Salary",
+      "catGlyph": "briefcase"
+    },
+    {
+      "id": "2",
+      "type": "expense",
+      "amount": 100,
+      "date": "2026-06-12",
+      "bankId": "hsbc",
+      "catId": "food",
+      "catName": "Food & Dining",
+      "catGlyph": "utensils"
+    },
+    {
+      "id": "3",
+      "type": "saving",
+      "amount": 600,
+      "date": "2026-06-05",
+      "bankId": "hsbc",
+      "goalId": "laptop",
+      "goalName": "New laptop"
+    },
+    {
+      "id": "4",
+      "type": "saving",
+      "amount": 280,
+      "date": "2026-06-05",
+      "bankId": "hsbc",
+      "goalId": "holiday",
+      "goalName": "Holiday"
+    },
+    {
+      "id": "5",
+      "type": "income",
+      "amount": 980,
+      "date": "2026-06-03",
+      "bankId": "rev",
+      "catId": "other_income",
+      "catName": "Other Income",
+      "catGlyph": "wallet"
+    },
+    {
+      "id": "6",
+      "type": "income",
+      "amount": 200,
+      "date": "2026-06-01",
+      "bankId": "cash",
+      "catId": "other_income",
+      "catName": "Other Income",
+      "catGlyph": "wallet"
+    },
+    {
+      "id": "7",
+      "type": "expense",
+      "amount": 160,
+      "date": "2026-06-10",
+      "bankId": "cash",
+      "catId": "shopping",
+      "catName": "Groceries",
+      "catGlyph": "shopping-bag"
+    }
+  ],
+  "bills": [
+    {
+      "id": "netflix",
+      "name": "Netflix",
+      "amount": 10,
+      "bankId": "hsbc",
+      "color": "#E50914",
+      "dueDay": 5,
+      "payments": [
+        {
+          "month": "2026-06"
+        }
+      ]
+    },
+    {
+      "id": "voda",
+      "name": "Vodafone",
+      "amount": 12,
+      "bankId": "hsbc",
+      "color": "#E60000",
+      "dueDay": 16,
+      "note": "Mobile",
+      "payments": []
+    },
+    {
+      "id": "spotify",
+      "name": "Spotify",
+      "amount": 6,
+      "bankId": "hsbc",
+      "color": "#1DB954",
+      "dueDay": 9,
+      "payments": [
+        {
+          "month": "2026-06"
+        }
+      ]
+    }
+  ],
+  "budgets": [
+    {
+      "id": "std",
+      "name": "Standard",
+      "amount": 500,
+      "cats": [
+        "food",
+        "shopping"
+      ]
+    },
+    {
+      "id": "reno",
+      "name": "Apartment setup",
+      "amount": 1500,
+      "cats": [
+        "food",
+        "shopping"
+      ],
+      "kind": "project",
+      "status": "active",
+      "startMonth": "2026-03"
+    }
+  ],
+  "installments": [
+    {
+      "id": "iphone",
+      "itemType": "iPhone 15",
+      "company": "iPhone 15",
+      "color": "#3a3f66",
+      "totalInstallments": 12,
+      "installmentAmount": 200,
+      "totalAmount": 2400,
+      "paidInstallments": 3,
+      "dueDay": 5,
+      "startDate": "2026-04-01",
+      "payments": [
+        {
+          "month": "2026-04"
+        },
+        {
+          "month": "2026-05"
+        },
+        {
+          "month": "2026-06"
+        }
+      ]
+    },
+    {
+      "id": "car",
+      "itemType": "Car loan",
+      "company": "Car loan",
+      "color": "#3B82F6",
+      "totalInstallments": 24,
+      "installmentAmount": 500,
+      "totalAmount": 12000,
+      "paidInstallments": 7,
+      "dueDay": 20,
+      "startDate": "2025-11-01",
+      "payments": [
+        {
+          "month": "2025-11"
+        },
+        {
+          "month": "2025-12"
+        },
+        {
+          "month": "2026-01"
+        },
+        {
+          "month": "2026-02"
+        },
+        {
+          "month": "2026-03"
+        },
+        {
+          "month": "2026-04"
+        },
+        {
+          "month": "2026-05"
+        }
+      ]
+    }
+  ],
+  "expCats": [
+    {
+      "id": "food",
+      "name": "Food & Dining",
+      "glyph": "utensils",
+      "color": "#fb923c",
+      "group": "daily"
+    },
+    {
+      "id": "shopping",
+      "name": "Shopping",
+      "glyph": "shopping-bag",
+      "color": "#f472b6",
+      "group": "lifestyle"
+    }
+  ],
+  "incCats": [
+    {
+      "id": "salary",
+      "name": "Salary",
+      "glyph": "briefcase",
+      "color": "#34d399"
+    },
+    {
+      "id": "other_income",
+      "name": "Other Income",
+      "glyph": "wallet",
+      "color": "#a78bfa"
+    }
+  ],
+  "groups": []
+}
