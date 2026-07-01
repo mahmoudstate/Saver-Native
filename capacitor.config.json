@@ -6,7 +6,8 @@
     "SplashScreen": {
       "launchAutoHide": false,
       "backgroundColor": "#0C0D11",
-      "showSpinner": false
+      "showSpinner": false,
+      "fadeOutDuration": 400
     }
   }
 }

@@ -27,9 +27,10 @@ export function useNativeStatusBar() {
     const obs = new MutationObserver(sync);
     obs.observe(root, { attributes: true, attributeFilter: ["data-theme"] });
 
-    // App is mounted and painted — dismiss the splash to avoid a white flash.
-    SplashScreen.hide().catch(() => {});
+    // App is mounted and painted. Keep the branded splash up a little longer
+    // (min display time) before dismissing it with a soft fade.
+    const t = setTimeout(() => SplashScreen.hide().catch(() => {}), 2000);
 
-    return () => obs.disconnect();
+    return () => { obs.disconnect(); clearTimeout(t); };
   }, []);
 }
