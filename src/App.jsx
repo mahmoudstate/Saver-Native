@@ -43,7 +43,6 @@ import InstallmentEditor from "./screens/InstallmentEditor.jsx";
 import Notifications from "./screens/Notifications.jsx";
 import CustomizeDashboard from "./screens/CustomizeDashboard.jsx";
 import Onboarding from "./screens/Onboarding.jsx";
-import Splash from "./screens/Splash.jsx";
 import Celebration from "./screens/Celebration.jsx";
 import WhatsNew from "./ui/WhatsNew.jsx";
 import AllAccounts from "./screens/AllAccounts.jsx";
@@ -75,7 +74,6 @@ export default function App() {
   const [activityDate, setActivityDate] = useState(null); // Activity date filter (month / day range)
   const homeScroll = useRef(0); // remember Home scroll across tab switches (restore on first return, reset on re-tap)
   const [whatsNew, setWhatsNew] = useState(false);
-  const [booting, setBooting] = useState(true); // splash on every app open
   const [tour, setTour] = useState(false); // interactive coach-mark tour over Home
   const push = (v) => setStack((s) => [...s, v]);          // open a deeper screen
   // NOTE: back is wired straight to onClick/onClose in screens, so it must take NO
@@ -94,7 +92,6 @@ export default function App() {
   // Switch tab from inside a screen (e.g. Home's Bills card) without forcing a reset.
   const openTab = (t) => { setBillsSeg(null); setStack([]); setTab(t); };
 
-  if (booting) return <div className="app"><Splash onDone={() => setBooting(false)} /></div>;
   if (!store.seenWelcome) return <div className="app"><Onboarding onDone={() => { store.set("seenWelcome", true); setTour(true); }} /></div>;
 
   // The underlying tab — stays mounted under any pushed view so returning restores scroll/state.
