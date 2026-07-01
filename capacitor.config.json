@@ -8,6 +8,9 @@
       "backgroundColor": "#0C0D11",
       "showSpinner": false,
       "fadeOutDuration": 400
+    },
+    "Keyboard": {
+      "resize": "native"
     }
   }
 }

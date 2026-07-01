@@ -121,5 +121,19 @@ export const _lum = (hex) => { try { const c = hex.replace("#", ""); const r = p
 export const darken = (hex, f = 0.5) => { try { let c = String(hex).replace("#", ""); if (c.length === 3) c = c.split("").map((ch) => ch + ch).join(""); if (c.length !== 6) return hex; const x = (i) => Math.round(parseInt(c.slice(i, i + 2), 16) * (1 - f)).toString(16).padStart(2, "0"); return `#${x(0)}${x(2)}${x(4)}`; } catch { return hex; } };
 export const cardGradient = (hex) => `linear-gradient(140deg, ${hex}, ${darken(hex, 0.52)})`;
 
+// Web fallback (no-op on iOS Safari, which lacks the Vibration API).
 export const vibrate = (p) => { if (typeof window !== "undefined" && window.navigator?.vibrate) try { window.navigator.vibrate(p); } catch (e) {} };
-export const HAPTICS = { light: () => vibrate(10), medium: () => vibrate(20), heavy: () => vibrate(50), success: () => vibrate([30, 50, 30]), warning: () => vibrate(100) };
+
+// Native haptics via Capacitor on device; falls back to navigator.vibrate on web.
+import { Capacitor } from "@capacitor/core";
+import { Haptics, ImpactStyle, NotificationType } from "@capacitor/haptics";
+const nativeH = () => Capacitor.isNativePlatform();
+const impact = (style, ms) => () => { if (nativeH()) Haptics.impact({ style }).catch(() => {}); else vibrate(ms); };
+const notify = (type, ms) => () => { if (nativeH()) Haptics.notification({ type }).catch(() => {}); else vibrate(ms); };
+export const HAPTICS = {
+  light: impact(ImpactStyle.Light, 10),
+  medium: impact(ImpactStyle.Medium, 20),
+  heavy: impact(ImpactStyle.Heavy, 50),
+  success: notify(NotificationType.Success, [30, 50, 30]),
+  warning: notify(NotificationType.Warning, 100),
+};
