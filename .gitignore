@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor / OS
+.DS_Store
+.vscode/
+.idea/
+.claude/
+
+# Design sync — build artefacts and local cache (durable files live in .design-sync/)
+.ds-sync/
+ds-bundle/
+.design-sync/.cache/
+
+# local screenshot tooling
+shot.cjs
+*.shot.png
+shot.cjs
+*.png
+!icon.png
+dist/
+TASKS.md
+
+# Capacitor / iOS
+ios/App/Pods/
+ios/App/App/public/
+DerivedData/
+*.p12
+*.mobileprovision
+*.cer
+.env
