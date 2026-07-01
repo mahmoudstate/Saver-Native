@@ -1,6 +1,7 @@
 // Saver — Privacy & Backup: ported from showcase 25 + 39 (on-device · export/restore).
 import { useRef } from "react";
 import Ico from "../ui/Ico.jsx";
+import AppLockRow from "../ui/AppLockRow.jsx";
 import { today } from "../lib/format.js";
 import { KEYS, loadKey } from "../lib/store.js";
 import { useT } from "../lib/i18n.js";
@@ -65,7 +66,7 @@ export default function PrivacyBackup({ store, back }) {
       </div>
 
       <div className="over">{tr("privacy.security")}</div>
-      <Row icon="lock" bg="var(--blueDim)" color="var(--blue)" nm={tr("privacy.appLock")} mt={tr("privacy.appLockSub")} />
+      <AppLockRow store={store} tr={tr} />
       <div className="frozen" style={{ marginTop: 10, display: "flex", alignItems: "center", gap: 8, background: "var(--acDim)", color: "var(--acText)", borderRadius: 14, padding: "12px 14px", fontWeight: 700, fontSize: 13 }}>
         <Ico name="shield" size={15} color="var(--ac)" />{tr("privacy.onDeviceBadge")}
       </div>

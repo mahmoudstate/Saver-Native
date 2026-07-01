@@ -2,6 +2,8 @@
 import { useState, useRef } from "react";
 import { useStore } from "./lib/store.js";
 import { useNativeStatusBar } from "./lib/useNativeStatusBar.js";
+import { useAppLock } from "./lib/useAppLock.js";
+import LockScreen from "./ui/LockScreen.jsx";
 import BottomNav from "./ui/BottomNav.jsx";
 import Overlays from "./ui/Modal.jsx";
 import Home from "./screens/Home.jsx";
@@ -62,6 +64,7 @@ function Placeholder({ tab }) {
 export default function App() {
   useNativeStatusBar();
   const store = useStore();
+  const lock = useAppLock(store.appLock);
   const [tab, setTab] = useState("home");
   // Navigation stack of pushed detail screens; the top one renders as an overlay.
   // A real stack (not a single slot) so Back always returns to the previous screen.
@@ -92,6 +95,7 @@ export default function App() {
   // Switch tab from inside a screen (e.g. Home's Bills card) without forcing a reset.
   const openTab = (t) => { setBillsSeg(null); setStack([]); setTab(t); };
 
+  if (lock.locked) return <div className="app"><LockScreen onUnlock={lock.unlock} tryBiometric={lock.tryBiometric} /></div>;
   if (!store.seenWelcome) return <div className="app"><Onboarding onDone={() => { store.set("seenWelcome", true); setTour(true); }} /></div>;
 
   // The underlying tab — stays mounted under any pushed view so returning restores scroll/state.
