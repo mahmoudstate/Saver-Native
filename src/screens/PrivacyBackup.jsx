@@ -1,9 +1,11 @@
 // Saver — Privacy & Backup: ported from showcase 25 + 39 (on-device · export/restore).
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import Ico from "../ui/Ico.jsx";
 import AppLockRow from "../ui/AppLockRow.jsx";
+import PasswordPrompt from "../ui/PasswordPrompt.jsx";
 import { today } from "../lib/format.js";
 import { KEYS, loadKey } from "../lib/store.js";
+import { encryptBackup, decryptBackup, isEncryptedBackup } from "../lib/backupCrypto.js";
 import { useT } from "../lib/i18n.js";
 
 // TODO: swap for the live marketing-site privacy page once it is ready.
@@ -12,32 +14,57 @@ const PRIVACY_URL = "https://savertrack.app/privacy";
 export default function PrivacyBackup({ store, back }) {
   const fileRef = useRef(null);
   const tr = useT();
+  const [prompt, setPrompt] = useState(null); // { mode:'enc'|'dec', text? }
 
-  const download = () => {
+  const currentPayload = () => {
     const payload = { _app: "Saver", _version: 3, _exported: today() };
     for (const k in KEYS) payload[k] = loadKey(KEYS[k], null);
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    return payload;
+  };
+
+  const saveFile = (content, name) => {
+    const blob = new Blob([content], { type: "application/octet-stream" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url; a.download = `Saver_Backup_${today()}.json`; a.click();
+    const a = document.createElement("a"); a.href = url; a.download = name; a.click();
     URL.revokeObjectURL(url);
-    store.flash({ title: tr("privacy.backupDownloaded"), sub: "Saver_Backup.json", color: "var(--success)", icon: "download" });
+  };
+
+  // Export flow: ask for a password, then write an encrypted .saver file.
+  const download = () => setPrompt({ mode: "enc" });
+
+  const doEncrypt = async (password) => {
+    setPrompt(null);
+    const enc = await encryptBackup(currentPayload(), password);
+    saveFile(enc, `Saver_Backup_${today()}.saver`);
+    store.flash({ title: tr("privacy.backupDownloaded"), sub: `Saver_Backup.saver`, color: "var(--success)", icon: "download" });
+  };
+
+  const applyRestore = (data) => {
+    store.setConfirm({
+      title: tr("privacy.restoreTitle"), message: tr("privacy.restoreMsg"),
+      color: "var(--acText)", confirmText: tr("privacy.restore"), icon: "download",
+      onConfirm: () => { if (store.restore(data)) store.flash({ title: tr("privacy.backupRestored"), color: "var(--acText)", icon: "check" }); },
+    });
   };
 
   const onFile = (e) => {
     const file = e.target.files?.[0]; if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {
-      try {
-        const data = JSON.parse(reader.result);
-        store.setConfirm({
-          title: tr("privacy.restoreTitle"), message: tr("privacy.restoreMsg"),
-          color: "var(--acText)", confirmText: tr("privacy.restore"), icon: "download",
-          onConfirm: () => { if (store.restore(data)) store.flash({ title: tr("privacy.backupRestored"), color: "var(--acText)", icon: "check" }); },
-        });
-      } catch { store.setAlert({ title: tr("privacy.cantRead"), message: tr("privacy.cantReadMsg"), color: "var(--red)" }); }
+      const text = reader.result;
+      if (isEncryptedBackup(text)) { setPrompt({ mode: "dec", text }); return; }
+      try { applyRestore(JSON.parse(text)); }
+      catch { store.setAlert({ title: tr("privacy.cantRead"), message: tr("privacy.cantReadMsg"), color: "var(--red)" }); }
     };
     reader.readAsText(file);
     e.target.value = "";
+  };
+
+  const doDecrypt = async (password) => {
+    const text = prompt?.text;
+    setPrompt(null);
+    try { applyRestore(await decryptBackup(text, password)); }
+    catch { store.setAlert({ title: tr("privacy.cantRead"), message: "Wrong password or corrupted backup.", color: "var(--red)" }); }
   };
 
   // Factory reset — always exports a backup first, then wipes everything.
@@ -72,13 +99,22 @@ export default function PrivacyBackup({ store, back }) {
       </div>
 
       <div className="over" style={{ marginTop: 16 }}>{tr("privacy.backup")}</div>
-      <Row icon="download" bg="var(--purpleDim)" color="var(--purple)" nm={tr("privacy.downloadBackup")} mt="Saver_Backup.json" right={<Ico name="chev" size={18} color="var(--faint)" />} onClick={download} />
+      <Row icon="download" bg="var(--purpleDim)" color="var(--purple)" nm={tr("privacy.downloadBackup")} mt="Saver_Backup.saver · encrypted" right={<Ico name="chev" size={18} color="var(--faint)" />} onClick={download} />
       <Row icon="download" bg="var(--blueDim)" color="var(--blue)" nm={tr("privacy.restoreFromFile")} mt={tr("privacy.overwrites")} right={<Ico name="chev" size={18} color="var(--faint)" />} onClick={() => fileRef.current?.click()} />
       <Row icon="trash" bg="var(--redDim)" color="var(--red)" nm={tr("privacy.resetAllData")} mt={tr("privacy.resetSub")} right={<Ico name="chev" size={18} color="var(--faint)" />} onClick={reset} />
 
       <div className="over" style={{ marginTop: 16 }}>{tr("privacy.legal")}</div>
       <Row icon="shield" bg="var(--blueDim)" color="var(--blue)" nm={tr("privacy.policy")} mt={tr("privacy.policySub")} right={<Ico name="link" size={18} color="var(--faint)" />} onClick={() => window.open(PRIVACY_URL, "_blank", "noopener,noreferrer")} />
-      <input ref={fileRef} type="file" accept="application/json,.json" onChange={onFile} style={{ display: "none" }} />
+      <input ref={fileRef} type="file" accept=".saver,application/json,.json" onChange={onFile} style={{ display: "none" }} />
+
+      {prompt?.mode === "enc" && (
+        <PasswordPrompt title="Encrypt backup" sub="Choose a password. You’ll need it to restore." confirm submitText="Export"
+          onSubmit={doEncrypt} onCancel={() => setPrompt(null)} />
+      )}
+      {prompt?.mode === "dec" && (
+        <PasswordPrompt title="Restore backup" sub="Enter the password used to create this backup." submitText="Restore"
+          onSubmit={doDecrypt} onCancel={() => setPrompt(null)} />
+      )}
     </div>
   );
 }
