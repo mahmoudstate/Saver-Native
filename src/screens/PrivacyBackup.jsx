@@ -6,6 +6,7 @@ import PasswordPrompt from "../ui/PasswordPrompt.jsx";
 import { today } from "../lib/format.js";
 import { KEYS, loadKey } from "../lib/store.js";
 import { encryptBackup, decryptBackup, isEncryptedBackup } from "../lib/backupCrypto.js";
+import { exportTextFile } from "../lib/nativeFile.js";
 import { useT } from "../lib/i18n.js";
 
 // TODO: swap for the live marketing-site privacy page once it is ready.
@@ -22,21 +23,14 @@ export default function PrivacyBackup({ store, back }) {
     return payload;
   };
 
-  const saveFile = (content, name) => {
-    const blob = new Blob([content], { type: "application/octet-stream" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url; a.download = name; a.click();
-    URL.revokeObjectURL(url);
-  };
-
   // Export flow: ask for a password, then write an encrypted .saver file.
   const download = () => setPrompt({ mode: "enc" });
 
   const doEncrypt = async (password) => {
     setPrompt(null);
     const enc = await encryptBackup(currentPayload(), password);
-    saveFile(enc, `Saver_Backup_${today()}.saver`);
-    store.flash({ title: tr("privacy.backupDownloaded"), sub: `Saver_Backup.saver`, color: "var(--success)", icon: "download" });
+    const done = await exportTextFile(`Saver_Backup_${today()}.saver`, enc, "Save Saver backup");
+    if (done) store.flash({ title: tr("privacy.backupDownloaded"), sub: "Saver_Backup.saver", color: "var(--success)", icon: "download" });
   };
 
   const applyRestore = (data) => {
