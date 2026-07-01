@@ -1,5 +1,12 @@
 {
   "appId": "com.saver.app",
   "appName": "Saver",
-  "webDir": "dist"
+  "webDir": "dist",
+  "plugins": {
+    "SplashScreen": {
+      "launchAutoHide": false,
+      "backgroundColor": "#2b2f36",
+      "showSpinner": false
+    }
+  }
 }

@@ -1,6 +1,7 @@
 // Saver — clean app shell (new design). Logic from lib/*, UI rebuilt from the design showcase.
 import { useState, useRef } from "react";
 import { useStore } from "./lib/store.js";
+import { useNativeStatusBar } from "./lib/useNativeStatusBar.js";
 import BottomNav from "./ui/BottomNav.jsx";
 import Overlays from "./ui/Modal.jsx";
 import Home from "./screens/Home.jsx";
@@ -60,6 +61,7 @@ function Placeholder({ tab }) {
 }
 
 export default function App() {
+  useNativeStatusBar();
   const store = useStore();
   const [tab, setTab] = useState("home");
   // Navigation stack of pushed detail screens; the top one renders as an overlay.
