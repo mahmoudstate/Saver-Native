@@ -5,6 +5,7 @@ import { SortableContext, useSortable, arrayMove, verticalListSortingStrategy } 
 import { CSS } from "@dnd-kit/utilities";
 import Ico from "../ui/Ico.jsx";
 import { DASH_SECTIONS, DASH_DEFAULT } from "../lib/store.js";
+import { HAPTICS } from "../lib/format.js";
 import { useT } from "../lib/i18n.js";
 
 const META = Object.fromEntries(DASH_SECTIONS.map((s) => [s.id, s]));
@@ -33,7 +34,7 @@ export default function CustomizeDashboard({ store, back }) {
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
   const tr = useT();
 
-  const onDragEnd = ({ active, over }) => { if (over && active.id !== over.id) setOrder((o) => arrayMove(o, o.indexOf(active.id), o.indexOf(over.id))); };
+  const onDragEnd = ({ active, over }) => { if (over && active.id !== over.id) { HAPTICS.light(); setOrder((o) => arrayMove(o, o.indexOf(active.id), o.indexOf(over.id))); } };
   const toggle = (id) => setHidden((h) => (h.includes(id) ? h.filter((x) => x !== id) : [...h, id]));
   const save = () => { store.set("dashboard", { order, hidden }); store.flash({ title: tr("dash.layoutSaved"), color: "var(--acText)", icon: "check" }); back(); };
 

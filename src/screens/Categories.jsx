@@ -5,6 +5,7 @@ import { CSS } from "@dnd-kit/utilities";
 import Ico from "../ui/Ico.jsx";
 import CatTile from "../ui/CatTile.jsx";
 import { resolveCat } from "../ui/cats.js";
+import { HAPTICS } from "../lib/format.js";
 import { useT } from "../lib/i18n.js";
 
 const catKeyOf = (c) => resolveCat({ catId: c.id, catGlyph: c.glyph, catName: c.name }) || null;
@@ -40,6 +41,7 @@ export default function Categories({ store, back, onEdit, onAdd }) {
   const dndSensors = useRowDndSensors();
   const onDragEnd = (key) => ({ active, over }) => {
     if (!over || active.id === over.id) return;
+    HAPTICS.light();
     store.set(key, (list) => {
       const oldIndex = list.findIndex((x) => x.id === active.id);
       const newIndex = list.findIndex((x) => x.id === over.id);

@@ -12,7 +12,7 @@ import BudgetRing from "../ui/BudgetRing.jsx";
 import MonthSheet from "../ui/MonthSheet.jsx";
 import { resolveCat } from "../ui/cats.js";
 import Money from "../ui/Money.jsx";
-import { fmt, currentMonth, currentCycleAnchor, cyclePeriod, dayRangeLabel, today, MONTHS } from "../lib/format.js";
+import { fmt, currentMonth, currentCycleAnchor, cyclePeriod, dayRangeLabel, today, MONTHS, HAPTICS } from "../lib/format.js";
 import { budgetSpentMonth, projectSpent, budgetTxns, daysLeftInMonth, daysLeftInCycle, spentPerActiveDay } from "../lib/calc.js";
 import { useT } from "../lib/i18n.js";
 
@@ -92,6 +92,7 @@ export default function Budgets({ store, back, onAdd, onOpenBudget, onOpenProjec
   const dndSensors = useCardDndSensors();
   const onCardDragEnd = ({ active: a, over }) => {
     if (!over || a.id === over.id) return;
+    HAPTICS.light();
     store.set("budgets", (list) => {
       const oldIndex = list.findIndex((x) => x.id === a.id);
       const newIndex = list.findIndex((x) => x.id === over.id);
