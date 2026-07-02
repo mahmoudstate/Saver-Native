@@ -3,6 +3,7 @@ import { useState, useRef } from "react";
 import { useStore } from "./lib/store.js";
 import { useNativeStatusBar } from "./lib/useNativeStatusBar.js";
 import { useAppLock } from "./lib/useAppLock.js";
+import { useKeyboardInsets } from "./lib/useKeyboardInsets.js";
 import LockScreen from "./ui/LockScreen.jsx";
 import BottomNav from "./ui/BottomNav.jsx";
 import Overlays from "./ui/Modal.jsx";
@@ -63,6 +64,7 @@ function Placeholder({ tab }) {
 
 export default function App() {
   useNativeStatusBar();
+  useKeyboardInsets();
   const store = useStore();
   const lock = useAppLock(store.appLock);
   const [tab, setTab] = useState("home");
