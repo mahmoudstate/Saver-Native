@@ -2,16 +2,18 @@
 // confirm=true requires the password twice (used when creating a backup).
 import { useState } from "react";
 import Ico from "./Ico.jsx";
+import { useT } from "../lib/i18n.js";
 
-export default function PasswordPrompt({ title, sub, confirm, submitText = "Continue", onSubmit, onCancel }) {
+export default function PasswordPrompt({ title, sub, confirm, submitText, onSubmit, onCancel }) {
+  const tr = useT();
   const [pw, setPw] = useState("");
   const [pw2, setPw2] = useState("");
   const [show, setShow] = useState(false);
   const [err, setErr] = useState("");
 
   const go = () => {
-    if (pw.length < 4) { setErr("Use at least 4 characters"); return; }
-    if (confirm && pw !== pw2) { setErr("Passwords don’t match"); return; }
+    if (pw.length < 4) { setErr(tr("pwd.tooShort")); return; }
+    if (confirm && pw !== pw2) { setErr(tr("pwd.mismatch")); return; }
     onSubmit?.(pw);
   };
 
@@ -25,7 +27,7 @@ export default function PasswordPrompt({ title, sub, confirm, submitText = "Cont
         {sub && <div style={{ color: "var(--muted)", fontSize: 13, margin: "2px 0 14px" }}>{sub}</div>}
 
         <div style={field}>
-          <input type={show ? "text" : "password"} value={pw} autoFocus placeholder="Password"
+          <input type={show ? "text" : "password"} value={pw} autoFocus placeholder={tr("pwd.password")}
             onChange={(e) => { setPw(e.target.value); setErr(""); }}
             onKeyDown={(e) => e.key === "Enter" && !confirm && go()} style={input} />
           <span onClick={() => setShow((s) => !s)} style={{ cursor: "pointer", color: "var(--faint)" }}>
@@ -34,7 +36,7 @@ export default function PasswordPrompt({ title, sub, confirm, submitText = "Cont
         </div>
         {confirm && (
           <div style={{ ...field, marginTop: 10 }}>
-            <input type={show ? "text" : "password"} value={pw2} placeholder="Confirm password"
+            <input type={show ? "text" : "password"} value={pw2} placeholder={tr("pwd.confirmPassword")}
               onChange={(e) => { setPw2(e.target.value); setErr(""); }}
               onKeyDown={(e) => e.key === "Enter" && go()} style={input} />
           </div>
@@ -42,8 +44,8 @@ export default function PasswordPrompt({ title, sub, confirm, submitText = "Cont
         {err && <div style={{ color: "var(--red)", fontSize: 12.5, marginTop: 8, fontWeight: 600 }}>{err}</div>}
 
         <div style={{ display: "flex", gap: 10, marginTop: 18 }}>
-          <button onClick={onCancel} style={{ ...btn, background: "var(--surface)", color: "var(--text)", border: "var(--cardBorder)" }}>Cancel</button>
-          <button onClick={go} style={{ ...btn, background: "var(--ac)", color: "#fff" }}>{submitText}</button>
+          <button onClick={onCancel} style={{ ...btn, background: "var(--surface)", color: "var(--text)", border: "var(--cardBorder)" }}>{tr("ui.cancel")}</button>
+          <button onClick={go} style={{ ...btn, background: "var(--ac)", color: "#fff" }}>{submitText || tr("ui.confirm")}</button>
         </div>
       </div>
     </div>

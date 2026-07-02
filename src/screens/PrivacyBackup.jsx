@@ -62,7 +62,7 @@ export default function PrivacyBackup({ store, back }) {
     const text = prompt?.text;
     setPrompt(null);
     try { applyRestore(await decryptBackup(text, password)); }
-    catch { store.setAlert({ title: tr("privacy.cantRead"), message: "Wrong password or corrupted backup.", color: "var(--red)" }); }
+    catch { store.setAlert({ title: tr("privacy.cantRead"), message: tr("pwd.wrongPassword"), color: "var(--red)" }); }
   };
 
   // Factory reset — always exports a backup first, then wipes everything.
@@ -97,7 +97,7 @@ export default function PrivacyBackup({ store, back }) {
       </div>
 
       <div className="over" style={{ marginTop: 16 }}>{tr("privacy.backup")}</div>
-      <Row icon="download" bg="var(--purpleDim)" color="var(--purple)" nm={tr("privacy.downloadBackup")} mt="Saver_Backup.json · encrypted" right={<Ico name="chev" size={18} color="var(--faint)" />} onClick={download} />
+      <Row icon="download" bg="var(--purpleDim)" color="var(--purple)" nm={tr("privacy.downloadBackup")} mt={`Saver_Backup.json · ${tr("privacy.encrypted")}`} right={<Ico name="chev" size={18} color="var(--faint)" />} onClick={download} />
       <Row icon="download" bg="var(--blueDim)" color="var(--blue)" nm={tr("privacy.restoreFromFile")} mt={tr("privacy.overwrites")} right={<Ico name="chev" size={18} color="var(--faint)" />} onClick={() => fileRef.current?.click()} />
       <Row icon="trash" bg="var(--redDim)" color="var(--red)" nm={tr("privacy.resetAllData")} mt={tr("privacy.resetSub")} right={<Ico name="chev" size={18} color="var(--faint)" />} onClick={reset} />
 
@@ -106,11 +106,11 @@ export default function PrivacyBackup({ store, back }) {
       <input ref={fileRef} type="file" accept=".json,application/json" onChange={onFile} style={{ display: "none" }} />
 
       {prompt?.mode === "enc" && (
-        <PasswordPrompt title="Encrypt backup" sub="Choose a password. You’ll need it to restore." confirm submitText="Export"
+        <PasswordPrompt title={tr("pwd.encryptTitle")} sub={tr("pwd.encryptSub")} confirm submitText={tr("pwd.export")}
           onSubmit={doEncrypt} onCancel={() => setPrompt(null)} />
       )}
       {prompt?.mode === "dec" && (
-        <PasswordPrompt title="Restore backup" sub="Enter the password used to create this backup." submitText="Restore"
+        <PasswordPrompt title={tr("pwd.restoreTitle")} sub={tr("pwd.restoreSub")} submitText={tr("pwd.restore")}
           onSubmit={doDecrypt} onCancel={() => setPrompt(null)} />
       )}
     </div>

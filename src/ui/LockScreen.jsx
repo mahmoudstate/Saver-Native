@@ -3,8 +3,10 @@ import { useState, useEffect, useCallback } from "react";
 import logo from "../../icon.png";
 import Ico from "./Ico.jsx";
 import { verifyPin, hasPin } from "../lib/appLock.js";
+import { useT } from "../lib/i18n.js";
 
 export default function LockScreen({ onUnlock, tryBiometric }) {
+  const tr = useT();
   const [pin, setPin] = useState("");
   const [err, setErr] = useState(false);
   const [pinMode, setPinMode] = useState(false);
@@ -31,17 +33,17 @@ export default function LockScreen({ onUnlock, tryBiometric }) {
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 1000, background: "var(--bg)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", userSelect: "none", paddingTop: "var(--safe-top)", paddingBottom: "var(--safe-bottom)" }}>
       <img src={logo} alt="Saver" style={{ width: 84, height: 84, borderRadius: 20, marginBottom: 22 }} />
-      <div style={{ color: "var(--text)", fontSize: 20, fontWeight: 800, marginBottom: 6 }}>Saver is locked</div>
+      <div style={{ color: "var(--text)", fontSize: 20, fontWeight: 800, marginBottom: 6 }}>{tr("lock.locked")}</div>
 
       {!pinMode && (
         <>
-          <div style={{ color: "var(--muted)", fontSize: 13, marginBottom: 28 }}>Unlock to continue</div>
+          <div style={{ color: "var(--muted)", fontSize: 13, marginBottom: 28 }}>{tr("lock.unlockToContinue")}</div>
           <button onClick={() => tryBiometric?.()} style={btn}>
-            <Ico name="lock" size={18} color="#fff" /> Unlock with Face ID
+            <Ico name="lock" size={18} color="#fff" /> {tr("lock.unlockFaceId")}
           </button>
           {pinExists && (
             <button onClick={() => setPinMode(true)} style={{ ...btn, background: "transparent", color: "var(--ac)", marginTop: 12 }}>
-              Enter PIN instead
+              {tr("lock.enterPinInstead")}
             </button>
           )}
         </>
@@ -49,7 +51,7 @@ export default function LockScreen({ onUnlock, tryBiometric }) {
 
       {pinMode && (
         <>
-          <div style={{ color: "var(--muted)", fontSize: 13, marginBottom: 20 }}>Enter your PIN</div>
+          <div style={{ color: "var(--muted)", fontSize: 13, marginBottom: 20 }}>{tr("lock.enterYourPin")}</div>
           <div style={{ display: "flex", gap: 14, marginBottom: 30, animation: err ? "shake .4s" : "none" }}>
             <style>{`@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}`}</style>
             {[0, 1, 2, 3].map((i) => (

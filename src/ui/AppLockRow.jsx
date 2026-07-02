@@ -13,18 +13,18 @@ export default function AppLockRow({ store, tr }) {
 
   const toggle = async () => {
     if (!native) {
-      store.setAlert({ title: tr("privacy.appLock"), message: "App Lock is available on the iOS app.", color: "var(--blue)" });
+      store.setAlert({ title: tr("privacy.appLock"), message: tr("lock.nativeOnly"), color: "var(--blue)" });
       return;
     }
     if (on) {
       store.setConfirm({
-        title: tr("privacy.appLock"), message: "Turn off App Lock?", confirmText: "Turn off", icon: "lock",
+        title: tr("privacy.appLock"), message: tr("lock.turnOffTitle"), confirmText: tr("lock.turnOff"), icon: "lock",
         onConfirm: async () => { await clearPin(); store.set("appLock", false); },
       });
     } else {
       const { available } = await biometryInfo();
       if (!available) {
-        store.setAlert({ title: tr("privacy.appLock"), message: "Set up Face ID or Touch ID in iOS Settings first.", color: "var(--blue)" });
+        store.setAlert({ title: tr("privacy.appLock"), message: tr("lock.setUpBiometrics"), color: "var(--blue)" });
       }
       setSetup(true); // set a PIN either way (fallback)
     }
@@ -34,7 +34,7 @@ export default function AppLockRow({ store, tr }) {
     await setPin(pin);
     store.set("appLock", true);
     setSetup(false);
-    store.flash?.({ title: "App Lock enabled", color: "var(--success)", icon: "lock" });
+    store.flash?.({ title: tr("lock.enabled"), color: "var(--success)", icon: "lock" });
   };
 
   return (

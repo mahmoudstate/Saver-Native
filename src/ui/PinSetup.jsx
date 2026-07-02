@@ -1,8 +1,10 @@
 // Two-step PIN setup overlay: enter a 4-digit PIN, then confirm it.
 import { useState } from "react";
 import Ico from "./Ico.jsx";
+import { useT } from "../lib/i18n.js";
 
 export default function PinSetup({ onDone, onCancel }) {
+  const tr = useT();
   const [step, setStep] = useState(0); // 0 = enter, 1 = confirm
   const [first, setFirst] = useState("");
   const [pin, setPin] = useState("");
@@ -28,10 +30,10 @@ export default function PinSetup({ onDone, onCancel }) {
         <div className="hib"><Ico name="back" size={20} /></div>
       </div>
       <div style={{ color: "var(--text)", fontSize: 20, fontWeight: 800, marginBottom: 8 }}>
-        {step === 0 ? "Set a PIN" : "Confirm PIN"}
+        {step === 0 ? tr("lock.setPin") : tr("lock.confirmPin")}
       </div>
       <div style={{ color: "var(--muted)", fontSize: 13, marginBottom: 26 }}>
-        {step === 0 ? "Used if Face ID isn’t available" : "Enter it again to confirm"}
+        {step === 0 ? tr("lock.setPinSub") : tr("lock.confirmPinSub")}
       </div>
       <div style={{ display: "flex", gap: 14, marginBottom: 32, animation: err ? "shake .4s" : "none" }}>
         <style>{`@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}`}</style>
