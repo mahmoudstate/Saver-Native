@@ -3,12 +3,23 @@
 import { useEffect, useRef, useState } from "react";
 import Ico from "./Ico.jsx";
 import ConfettiBurst from "./ConfettiBurst.jsx";
+import { HAPTICS } from "../lib/format.js";
 import { useT } from "../lib/i18n.js";
 
 const tile = (color) => ({ background: `color-mix(in srgb, ${color} 16%, transparent)`, color });
 
+// A single haptic hook for every alert/warning dialog in the app — fires once
+// per dialog shown, so call sites don't each need their own HAPTICS.* call.
+function useAlertHaptic(data) {
+  useEffect(() => {
+    if (!data) return;
+    (data.color === "var(--red)" ? HAPTICS.warning : HAPTICS.medium)();
+  }, [data]);
+}
+
 export function AlertModal({ data, onClose }) {
   const tr = useT();
+  useAlertHaptic(data);
   if (!data) return null;
   const color = data.color || "var(--ac)";
   return (
@@ -30,7 +41,7 @@ export function ConfirmModal({ data, onClose }) {
   const tr = useT();
   if (!data) return null;
   const color = data.color || "var(--red)";
-  const run = () => { data.onConfirm?.(); onClose(); };
+  const run = () => { HAPTICS[data.danger ? "warning" : "medium"](); data.onConfirm?.(); onClose(); };
   return (
     <>
       <div className="dim" onClick={onClose} />

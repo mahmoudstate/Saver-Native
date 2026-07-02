@@ -1,5 +1,6 @@
 // Saver — new bottom nav: Home · Bills · [+] · Activity · Profile (squircle FAB)
 import Ico from "./Ico.jsx";
+import { HAPTICS } from "../lib/format.js";
 
 const TABS = [
   { id: "home", icon: "home" },
@@ -10,7 +11,10 @@ const TABS = [
 
 export default function BottomNav({ active, onTab, onAdd, onQuickAdd }) {
   let timer = null;
-  const start = () => { if (onQuickAdd) timer = setTimeout(() => { timer = null; onQuickAdd(); }, 450); };
+  const start = () => {
+    HAPTICS.light(); // press feedback, like a real button
+    if (onQuickAdd) timer = setTimeout(() => { timer = null; HAPTICS.medium(); onQuickAdd(); }, 450);
+  };
   const end = (fire) => { if (timer) { clearTimeout(timer); timer = null; if (fire) onAdd(); } };
   const out = [];
   TABS.forEach((t, i) => {
