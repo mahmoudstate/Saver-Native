@@ -1,5 +1,5 @@
 {
-  "appId": "com.saver.app",
+  "appId": "com.savertrack.app",
   "appName": "Saver",
   "webDir": "dist",
   "plugins": {
