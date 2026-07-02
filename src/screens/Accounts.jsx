@@ -36,12 +36,23 @@ function SortableBankRow({ b, sub, balance, onOpen }) {
   );
 }
 
-function ArchivedBankRow({ b, balance, restoreLabel, onRestore }) {
+// hasHistory: true if any transaction ever touched this account (as the main
+// bank, or either side of a transfer) — used to decide whether permanent
+// delete is safe. Deleting a bank with history would silently drop its old
+// transactions out of every total/balance sum (they'd stay visible in
+// Activity with their own saved bank name, but stop counting anywhere),
+// so we only ever offer that for an account that was never actually used.
+const hasHistory = (bankId, txns) => txns.some((t) => t.bankId === bankId || t.fromBankId === bankId || t.toBankId === bankId);
+
+function ArchivedBankRow({ b, balance, empty, restoreLabel, deleteLabel, onRestore, onDelete }) {
   return (
     <div className="icard" style={{ opacity: .75 }}>
       <span className="circ" style={{ width: 44, height: 44, borderRadius: 14, background: `color-mix(in srgb, ${b.color || "var(--muted)"} 20%, transparent)`, color: b.color || "var(--muted)" }}><Ico name={bankIcon(b.glyph)} size={20} /></span>
       <div><div className="nm">{b.name}</div><div className="mt tnum">{fmt(balance)}</div></div>
-      <div className="btn btn-ghost" style={{ marginLeft: "auto", padding: "8px 14px", fontSize: 13 }} onClick={() => onRestore(b)}><Ico name="back" size={15} />{restoreLabel}</div>
+      <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
+        {empty && <div className="btn btn-ghost" style={{ padding: "8px 12px", fontSize: 13, color: "var(--red)" }} onClick={() => onDelete(b)}><Ico name="trash" size={15} />{deleteLabel}</div>}
+        <div className="btn btn-ghost" style={{ padding: "8px 14px", fontSize: 13 }} onClick={() => onRestore(b)}><Ico name="back" size={15} />{restoreLabel}</div>
+      </div>
     </div>
   );
 }
@@ -66,6 +77,17 @@ export default function Accounts({ store, back, onOpen, onAdd }) {
   const restore = (b) => {
     store.set("banks", (list) => list.map((x) => (x.id === b.id ? { ...x, archived: false } : x)));
     store.flash({ title: tr("account.restored"), sub: b.name, color: "var(--success)", icon: "check" });
+  };
+  const deleteForever = (b) => {
+    store.setConfirm({
+      title: tr("account.deleteForeverTitle", { name: b.name }),
+      message: tr("account.deleteForeverMsg"),
+      confirmText: tr("account.deleteForever"), danger: true, icon: "trash",
+      onConfirm: () => {
+        store.set("banks", (list) => list.filter((x) => x.id !== b.id));
+        store.flash({ title: tr("account.deletedForever"), sub: b.name, color: "var(--muted)", icon: "trash" });
+      },
+    });
   };
 
   return (
@@ -92,7 +114,10 @@ export default function Accounts({ store, back, onOpen, onAdd }) {
       ) : (
         archived.length === 0
           ? <div style={{ textAlign: "center", color: "var(--muted)", padding: "40px", fontWeight: 600 }}>{tr("account.noArchived")}</div>
-          : archived.map((b) => <ArchivedBankRow key={b.id} b={b} balance={calcBankBalance(b.id, txns)} restoreLabel={tr("account.restore")} onRestore={restore} />)
+          : archived.map((b) => (
+            <ArchivedBankRow key={b.id} b={b} balance={calcBankBalance(b.id, txns)} empty={!hasHistory(b.id, txns)}
+              restoreLabel={tr("account.restore")} deleteLabel={tr("account.deleteForever")} onRestore={restore} onDelete={deleteForever} />
+          ))
       )}
 
       {view === "active" && (
