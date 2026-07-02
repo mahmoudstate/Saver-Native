@@ -50,11 +50,13 @@ const hasHistory = (bankId, txns) => txns.some((t) => t.bankId === bankId || t.f
 // behind a left-swipe instead of a second crammed-in button, matching the
 // swipe-to-dismiss pattern already used for notifications.
 function ArchivedBankRow({ b, balance, restoreLabel, onRestore }) {
+  // opacity lives on the inner content, never the card itself — an opaque
+  // card is required so the swipe-reveal delete panel can't bleed through.
   return (
-    <div className="icard" style={{ opacity: .75, marginBottom: 0 }}>
-      <span className="circ" style={{ width: 44, height: 44, borderRadius: 14, background: `color-mix(in srgb, ${b.color || "var(--muted)"} 20%, transparent)`, color: b.color || "var(--muted)" }}><Ico name={bankIcon(b.glyph)} size={20} /></span>
-      <div><div className="nm">{b.name}</div><div className="mt tnum">{fmt(balance)}</div></div>
-      <div className="btn btn-ghost" style={{ marginLeft: "auto", padding: "8px 14px", fontSize: 13 }} onClick={() => onRestore(b)}><Ico name="back" size={15} />{restoreLabel}</div>
+    <div className="icard" style={{ marginBottom: 0 }}>
+      <span className="circ" style={{ width: 44, height: 44, borderRadius: 14, background: `color-mix(in srgb, ${b.color || "var(--muted)"} 20%, transparent)`, color: b.color || "var(--muted)", opacity: .75 }}><Ico name={bankIcon(b.glyph)} size={20} /></span>
+      <div style={{ opacity: .75 }}><div className="nm">{b.name}</div><div className="mt tnum">{fmt(balance)}</div></div>
+      <div className="btn btn-ghost" style={{ marginLeft: "auto", padding: "8px 14px", fontSize: 13, opacity: .75 }} onClick={() => onRestore(b)}><Ico name="back" size={15} />{restoreLabel}</div>
     </div>
   );
 }
