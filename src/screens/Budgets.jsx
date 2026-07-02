@@ -66,14 +66,18 @@ function SortableProjectCard({ p, anim, cm, tr, onOpen }) {
   );
 }
 
-export default function Budgets({ store, back, onAdd, onOpenBudget, onOpenProject, initialSeg, onSegChange }) {
+export default function Budgets({ store, back, onAdd, onOpenBudget, onOpenProject, initialSeg, onSegChange, initialMonth, onMonthChange }) {
   const { budgets = [], txns = [] } = store;
   const tr = useT();
   const [seg, setSeg] = useState(initialSeg || "monthly");
   const changeSeg = (v) => { setSeg(v); onSegChange?.(v); };
   const [projView, setProjView] = useState("active"); // active | completed
   const cm = currentMonth();
-  const [vm, setVm] = useState(cm); // viewed month (monthly tab)
+  // viewed month (monthly tab) — lifted to the parent so it survives a
+  // push into a budget's detail screen and back, but resets to "this
+  // month" whenever Budgets is entered fresh (see onOpenBudgets in App.jsx).
+  const [vm, setVm] = useState(initialMonth || cm);
+  const changeVm = (m) => { setVm(m); onMonthChange?.(m); };
   const [monthSheet, setMonthSheet] = useState(false);
   const [anim, setAnim] = useState(false); // replays the bar growth on month/tab change
   useEffect(() => { setAnim(false); const t = setTimeout(() => setAnim(true), 60); return () => clearTimeout(t); }, [vm, seg]);
@@ -205,7 +209,7 @@ export default function Budgets({ store, back, onAdd, onOpenBudget, onOpenProjec
         </>
       )}
 
-      {monthSheet && <MonthSheet value={vm} max={cm} onPick={(m) => { setVm(m); setMonthSheet(false); }} onClose={() => setMonthSheet(false)} />}
+      {monthSheet && <MonthSheet value={vm} max={cm} onPick={(m) => { changeVm(m); setMonthSheet(false); }} onClose={() => setMonthSheet(false)} />}
     </div>
   );
 }
