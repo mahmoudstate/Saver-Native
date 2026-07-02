@@ -18,7 +18,7 @@ export function buildNotifications(store, tr = (k, vars, fallback) => fallback) 
     const { key, dueIn } = billPeriod(b, todayISO);
     if (isBillPaidForKey(b, key)) return;
     if (dueIn == null) return;
-    if (dueIn >= 0 && dueIn <= 3) items.push({ key: `bill-${b.id}-${key}`, icon: "bell", bg: "var(--yellowDim)", col: "var(--yellow)", nm: dueIn === 0 ? tr("notif.billDueToday", { name: b.name }, `${b.name} is due today`) : dueIn === 1 ? tr("notif.billDueTomorrow", { name: b.name }, `${b.name} is due tomorrow`) : tr("notif.billDueDays", { name: b.name, n: dueIn }, `${b.name} is due in ${dueIn} days`), mt: tr("notif.catBills", null, "Bills"), nav: { type: "sub", bill: b } });
+    if (dueIn >= 0 && dueIn <= 3) items.push({ key: `bill-${b.id}-${key}`, icon: "bell", bg: "var(--yellowDim)", col: "var(--yellow)", nm: dueIn === 0 ? tr("notif.billDueToday", { name: b.name }, `${b.name} is due today`) : dueIn === 1 ? tr("notif.billDueTomorrow", { name: b.name }, `${b.name} is due tomorrow`) : tr("notif.billDueDays", { name: b.name, n: dueIn }, `${b.name} is due in ${dueIn} days`), mt: tr("notif.catBills", null, "Bills"), nav: { type: "sub", bill: b }, dueIn });
   });
   // installment payments due this month (active plan, not yet paid)
   installments.forEach((i) => {
@@ -51,6 +51,10 @@ export function buildNotifications(store, tr = (k, vars, fallback) => fallback) 
   const read = new Set(notifReadKeys);
   const dismissed = new Set(notifDismissedKeys);
   items.forEach((n) => { n.unread = !n.muted && !read.has(n.key); });
+  // Unread first (so a newly-triggered alert surfaces at the top, not
+  // wherever its underlying bill happens to sit in storage order), soonest
+  // due next, muted items (the backup nudge) always last.
+  items.sort((a, b) => (!!a.muted - !!b.muted) || (b.unread - a.unread) || ((a.dueIn ?? 99) - (b.dueIn ?? 99)));
   return items.filter((n) => !dismissed.has(n.key));
 }
 

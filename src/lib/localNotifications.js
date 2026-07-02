@@ -34,10 +34,26 @@ function idFor(key) {
   return h % 2147483647;
 }
 
-function atReminderTime(dueDate, reminderDays) {
-  const d = new Date(dueDate + "T09:00:00");
+function dueDateTime(dueDate) {
+  return new Date(dueDate + "T09:00:00");
+}
+
+function idealReminderTime(dueDate, reminderDays) {
+  const d = dueDateTime(dueDate);
   d.setDate(d.getDate() - (reminderDays ?? 2));
   return d;
+}
+
+// The ideal reminder time (due date − reminderDays) can already be in the
+// past — e.g. a bill due tomorrow with a 2-day lead time. Rather than
+// silently dropping the reminder, fire it almost immediately as long as the
+// bill itself isn't overdue yet. Only truly skip once the due date has passed.
+function scheduleTimeFor(dueDate, reminderDays, now) {
+  const ideal = idealReminderTime(dueDate, reminderDays);
+  if (ideal > now) return ideal;
+  const due = dueDateTime(dueDate);
+  if (due <= now) return null; // already overdue — nothing useful to remind about
+  return new Date(now.getTime() + 5000);
 }
 
 export async function syncScheduledNotifications(store) {
@@ -56,8 +72,8 @@ export async function syncScheduledNotifications(store) {
   (store.bills || []).forEach((b) => {
     const per = billPeriod(b, new Date().toISOString().slice(0, 10));
     if (!per.dueDate || isBillPaidForKey(b, per.key)) return;
-    const at = atReminderTime(per.dueDate, b.reminderDays);
-    if (at <= now) return;
+    const at = scheduleTimeFor(per.dueDate, b.reminderDays, now);
+    if (!at) return;
     notifications.push({ id: idFor(`bill-${b.id}-${per.key}`), title: b.name, body: translate("notif.osDueOn", { date: per.dueDate }), schedule: { at } });
   });
 
@@ -67,8 +83,8 @@ export async function syncScheduledNotifications(store) {
     const cm = currentMonth();
     if (i.payments?.some((p) => p.month === cm)) return;
     const dueDate = `${cm}-${String(Math.min(28, Math.max(1, i.dueDay || 1))).padStart(2, "0")}`;
-    const at = atReminderTime(dueDate, i.reminderDays);
-    if (at <= now) return;
+    const at = scheduleTimeFor(dueDate, i.reminderDays, now);
+    if (!at) return;
     notifications.push({ id: idFor(`inst-${i.id}-${cm}`), title: i.name || i.company || translate("notif.instFallback"), body: translate("notif.osDueOn", { date: dueDate }), schedule: { at } });
   });
 
