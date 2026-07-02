@@ -660,6 +660,7 @@ export default {
   notif: {
     title: "Notifications",
     markAllRead: "Mark all read",
+    dismissed: "Notification dismissed",
     inbox: "Inbox",
     newCount: "{n} new",
     alertsSub: "Bills, installments, budgets & account alerts",

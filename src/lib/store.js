@@ -13,7 +13,7 @@ export const KEYS = {
   username: "et_username", lastBackup: "et_lastBackup", bills: "et_bills",
   budgets: "et_budgets", quickActions: "et_quick_actions", seenWelcome: "et_seenWelcome",
   theme: "et_theme", installments: "et_installments", accent: "et_accent", dashboard: "et_dashboard",
-  avatar: "et_avatar", billTypes: "et_billTypes", notifReadKeys: "et_notifReadKeys",
+  avatar: "et_avatar", billTypes: "et_billTypes", notifReadKeys: "et_notifReadKeys", notifDismissedKeys: "et_notifDismissedKeys",
   lang: "et_lang", appLock: "et_appLock",
 };
 
@@ -55,7 +55,7 @@ const ENTITIES = {
   txns: [], banks: [], expCats: [], incCats: [], groups: [], savings: [],
   bills: [], budgets: [], installments: [], quickActions: [], billTypes: [],
 };
-const SCALARS = { currency: "EGP", username: "", avatar: "", theme: "system", accent: "mint", dashboard: DASH_DEFAULT, seenWelcome: false, notifReadKeys: [], lang: "en", appLock: false };
+const SCALARS = { currency: "EGP", username: "", avatar: "", theme: "system", accent: "mint", dashboard: DASH_DEFAULT, seenWelcome: false, notifReadKeys: [], notifDismissedKeys: [], lang: "en", appLock: false };
 
 // Validate a backup payload before restoring — never mutates state.
 // Accepts both the current envelope ({_app:"Saver", _version, ...}) and legacy

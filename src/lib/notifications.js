@@ -7,7 +7,7 @@ import { calcBankBalance, calcFrozenForBank, calcGoalSaved, budgetSpentMonth } f
 import { billPeriod, isBillPaidForKey } from "./billfreq.js";
 
 export function buildNotifications(store, tr = (k, vars, fallback) => fallback) {
-  const { bills = [], installments = [], budgets = [], savings = [], banks = [], txns = [], notifReadKeys = [] } = store;
+  const { bills = [], installments = [], budgets = [], savings = [], banks = [], txns = [], notifReadKeys = [], notifDismissedKeys = [] } = store;
   const cm = currentMonth();
   const day = new Date().getDate();
   const todayISO = today();
@@ -49,8 +49,9 @@ export function buildNotifications(store, tr = (k, vars, fallback) => fallback) 
   items.push({ key: "backup", icon: "download", bg: "var(--blueDim)", col: "var(--blue)", nm: tr("notif.backupTitle", null, "Back up your data"), mt: tr("notif.backupSub", null, "Keep a recent copy"), muted: true, nav: { type: "privacy" } });
 
   const read = new Set(notifReadKeys);
+  const dismissed = new Set(notifDismissedKeys);
   items.forEach((n) => { n.unread = !n.muted && !read.has(n.key); });
-  return items;
+  return items.filter((n) => !dismissed.has(n.key));
 }
 
 // Count of unread items — drives the Home bell badge.

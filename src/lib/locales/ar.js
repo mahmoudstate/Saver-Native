@@ -659,6 +659,7 @@ export default {
   notif: {
     title: "الإشعارات",
     markAllRead: "تعليم الكل كمقروء",
+    dismissed: "تم تجاهل الإشعار",
     inbox: "الوارد",
     newCount: "{n} جديد",
     alertsSub: "تنبيهات الفواتير والأقساط والميزانيات والحسابات",
