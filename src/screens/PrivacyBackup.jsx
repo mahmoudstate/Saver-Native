@@ -32,10 +32,13 @@ export default function PrivacyBackup({ store, back }) {
   const download = () => setPrompt({ mode: "enc" });
 
   const doEncrypt = async (password) => {
+    const andReset = prompt?.andReset;
     setPrompt(null);
     const enc = await encryptBackup(currentPayload(), password);
     const done = await exportTextFile(`Saver_Backup_${today()}.json`, enc, "Save Saver backup");
-    if (done) store.flash({ title: tr("privacy.backupDownloaded"), sub: "Saver_Backup.json", color: "var(--success)", icon: "download" });
+    if (!done) return; // user backed out of the share sheet — don't wipe anything
+    store.flash({ title: tr("privacy.backupDownloaded"), sub: "Saver_Backup.json", color: "var(--success)", icon: "download" });
+    if (andReset) store.resetAll();
   };
 
   const applyRestore = (data) => {
@@ -66,13 +69,14 @@ export default function PrivacyBackup({ store, back }) {
     catch { store.setAlert({ title: tr("privacy.cantRead"), message: tr("pwd.wrongPassword"), color: "var(--red)" }); }
   };
 
-  // Factory reset — always exports a backup first, then wipes everything.
+  // Factory reset — walks the full encrypted-backup flow (password, then the
+  // share sheet) and only wipes once that export actually succeeds.
   const reset = () => {
     store.setConfirm({
       title: tr("privacy.resetTitle"),
       message: tr("privacy.resetMsg"),
       confirmText: tr("privacy.backupReset"), danger: true, icon: "trash",
-      onConfirm: () => { download(); store.resetAll(); },
+      onConfirm: () => setPrompt({ mode: "enc", andReset: true }),
     });
   };
 
