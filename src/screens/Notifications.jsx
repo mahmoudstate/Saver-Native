@@ -12,8 +12,10 @@ export default function Notifications({ store, back, onOpen }) {
   const newCount = items.filter((n) => n.unread).length;
   const [openKey, setOpenKey] = useState(null); // which row (if any) has its delete button revealed
   const markAllRead = () => store.set("notifReadKeys", [...new Set([...(store.notifReadKeys || []), ...items.filter((n) => n.unread).map((n) => n.key)])]);
-  // tapping an item: mark it read, then jump to the screen it's about
+  // tapping an item: if another row is mid-swipe, this tap just closes it
+  // (never navigates on the same tap); otherwise mark read + jump to it.
   const open = (n) => {
+    if (openKey && openKey !== n.key) { setOpenKey(null); return; }
     if (n.unread) store.set("notifReadKeys", [...new Set([...(store.notifReadKeys || []), n.key])]);
     if (n.nav) onOpen?.(n.nav);
   };
@@ -23,7 +25,7 @@ export default function Notifications({ store, back, onOpen }) {
   };
 
   return (
-    <div className="content padnav">
+    <div className="content padnav" onClick={() => openKey && setOpenKey(null)} style={{ overflowY: openKey ? "hidden" : undefined }}>
       <div className="hero">
         <div className="toprow"><div className="hib" onClick={back}><Ico name="back" size={20} /></div><div className="ttl">{tr("notif.title")}</div><div className="grow" />{newCount > 0 && <div className="hchip" onClick={markAllRead} style={{ cursor: "pointer" }}><Ico name="check" size={14} />{tr("notif.markAllRead")}</div>}</div>
         <div className="lbl">{tr("notif.inbox")}</div><div className="big" style={{ fontSize: 34 }}>{tr("notif.newCount", { n: newCount })}</div><div className="sub">{tr("notif.alertsSub")}</div>
@@ -37,7 +39,7 @@ export default function Notifications({ store, back, onOpen }) {
               {/* opacity lives on the inner content, not the card itself — the
                   card's own background must stay fully opaque, or it lets the
                   swipe-reveal delete panel show through behind it. */}
-              <div className="icard" onClick={() => open(n)} style={{ cursor: n.nav ? "pointer" : "default", marginBottom: 0 }}>
+              <div className="icard" onClick={(e) => { e.stopPropagation(); open(n); }} style={{ cursor: n.nav ? "pointer" : "default", marginBottom: 0 }}>
                 <span className="circ" style={{ width: 40, height: 40, borderRadius: 12, background: n.bg, color: n.col, opacity: n.unread ? 1 : .7 }}><Ico name={n.icon} size={19} /></span>
                 <div style={{ opacity: n.unread ? 1 : .7 }}><div className="nm">{n.nm}</div><div className="mt">{n.mt}</div></div>
                 <span className="amtb" style={{ display: "flex", alignItems: "center", gap: 8, opacity: n.unread ? 1 : .7 }}>
