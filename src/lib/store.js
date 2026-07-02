@@ -73,14 +73,23 @@ const validateBackup = (p) => {
   return { ok: true };
 };
 
+// Reads every persisted key from storage, seeding first-run defaults first
+// (a no-op unless storage is genuinely empty — see firstRunDefaults.js).
+// Shared by the initial load and resetAll() so a reset feels like a real
+// fresh start (starter categories, guessed currency) rather than a blank slate.
+function loadAllData() {
+  applyFirstRunDefaults();
+  const d = {};
+  for (const k in ENTITIES) d[k] = loadKey(KEYS[k], ENTITIES[k]);
+  for (const k in SCALARS) d[k] = loadKey(KEYS[k], SCALARS[k]);
+  return d;
+}
+
 // Single store hook: loads everything, exposes data + persisted setters + locked actions.
 export function useStore() {
   const tr = useT();
   const [data, setData] = useState(() => {
-    applyFirstRunDefaults();
-    const d = {};
-    for (const k in ENTITIES) d[k] = loadKey(KEYS[k], ENTITIES[k]);
-    for (const k in SCALARS) d[k] = loadKey(KEYS[k], SCALARS[k]);
+    const d = loadAllData();
     setCurrency(d.currency); // sync before first render so amounts format correctly
     return d;
   });
@@ -280,13 +289,12 @@ export function useStore() {
   }, [tr]);
 
   // Factory reset — wipe every stored key and return to the fresh-install state
-  // (empty data + default settings + onboarding). Irreversible by design.
+  // (starter categories + guessed currency + onboarding, same as a real first
+  // launch — not a hardcoded blank slate). Irreversible by design.
   const resetAll = useCallback(() => {
     for (const k in KEYS) localStorage.removeItem(KEYS[k]);
-    const fresh = {};
-    for (const k in ENTITIES) fresh[k] = Array.isArray(ENTITIES[k]) ? [] : ENTITIES[k];
-    for (const k in SCALARS) fresh[k] = SCALARS[k];
-    setCurrency(fresh.currency); // re-sync formatter to the default currency
+    const fresh = loadAllData();
+    setCurrency(fresh.currency); // re-sync formatter to the (re-)guessed currency
     setData(fresh);
     if (typeof window !== "undefined") window.dispatchEvent(new Event("saver:langsync"));
   }, []);
