@@ -2,16 +2,22 @@
 // Used for "Add money" (pick a source bank) and "Return to bank" (auto-split, no source).
 import { useState } from "react";
 import Ico from "./Ico.jsx";
+import PickerSheet from "./PickerSheet.jsx";
 import { fmt } from "../lib/format.js";
+import { calcBankBalance, calcFrozenForBank } from "../lib/calc.js";
 import { useT } from "../lib/i18n.js";
 
-export default function AmountSheet({ title, sub, confirmLabel = "Confirm", max, banks, onConfirm, onClose }) {
+export default function AmountSheet({ title, sub, confirmLabel = "Confirm", max, banks, txns, savings, onConfirm, onClose }) {
   const [amt, setAmt] = useState("");
-  const [bankId, setBankId] = useState(banks?.[0]?.id || null);
+  const liveBanks = banks?.filter((b) => !b.archived) || [];
+  const [bankId, setBankId] = useState(liveBanks[0]?.id || null);
+  const [pickerOpen, setPickerOpen] = useState(false);
   const val = parseFloat(amt) || 0;
   const over = max != null && val > max;
   const ok = val > 0 && !over;
   const tr = useT();
+  const bank = liveBanks.find((b) => b.id === bankId);
+  const available = (id) => txns ? calcBankBalance(id, txns) - Math.max(0, calcFrozenForBank(id, savings || [], txns)) : null;
 
   const press = (k) => {
     setAmt((s) => {
@@ -38,21 +44,23 @@ export default function AmountSheet({ title, sub, confirmLabel = "Confirm", max,
           {max != null && <div className="caption" style={{ marginTop: 4, color: over ? "var(--red)" : "var(--muted)" }}>{over ? tr("ui.max", { amt: fmt(max) }) : tr("ui.available", { amt: fmt(max) })}</div>}
         </div>
 
-        {banks && (
-          <div className="hscroll" style={{ display: "flex", gap: 8, overflowX: "auto", margin: "6px 0 14px" }}>
-            {banks.filter((b) => !b.archived).map((b) => {
-              const on = bankId === b.id;
-              return (
-                <button key={b.id} onClick={() => setBankId(b.id)} className="chip"
-                  style={{ gap: 8, padding: "6px 14px 6px 6px", ...(on ? { background: "var(--acDim)", color: "var(--acText)", border: "1.5px solid var(--ac)" } : {}) }}>
-                  <span className="circ" style={{ width: 26, height: 26, borderRadius: 8, background: `color-mix(in srgb, ${b.color || "var(--muted)"} 20%, transparent)`, color: b.color || "var(--muted)" }}>
-                    <Ico name={b.glyph || "landmark"} size={13} />
-                  </span>
-                  {b.name}
-                </button>
-              );
-            })}
+        {banks && bank && (
+          <div className="field" onClick={() => setPickerOpen(true)} style={{ cursor: "pointer", margin: "6px 0 14px" }}>
+            <span className="circ" style={{ width: 34, height: 34, borderRadius: 10, background: `color-mix(in srgb, ${bank.color || "var(--muted)"} 20%, transparent)`, color: bank.color || "var(--muted)" }}>
+              <Ico name={bank.glyph || "landmark"} size={16} />
+            </span>
+            <div style={{ flex: 1 }}>
+              <div className="fv" style={{ fontWeight: 700 }}>{bank.name}</div>
+              {available(bank.id) != null && <div className="caption" style={{ marginTop: 1 }}>{tr("ui.available", { amt: fmt(available(bank.id)) })}</div>}
+            </div>
+            <span className="chev"><Ico name="chev" size={18} color="var(--faint)" /></span>
           </div>
+        )}
+
+        {pickerOpen && (
+          <PickerSheet title={tr("add.pickAccount")} selectedId={bankId}
+            options={liveBanks.map((b) => ({ id: b.id, label: b.name, bankColor: b.color, sub: available(b.id) != null ? tr("ui.available", { amt: fmt(available(b.id)) }) : undefined }))}
+            onPick={setBankId} onClose={() => setPickerOpen(false)} />
         )}
 
         <div className="kbd">

@@ -153,7 +153,7 @@ export default function GoalDetail({ store, goalId, back, onReached, onEdit, onE
         { label: tr("edit.delete"), icon: "trash", danger: true, sub: tr("goal.deleteMenuSub"), onClick: remove },
       ]} />}
 
-      {sheet === "add" && <AmountSheet title={tr("goal.addMoney")} sub={tr("add.toName", { name: goal.name })} confirmLabel={tr("goal.addToGoal")} banks={banks} onConfirm={addMoney} onClose={() => setSheet(null)} />}
+      {sheet === "add" && <AmountSheet title={tr("goal.addMoney")} sub={tr("add.toName", { name: goal.name })} confirmLabel={tr("goal.addToGoal")} banks={banks} txns={txns} savings={savings} onConfirm={addMoney} onClose={() => setSheet(null)} />}
       {sheet === "return" && <AmountSheet title={tr("goal.returnToBank")} sub={tr("goal.fromName", { name: goal.name })} confirmLabel={tr("goal.returnMoney")} max={saved} onConfirm={returnToBank} onClose={() => setSheet(null)} />}
     </div>
   );
