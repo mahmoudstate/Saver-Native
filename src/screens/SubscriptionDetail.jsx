@@ -32,7 +32,9 @@ export default function SubscriptionDetail({ store, bill: billProp, back, onEdit
   const dueSuffix = stopped || !bill.dueDay ? "" : freq === "weekly" ? ` · ${dayName(clampDow(bill.dueDay))}` : tr("subd.daySuffix", { n: bill.dueDay });
   const keyOf = (p) => p.period ?? p.month;
   const history = [...(bill.payments || [])].sort((a, b) => (b.date || b.month || "").localeCompare(a.date || a.month || ""));
-  const nextMonthLabel = monthName((+cm.split("-")[1]) % 12);
+  // The button always records a payment for the current period (cm), so its
+  // label must show cm's month name too — not the month after it.
+  const dueMonthLabel = monthName(+cm.split("-")[1] - 1);
 
   const Logo = ({ size }) => bill.domain ? <ServiceLogo domain={bill.domain} name={bill.name} color={col} size={size} /> : bill.glyph ? <CatTile cat={bill.glyph} name={bill.name} color={col} size={size} /> : <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, borderRadius: size * 0.3, background: "#fff", color: col, fontWeight: 800, fontSize: size * 0.42 }}>{(bill.name || "?").slice(0, 1).toUpperCase()}</span>;
 
@@ -108,7 +110,7 @@ export default function SubscriptionDetail({ store, bill: billProp, back, onEdit
       <div className="cta">
         {stopped
           ? <div className="btn btn-primary btn-full" onClick={toggleStop}><Ico name="check" size={18} />{tr("subd.resumeSubscription")}</div>
-          : <div className="btn btn-primary btn-full" onClick={record} style={{ opacity: paidThis ? .5 : 1 }}><Ico name="check" size={18} />{freq === "monthly" ? (paidThis ? tr("subd.paidForMonth", { month: monthName(+cm.split("-")[1] - 1) }) : tr("subd.recordPaymentFor", { month: nextMonthLabel })) : (paidThis ? tr("subd.paidThisPeriod") : tr("subd.recordPayment"))}</div>}
+          : <div className="btn btn-primary btn-full" onClick={record} style={{ opacity: paidThis ? .5 : 1 }}><Ico name="check" size={18} />{freq === "monthly" ? (paidThis ? tr("subd.paidForMonth", { month: monthName(+cm.split("-")[1] - 1) }) : tr("subd.recordPaymentFor", { month: dueMonthLabel })) : (paidThis ? tr("subd.paidThisPeriod") : tr("subd.recordPayment"))}</div>}
       </div>
 
       {menu && <MenuSheet title={bill.name} onClose={() => setMenu(false)} items={[
