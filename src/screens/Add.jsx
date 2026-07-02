@@ -12,11 +12,12 @@ import { resolveCat } from "../ui/cats.js";
 import { fmt, today, monthName } from "../lib/format.js";
 import { focusNext } from "../lib/focusNext.js";
 import { calcGoalSaved, calcBankBalance, calcFrozenForBank } from "../lib/calc.js";
+import { bankIcon } from "../lib/bankIcon.js";
 import { useT } from "../lib/i18n.js";
 
 const catKeyOf = (c) => (c ? resolveCat({ catId: c.id, catGlyph: c.glyph, catName: c.name }) : null);
 
-export default function Add({ store, initial, onSaved, onClose }) {
+export default function Add({ store, initial, onSaved, onClose, onReached }) {
   const { banks = [], expCats = [], incCats = [], savings = [], txns = [] } = store;
   const tr = useT();
   const goals = savings.filter((s) => s.status !== "archived");
@@ -64,8 +65,21 @@ export default function Add({ store, initial, onSaved, onClose }) {
     else txn = { type, amount, date, bankId, bankName: bank?.name, catId: cat.id, catName: cat.name, catGlyph: cat.glyph, catColor: cat.color, note };
     const id = store.addTxn(txn);
     if (id === false) return; // blocked (alert shown by store)
-    if (type === "saving") store.fireConfetti(); // celebrate money moved into a goal
     if (!srcGoal) onSaved?.({ amount, bankId }); // remember last amount/bank (Quick Add shortcut)
+
+    // Reaching a savings goal here gets the same full-screen celebration
+    // GoalDetail's own "Add money" gives it — this screen was the one path
+    // that only fired the small confetti burst and never checked completion.
+    if (type === "saving" && goal) {
+      const savedBefore = Math.max(0, calcGoalSaved(goalId, txns));
+      const target = goal.goal || 0;
+      if (target > 0 && savedBefore + amount >= target && onReached) {
+        onClose();
+        onReached(goal, savedBefore + amount);
+        return;
+      }
+      store.fireConfetti(); // celebrate money moved into a goal
+    }
     const label = type === "saving" ? tr("add.toName", { name: goal?.name }) : type === "income" ? tr("add.toName", { name: bank?.name }) : srcGoal ? tr("add.fromVaultName", { name: vaultGoal?.name }) : `${cat?.name}`;
     store.flash({ title: `${meta.sign}${fmt(amount)} ${type === "income" ? tr("add.flashIn") : type === "saving" ? tr("add.flashSaved") : tr("add.flashSpent")}`, sub: label, color: type === "income" ? "var(--success)" : type === "saving" ? "var(--ac)" : "var(--muted)", icon: "check" });
     onClose();
@@ -97,7 +111,7 @@ export default function Add({ store, initial, onSaved, onClose }) {
       <div className="field" onClick={() => setSheet("account")} style={{ cursor: "pointer", marginTop: 12 }}>
         {vaultGoal
           ? <CatTile cat="goal" name={vaultGoal.name} size={42} />
-          : <span className="circ" style={{ width: 42, height: 42, borderRadius: 13, background: bank?.color || "var(--muted)", color: "#fff", fontWeight: 800, fontSize: 14 }}>{(bank?.name || "?").slice(0, 1).toUpperCase()}</span>}
+          : <span className="circ" style={{ width: 42, height: 42, borderRadius: 13, background: `color-mix(in srgb, ${bank?.color || "var(--muted)"} 20%, transparent)`, color: bank?.color || "var(--muted)" }}><Ico name={bankIcon(bank?.glyph)} size={19} /></span>}
         <div style={{ minWidth: 0 }}>
           <div className="fl">{vaultGoal ? tr("add.fromVault") : meta.accLabel}</div>
           <div className="fv" style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>

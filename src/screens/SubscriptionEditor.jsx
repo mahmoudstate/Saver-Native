@@ -16,6 +16,7 @@ import { fmt, currentMonth, cardGradient, dayName, HAPTICS } from "../lib/format
 import { focusNext } from "../lib/focusNext.js";
 import { SERVICE_CAT_TO_TYPE, BILL_TYPES } from "../lib/services.js";
 import { FREQS } from "../lib/billfreq.js";
+import { bankIcon } from "../lib/bankIcon.js";
 import { useT } from "../lib/i18n.js";
 
 const clampDay = (d) => Math.min(28, Math.max(1, d || 1));
@@ -113,7 +114,7 @@ export default function SubscriptionEditor({ store, bill, onClose }) {
         <div style={{ flex: 1 }}><div className="fl">{tr("sub.remindMe")}</div><div className="fv tnum">{reminderDays === 0 ? tr("sub.off") : tr(reminderDays === 1 ? "sub.dayBefore" : "sub.daysBefore", { n: reminderDays })}</div></div><span className="chev"><Ico name="chev" size={18} /></span>
       </div>
       <div className="field" onClick={() => setSheet("account")} style={{ cursor: "pointer", marginTop: 10 }}>
-        <span className="circ" style={{ width: 42, height: 42, borderRadius: 13, background: bank?.color || "var(--muted)", color: "#fff", fontWeight: 800, fontSize: 14 }}>{(bank?.name || "?").slice(0, 1).toUpperCase()}</span>
+        <span className="circ" style={{ width: 42, height: 42, borderRadius: 13, background: `color-mix(in srgb, ${bank?.color || "var(--muted)"} 20%, transparent)`, color: bank?.color || "var(--muted)" }}><Ico name={bankIcon(bank?.glyph)} size={19} /></span>
         <div><div className="fl">{tr("sub.paysFrom")}</div><div className="fv">{bank?.name || tr("sub.pick")}</div></div><span className="chev"><Ico name="chev" size={18} /></span>
       </div>
 

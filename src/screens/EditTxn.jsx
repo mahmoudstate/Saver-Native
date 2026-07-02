@@ -8,6 +8,7 @@ import PickerSheet from "../ui/PickerSheet.jsx";
 import { resolveCat } from "../ui/cats.js";
 import { fmt, fmtDate } from "../lib/format.js";
 import { focusNext } from "../lib/focusNext.js";
+import { bankIcon } from "../lib/bankIcon.js";
 import { useT } from "../lib/i18n.js";
 
 const catKeyOf = (c) => (c ? resolveCat({ catId: c.id, catGlyph: c.glyph, catName: c.name }) : null);
@@ -70,7 +71,7 @@ export default function EditTxn({ store, txn, onClose }) {
           : (bank?.name || txn.bankName || "Deleted account");
         return (
           <div className="field" onClick={() => editable && setSheet("account")} style={{ cursor: editable ? "pointer" : "default", opacity: editable ? 1 : .7 }}>
-            <span className="circ" style={{ width: 42, height: 42, borderRadius: 13, background: bank?.color || "var(--surface2)", color: bank ? "#fff" : "var(--muted)", fontWeight: 800, fontSize: 14, flexShrink: 0 }}>{bank ? (bank.name || "?").slice(0, 1).toUpperCase() : <Ico name={isTransfer ? "transfer" : "wallet"} size={18} />}</span>
+            <span className="circ" style={{ width: 42, height: 42, borderRadius: 13, background: bank ? `color-mix(in srgb, ${bank.color || "var(--muted)"} 20%, transparent)` : "var(--surface2)", color: bank?.color || "var(--muted)", flexShrink: 0 }}><Ico name={bank ? bankIcon(bank.glyph) : (isTransfer ? "transfer" : "wallet")} size={18} /></span>
             <div style={{ minWidth: 0 }}><div className="fl">{isTransfer ? tr("transfer.title") : tr("add.account")}</div><div className="fv" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</div></div>{editable && <span className="chev"><Ico name="chev" size={18} /></span>}
           </div>
         );

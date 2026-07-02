@@ -114,7 +114,7 @@ export default function App() {
 
   // The pushed detail screen (overlay) — top of the stack. back() pops to the previous one.
   let viewScreen = null;
-  if (view?.type === "add") viewScreen = <Add store={store} initial={view.initial} onSaved={view.quickId ? (v) => store.set("quickActions", (l = []) => l.map((a) => (a.id === view.quickId ? { ...a, amount: v.amount, bankId: v.bankId } : a))) : undefined} onClose={back} />;
+  if (view?.type === "add") viewScreen = <Add store={store} initial={view.initial} onSaved={view.quickId ? (v) => store.set("quickActions", (l = []) => l.map((a) => (a.id === view.quickId ? { ...a, amount: v.amount, bankId: v.bankId } : a))) : undefined} onClose={back} onReached={(g, saved) => push({ type: "celebrate", goalId: g.id, goal: g.name, saved })} />;
   else if (view?.type === "transfer") viewScreen = <Transfer store={store} fromBankId={view.fromBankId} onClose={back} />;
   else if (view?.type === "edit") viewScreen = <EditTxn store={store} txn={view.txn} onClose={back} />;
   else if (view?.type === "accounts") viewScreen = <Accounts store={store} back={back} onOpen={(b) => push({ type: "account", bank: b })} onAdd={() => push({ type: "editAccount", account: null })} />;

@@ -7,6 +7,7 @@ import PickerSheet from "../ui/PickerSheet.jsx";
 import { fmt, today } from "../lib/format.js";
 import { focusNext } from "../lib/focusNext.js";
 import { calcBankBalance } from "../lib/calc.js";
+import { bankIcon } from "../lib/bankIcon.js";
 import { useT } from "../lib/i18n.js";
 
 export default function Transfer({ store, fromBankId: initialFrom, onClose }) {
@@ -33,7 +34,7 @@ export default function Transfer({ store, fromBankId: initialFrom, onClose }) {
 
   const acctRow = (label, color, b, onTap) => (
     <div className="field" onClick={onTap} style={{ cursor: "pointer", marginTop: 12 }}>
-      <span className="circ" style={{ width: 42, height: 42, borderRadius: 13, background: b?.color || "var(--muted)", color: "#fff", fontWeight: 800, fontSize: 14 }}>{(b?.name || "?").slice(0, 1).toUpperCase()}</span>
+      <span className="circ" style={{ width: 42, height: 42, borderRadius: 13, background: `color-mix(in srgb, ${b?.color || "var(--muted)"} 20%, transparent)`, color: b?.color || "var(--muted)" }}><Ico name={bankIcon(b?.glyph)} size={19} /></span>
       <div><div className="fl" style={{ color }}>{label}</div><div className="fv">{b ? `${b.name} · ${fmt(bal(b.id))}` : tr("add.pickAccount")}</div></div><span className="chev"><Ico name="chev" size={18} /></span>
     </div>
   );

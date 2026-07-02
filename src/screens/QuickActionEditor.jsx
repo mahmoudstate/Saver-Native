@@ -6,6 +6,7 @@ import AmountSheet from "../ui/AmountSheet.jsx";
 import PickerSheet from "../ui/PickerSheet.jsx";
 import { resolveCat } from "../ui/cats.js";
 import { fmt, HAPTICS } from "../lib/format.js";
+import { bankIcon } from "../lib/bankIcon.js";
 import { useT } from "../lib/i18n.js";
 
 const catKeyOf = (c) => (c ? resolveCat({ catId: c.id, catGlyph: c.glyph, catName: c.name }) : null);
@@ -51,7 +52,7 @@ export default function QuickActionEditor({ store, action, onClose }) {
         <CatTile cat={catKeyOf(cat)} name={cat?.name} size={42} /><div><div className="fl">{tr("add.category")}</div><div className="fv">{cat?.name || tr("sub.pick")}</div></div><span className="chev"><Ico name="chev" size={18} /></span>
       </div>
       <div className="field" onClick={() => setSheet("account")} style={{ cursor: "pointer", marginTop: 12 }}>
-        <span className="circ" style={{ width: 42, height: 42, borderRadius: 13, background: bank?.color || "var(--muted)", color: "#fff", fontWeight: 800, fontSize: 14 }}>{(bank?.name || "?").slice(0, 1).toUpperCase()}</span>
+        <span className="circ" style={{ width: 42, height: 42, borderRadius: 13, background: `color-mix(in srgb, ${bank?.color || "var(--muted)"} 20%, transparent)`, color: bank?.color || "var(--muted)" }}><Ico name={bankIcon(bank?.glyph)} size={19} /></span>
         <div><div className="fl">{tr("add.account")}</div><div className="fv">{bank?.name || tr("sub.pick")}</div></div><span className="chev"><Ico name="chev" size={18} /></span>
       </div>
 

@@ -10,6 +10,7 @@ import LinkBadge from "../ui/LinkBadge.jsx";
 import Money from "../ui/Money.jsx";
 import { fmt, today, fmtDate } from "../lib/format.js";
 import { calcGoalSaved, goalBalancesPerBank } from "../lib/calc.js";
+import { bankIcon } from "../lib/bankIcon.js";
 import { useT } from "../lib/i18n.js";
 
 
@@ -117,7 +118,7 @@ export default function GoalDetail({ store, goalId, back, onReached, onEdit, onE
         <div className="over">{tr("goal.frozenAcross")}</div>
         {perBank.map(([bid, amt]) => { const b = bankOf(bid); return (
           <div className="icard" key={bid}>
-            <span className="circ" style={{ width: 40, height: 40, borderRadius: 12, background: b?.color || "var(--muted)", color: "#fff", fontWeight: 800, fontSize: 14 }}>{(b?.name || "?").slice(0, 1).toUpperCase()}</span>
+            <span className="circ" style={{ width: 40, height: 40, borderRadius: 12, background: `color-mix(in srgb, ${b?.color || "var(--muted)"} 20%, transparent)`, color: b?.color || "var(--muted)" }}><Ico name={bankIcon(b?.glyph)} size={18} /></span>
             <div><div className="nm">{b?.name || tr("add.account")}</div><div className="mt">{tr("goal.frozenForGoal")}</div></div>
             <div className="amtb"><b className="tnum">{fmt(amt)}</b></div>
           </div>

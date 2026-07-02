@@ -6,6 +6,7 @@ import Ico from "../ui/Ico.jsx";
 import Money from "../ui/Money.jsx";
 import { fmt } from "../lib/format.js";
 import { calcBankBalance, calcFrozenForBank, totalBalance, totalFrozen } from "../lib/calc.js";
+import { bankIcon } from "../lib/bankIcon.js";
 import { useT } from "../lib/i18n.js";
 
 // Rows are dragged directly (no separate grip handle). MouseSensor needs a small
@@ -26,7 +27,7 @@ function SortableBankRow({ b, sub, balance, onOpen }) {
   };
   return (
     <div className="icard" ref={setNodeRef} style={style} {...attributes} {...listeners} onClick={() => onOpen?.(b)}>
-      <span className="circ" style={{ width: 44, height: 44, borderRadius: 14, background: b.color || "var(--muted)", color: "#fff", fontWeight: 800, fontSize: 15 }}>{(b.name || "?").slice(0, 1).toUpperCase()}</span>
+      <span className="circ" style={{ width: 44, height: 44, borderRadius: 14, background: `color-mix(in srgb, ${b.color || "var(--muted)"} 20%, transparent)`, color: b.color || "var(--muted)" }}><Ico name={bankIcon(b.glyph)} size={20} /></span>
       <div><div className="nm">{b.name}</div><div className="mt">{sub}</div></div>
       <div className="amt tnum">{fmt(balance)}</div>
     </div>

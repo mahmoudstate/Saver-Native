@@ -16,6 +16,7 @@ import IconField from "../ui/IconField.jsx";
 import CatTile from "../ui/CatTile.jsx";
 import { fmt, today, HAPTICS } from "../lib/format.js";
 import { focusNext } from "../lib/focusNext.js";
+import { bankIcon } from "../lib/bankIcon.js";
 import { useT } from "../lib/i18n.js";
 
 const r2 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
@@ -157,7 +158,7 @@ export default function InstallmentEditor({ store, plan, onClose }) {
       {step === 2 && <>
         <div className="over">{tr("inst.whereWhen")}</div>
         <div className="field" onClick={() => setSheet("account")} style={{ cursor: "pointer" }}>
-          <span className="circ" style={{ width: 42, height: 42, borderRadius: 13, background: bank?.color || "var(--muted)", color: "#fff", fontWeight: 800, fontSize: 14 }}>{(bank?.name || "?").slice(0, 1).toUpperCase()}</span>
+          <span className="circ" style={{ width: 42, height: 42, borderRadius: 13, background: `color-mix(in srgb, ${bank?.color || "var(--muted)"} 20%, transparent)`, color: bank?.color || "var(--muted)" }}><Ico name={bankIcon(bank?.glyph)} size={19} /></span>
           <div style={{ flex: 1 }}><div className="fl">{tr("inst.payFrom")}</div><div className="fv">{bank?.name || tr("sub.pick")}</div></div><span className="chev"><Ico name="chev" size={18} /></span>
         </div>
         <Row label={tr("inst.dueDay")} value={tr("sub.dayN", { n: clampDay(dueDay) })} onClick={() => setSheet("due")} />
