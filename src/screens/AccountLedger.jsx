@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import Ico from "../ui/Ico.jsx";
 import TxnRow from "../ui/TxnRow.jsx";
 import Money from "../ui/Money.jsx";
-import { fmt, currentMonth, cardGradient } from "../lib/format.js";
+import { fmt, monthLabel, cardGradient } from "../lib/format.js";
 import { calcBankBalance, calcFrozenForBank } from "../lib/calc.js";
 import { useT } from "../lib/i18n.js";
 
@@ -12,12 +12,21 @@ export default function AccountLedger({ store, bank: bankProp, back, onMove, onE
   const tr = useT();
   // Always read the latest bank from the store so edits (colour/name) reflect immediately.
   const bank = banks.find((b) => b.id === bankProp.id) || bankProp;
-  const cm = currentMonth();
   const bankNameOf = (id) => banks.find((b) => b.id === id)?.name || "";
   const bal = calcBankBalance(bank.id, txns), frozen = Math.max(0, calcFrozenForBank(bank.id, [], txns)), avail = bal - frozen;
   const list = useMemo(() => txns
-    .filter((t) => (t.bankId === bank.id || t.toBankId === bank.id || t.fromBankId === bank.id) && (t.date || "").startsWith(cm))
-    .sort((a, b) => (b.date || "").localeCompare(a.date || "") || (Number(b.createdAt) || 0) - (Number(a.createdAt) || 0)), [txns, bank.id, cm]);
+    .filter((t) => t.bankId === bank.id || t.toBankId === bank.id || t.fromBankId === bank.id)
+    .sort((a, b) => (b.date || "").localeCompare(a.date || "") || (Number(b.createdAt) || 0) - (Number(a.createdAt) || 0)), [txns, bank.id]);
+  // group into month sections (newest first) so the ledger reads like a statement
+  const groups = useMemo(() => {
+    const out = [];
+    for (const t of list) {
+      const ym = (t.date || "").slice(0, 7);
+      const g = out[out.length - 1];
+      if (g && g.ym === ym) g.items.push(t); else out.push({ ym, items: [t] });
+    }
+    return out;
+  }, [list]);
   // chain badge shows only when 2+ operations actually share the split group id
   const groupSizes = useMemo(() => { const m = {}; txns.forEach((t) => { if (t.splitGroupId) m[t.splitGroupId] = (m[t.splitGroupId] || 0) + 1; }); return m; }, [txns]);
   const isLinked = (t) => t.splitGroupId && groupSizes[t.splitGroupId] > 1;
@@ -43,9 +52,14 @@ export default function AccountLedger({ store, bank: bankProp, back, onMove, onE
       <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
         <button className="btn btn-secondary" style={{ flex: 1, height: 46, fontSize: 14 }} onClick={() => onMove?.(bank)}><Ico name="transfer" size={17} />{tr("account.moveMoney")}</button>
       </div>
-      <div className="over">{tr("account.thisMonth")}</div>
-      {list.length === 0 ? <div style={{ textAlign: "center", color: "var(--muted)", padding: "40px", fontWeight: 600 }}>{tr("account.noTxnsMonth")}</div>
-        : list.map((t) => <TxnRow key={t.id} txn={t} bankNameOf={bankNameOf} onClick={onEditTxn ? () => onEditTxn(t) : undefined} linked={isLinked(t)} />)}
+      {groups.length === 0
+        ? <><div className="over">{tr("account.thisMonth")}</div><div style={{ textAlign: "center", color: "var(--muted)", padding: "40px", fontWeight: 600 }}>{tr("account.noTxnsMonth")}</div></>
+        : groups.map((g) => (
+          <div key={g.ym}>
+            <div className="over" style={{ marginTop: 16 }}>{monthLabel(g.ym)}</div>
+            {g.items.map((t) => <TxnRow key={t.id} txn={t} bankNameOf={bankNameOf} onClick={onEditTxn ? () => onEditTxn(t) : undefined} linked={isLinked(t)} />)}
+          </div>
+        ))}
     </div>
   );
 }

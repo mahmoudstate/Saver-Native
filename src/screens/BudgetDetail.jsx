@@ -8,7 +8,7 @@ import { fmt, currentCycleAnchor, cyclePeriod, today, monthName } from "../lib/f
 import { budgetSpentMonth, budgetTxns, daysLeftInCycle, spentPerActiveDay } from "../lib/calc.js";
 import { useT } from "../lib/i18n.js";
 
-export default function BudgetDetail({ store, budgetId, back, onEdit, onEditTxn }) {
+export default function BudgetDetail({ store, budgetId, viewMonth, back, onEdit, onEditTxn }) {
   const { budgets = [], txns = [], banks = [] } = store;
   const [menu, setMenu] = useState(false);
   const tr = useT();
@@ -21,7 +21,10 @@ export default function BudgetDetail({ store, budgetId, back, onEdit, onEditTxn 
     danger: true, confirmText: tr("budget.deleteBudget"), icon: "trash",
     onConfirm: () => { store.set("budgets", (list) => list.filter((b) => b.id !== budgetId)); store.flash({ title: tr("budget.budgetDeleted"), sub: budget.name, color: "var(--muted)" }); back(); },
   });
-  const cm = currentCycleAnchor(today(), budget.cycleStartDay);
+  // Respect the month the user was viewing on the Budgets list (e.g. paged
+  // to a past/future month before tapping in); fall back to the live cycle
+  // anchor when opened directly (Home shortcut, notifications, etc).
+  const cm = viewMonth || currentCycleAnchor(today(), budget.cycleStartDay);
   const spent = budgetSpentMonth(budget, txns, cm);
   const limit = budget.amount || 0;
   const pct = limit > 0 ? Math.min(100, (spent / limit) * 100) : 0;
