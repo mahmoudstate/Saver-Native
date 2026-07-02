@@ -41,7 +41,7 @@ export default function PinSetup({ onDone, onCancel }) {
           <div key={i} style={{ width: 13, height: 13, borderRadius: 99, background: i < pin.length ? "var(--ac)" : "transparent", border: "2px solid var(--ac)" }} />
         ))}
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,72px)", gap: 16 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,72px)", gap: 16, direction: "ltr" }}>
         {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => (
           <button key={n} onClick={() => tap(String(n))} style={key}>{n}</button>
         ))}

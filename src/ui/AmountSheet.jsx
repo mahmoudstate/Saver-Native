@@ -7,6 +7,10 @@ import { fmt } from "../lib/format.js";
 import { calcBankBalance, calcFrozenForBank } from "../lib/calc.js";
 import { useT } from "../lib/i18n.js";
 
+// Legacy bank records stored "banknote"/"landmark" glyphs that were never
+// real icon names — map them (and any future kind) to the actual Ico keys.
+const bankIcon = (glyph) => ({ banknote: "wallet", landmark: "card" }[glyph] || glyph || "card");
+
 export default function AmountSheet({ title, sub, confirmLabel = "Confirm", max, banks, txns, savings, onConfirm, onClose }) {
   const [amt, setAmt] = useState("");
   const liveBanks = banks?.filter((b) => !b.archived) || [];
@@ -47,7 +51,7 @@ export default function AmountSheet({ title, sub, confirmLabel = "Confirm", max,
         {banks && bank && (
           <div className="field" onClick={() => setPickerOpen(true)} style={{ cursor: "pointer", margin: "6px 0 14px" }}>
             <span className="circ" style={{ width: 34, height: 34, borderRadius: 10, background: `color-mix(in srgb, ${bank.color || "var(--muted)"} 20%, transparent)`, color: bank.color || "var(--muted)" }}>
-              <Ico name={bank.glyph || "landmark"} size={16} />
+              <Ico name={bankIcon(bank.glyph)} size={16} />
             </span>
             <div style={{ flex: 1 }}>
               <div className="fv" style={{ fontWeight: 700 }}>{bank.name}</div>

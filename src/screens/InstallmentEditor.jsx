@@ -99,7 +99,7 @@ export default function InstallmentEditor({ store, plan, onClose }) {
   const Toggle = ({ on, set, onText, offText }) => (
     <div className="tile" onClick={() => set(!on)} style={{ display: "flex", alignItems: "center", gap: 12, padding: 12, marginTop: 10, cursor: "pointer" }}>
       <div style={{ flex: 1 }}><div style={{ fontSize: 13.5, fontWeight: 700, color: "var(--text)" }}>{tr("inst.deductNow")}</div><div className="caption" style={{ marginTop: 2 }}>{on ? onText : offText}</div></div>
-      <div style={{ width: 46, height: 27, borderRadius: 99, background: on ? "var(--ac)" : "var(--border)", position: "relative", flexShrink: 0, transition: "background .2s" }}><div style={{ position: "absolute", top: 3, left: on ? 22 : 3, width: 21, height: 21, borderRadius: 99, background: "#fff", transition: "left .2s", boxShadow: "0 1px 3px rgba(0,0,0,.3)" }} /></div>
+      <div style={{ width: 46, height: 27, borderRadius: 99, background: on ? "var(--ac)" : "var(--border)", display: "flex", alignItems: "center", justifyContent: on ? "flex-end" : "flex-start", padding: 3, flexShrink: 0, transition: "background .2s, justify-content .2s" }}><div style={{ width: 21, height: 21, borderRadius: 99, background: "#fff", flexShrink: 0, boxShadow: "0 1px 3px rgba(0,0,0,.3)" }} /></div>
     </div>
   );
 

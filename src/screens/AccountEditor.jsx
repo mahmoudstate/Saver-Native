@@ -12,7 +12,7 @@ import { useT } from "../lib/i18n.js";
 
 export default function AccountEditor({ store, account, onClose, onDeleted }) {
   const editing = !!account;
-  const [kind, setKind] = useState(account?.glyph === "banknote" ? "cash" : "bank");
+  const [kind, setKind] = useState(account?.glyph === "banknote" || account?.glyph === "wallet" ? "cash" : "bank");
   const [name, setName] = useState(account?.name || "");
   const [color, setColor] = useState(account?.color || loadColors()[0]);
   const [opening, setOpening] = useState(0);
@@ -29,7 +29,7 @@ export default function AccountEditor({ store, account, onClose, onDeleted }) {
     if (!canSave) return;
     HAPTICS.success();
     const lowBalanceThreshold = alertOn && threshold > 0 ? threshold : undefined;
-    const glyph = kind === "cash" ? "banknote" : "landmark";
+    const glyph = kind === "cash" ? "wallet" : "card";
     if (editing) {
       store.set("banks", (list) => list.map((b) => (b.id === account.id ? { ...b, name: name.trim(), color, glyph, lowBalanceThreshold } : b)));
     } else {

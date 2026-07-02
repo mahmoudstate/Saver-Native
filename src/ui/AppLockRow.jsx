@@ -42,9 +42,11 @@ export default function AppLockRow({ store, tr }) {
       <div className="icard" onClick={toggle} style={{ cursor: "pointer" }}>
         <span className="circ" style={{ width: 40, height: 40, borderRadius: 12, background: "var(--blueDim)", color: "var(--blue)" }}><Ico name="lock" size={20} /></span>
         <div><div className="nm">{tr("privacy.appLock")}</div><div className="mt">{tr("privacy.appLockSub")}</div></div>
-        <span style={{ marginLeft: "auto" }}>
-          <span style={{ width: 46, height: 28, borderRadius: 99, background: on ? "var(--ac)" : "var(--line)", display: "inline-flex", alignItems: "center", padding: 3, transition: "background .2s" }}>
-            <span style={{ width: 22, height: 22, borderRadius: 99, background: "#fff", transform: on ? "translateX(18px)" : "translateX(0)", transition: "transform .2s" }} />
+        <span style={{ marginInlineStart: "auto" }}>
+          {/* flex-start/flex-end are logical (follow text direction), unlike
+              translateX/left — this keeps the knob correct in both LTR and RTL. */}
+          <span style={{ width: 46, height: 28, borderRadius: 99, background: on ? "var(--ac)" : "var(--line)", display: "flex", alignItems: "center", justifyContent: on ? "flex-end" : "flex-start", padding: 3, transition: "background .2s, justify-content .2s" }}>
+            <span style={{ width: 22, height: 22, borderRadius: 99, background: "#fff", flexShrink: 0 }} />
           </span>
         </span>
       </div>
