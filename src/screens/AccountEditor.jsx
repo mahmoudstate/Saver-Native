@@ -4,6 +4,7 @@ import { useState } from "react";
 import Ico from "../ui/Ico.jsx";
 import AmountSheet from "../ui/AmountSheet.jsx";
 import { fmt, today, cardGradient, HAPTICS } from "../lib/format.js";
+import { focusNext } from "../lib/focusNext.js";
 import { calcBankBalance } from "../lib/calc.js";
 import ColorField from "../ui/ColorField.jsx";
 import { loadColors } from "../ui/ColorSheet.jsx";
@@ -77,7 +78,7 @@ export default function AccountEditor({ store, account, onClose, onDeleted }) {
 
       <label className="field">
         <div style={{ flex: 1 }}><div className="fl">{tr("editor.name")}</div>
-          <input value={name} onChange={(e) => setName(e.target.value)} placeholder={kind === "cash" ? tr("editor.cashWallet") : tr("editor.namePlaceholderBank")} style={{ border: "none", background: "none", outline: "none", color: "var(--text)", font: "inherit", fontSize: 15, fontWeight: 700, marginTop: 2, width: "100%" }} />
+          <input value={name} onChange={(e) => setName(e.target.value)} onKeyDown={focusNext} enterKeyHint="done" placeholder={kind === "cash" ? tr("editor.cashWallet") : tr("editor.namePlaceholderBank")} style={{ border: "none", background: "none", outline: "none", color: "var(--text)", font: "inherit", fontSize: 15, fontWeight: 700, marginTop: 2, width: "100%" }} />
         </div><span className="chev"><Ico name="pencil" size={17} /></span>
       </label>
 

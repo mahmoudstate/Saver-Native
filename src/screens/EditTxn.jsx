@@ -7,6 +7,7 @@ import AmountSheet from "../ui/AmountSheet.jsx";
 import PickerSheet from "../ui/PickerSheet.jsx";
 import { resolveCat } from "../ui/cats.js";
 import { fmt, fmtDate } from "../lib/format.js";
+import { focusNext } from "../lib/focusNext.js";
 import { useT } from "../lib/i18n.js";
 
 const catKeyOf = (c) => (c ? resolveCat({ catId: c.id, catGlyph: c.glyph, catName: c.name }) : null);
@@ -84,7 +85,7 @@ export default function EditTxn({ store, txn, onClose }) {
 
       <label className="field note" style={{ marginTop: 12 }}>
         <Ico name="note" size={19} color="var(--faint)" style={{ marginRight: 2 }} />
-        <input value={note} onChange={(e) => setNote(e.target.value)} placeholder={tr("add.notePlaceholder")} style={{ border: "none", background: "none", outline: "none", color: "var(--text)", font: "inherit", flex: 1, minWidth: 0 }} />
+        <input value={note} onChange={(e) => setNote(e.target.value)} onKeyDown={focusNext} enterKeyHint="done" placeholder={tr("add.notePlaceholder")} style={{ border: "none", background: "none", outline: "none", color: "var(--text)", font: "inherit", flex: 1, minWidth: 0 }} />
       </label>
 
       <div className="cta" style={{ display: "flex", gap: 10 }}>

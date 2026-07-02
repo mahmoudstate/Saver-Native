@@ -6,6 +6,7 @@ import { CATS } from "../ui/cats.js";
 import ColorField from "../ui/ColorField.jsx";
 import { loadColors } from "../ui/ColorSheet.jsx";
 import { HAPTICS } from "../lib/format.js";
+import { focusNext } from "../lib/focusNext.js";
 import { useT } from "../lib/i18n.js";
 
 // Icons are split by type: expense icons show for an expense category, income icons for income.
@@ -111,7 +112,7 @@ export default function CategoryEditor({ store, category, kind: initialKind, onC
       <label className="field" style={{ marginBottom: 16 }}>
         <CatTile cat={CATS[glyph] ? glyph : null} name={name} color={color} size={42} />
         <div style={{ flex: 1 }}><div className="fl">{tr("editor.name")}</div>
-          <input value={name} onChange={(e) => setName(e.target.value)} placeholder={tr("editor.catNamePlaceholder")} style={{ border: "none", background: "none", outline: "none", color: "var(--text)", font: "inherit", fontSize: 15, fontWeight: 700, marginTop: 2, width: "100%" }} />
+          <input value={name} onChange={(e) => setName(e.target.value)} onKeyDown={focusNext} enterKeyHint="done" placeholder={tr("editor.catNamePlaceholder")} style={{ border: "none", background: "none", outline: "none", color: "var(--text)", font: "inherit", fontSize: 15, fontWeight: 700, marginTop: 2, width: "100%" }} />
         </div><span className="chev"><Ico name="pencil" size={17} /></span>
       </label>
 

@@ -5,6 +5,7 @@ import Ico from "../ui/Ico.jsx";
 import AmountSheet from "../ui/AmountSheet.jsx";
 import PickerSheet from "../ui/PickerSheet.jsx";
 import { fmt, today } from "../lib/format.js";
+import { focusNext } from "../lib/focusNext.js";
 import { calcBankBalance } from "../lib/calc.js";
 import { useT } from "../lib/i18n.js";
 
@@ -51,7 +52,7 @@ export default function Transfer({ store, fromBankId: initialFrom, onClose }) {
 
       <label className="field note" style={{ marginTop: 12 }}>
         <Ico name="note" size={19} color="var(--faint)" style={{ marginRight: 2 }} />
-        <input value={note} onChange={(e) => setNote(e.target.value)} placeholder={tr("add.notePlaceholder")} style={{ border: "none", background: "none", outline: "none", color: "var(--text)", font: "inherit", flex: 1, minWidth: 0 }} />
+        <input value={note} onChange={(e) => setNote(e.target.value)} onKeyDown={focusNext} enterKeyHint="done" placeholder={tr("add.notePlaceholder")} style={{ border: "none", background: "none", outline: "none", color: "var(--text)", font: "inherit", flex: 1, minWidth: 0 }} />
       </label>
 
       <div className="cta"><div className="btn btn-primary btn-full" style={{ opacity: canSave ? 1 : .5 }} onClick={submit}><Ico name="check" size={18} />{amount > 0 ? tr("transfer.ctaWithAmt", { amt: fmt(amount) }) : tr("transfer.title")}</div></div>

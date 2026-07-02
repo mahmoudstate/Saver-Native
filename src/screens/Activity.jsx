@@ -6,6 +6,7 @@ import EmptyState from "../ui/EmptyState.jsx";
 import TxnRow from "../ui/TxnRow.jsx";
 import { useT } from "../lib/i18n.js";
 import { useThemedStatusBar } from "../lib/useNativeStatusBar.js";
+import { focusNext } from "../lib/focusNext.js";
 
 const Funnel = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 5h18l-7 8.5V20l-4-2.5v-4z" /></svg>;
 
@@ -64,7 +65,7 @@ export default function Activity({ store, dateFilter, onPickDate, onFilter, onEd
       <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
         <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 9, background: "var(--surface)", border: "var(--cardBorder)", borderRadius: 13, padding: "11px 13px", color: "var(--faint)" }}>
           <Ico name="search" size={17} />
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={tr("activity.searchPlaceholder")} style={{ flex: 1, minWidth: 0, border: "none", background: "transparent", outline: "none", fontFamily: "inherit", fontSize: 13.5, fontWeight: 600, color: "var(--text)" }} />
+          <input value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={focusNext} enterKeyHint="search" placeholder={tr("activity.searchPlaceholder")} style={{ flex: 1, minWidth: 0, border: "none", background: "transparent", outline: "none", fontFamily: "inherit", fontSize: 13.5, fontWeight: 600, color: "var(--text)" }} />
           {q && <div onClick={() => setQ("")} role="button" aria-label="clear search" style={{ cursor: "pointer", color: "var(--faint)", display: "flex" }}><Ico name="close" size={15} /></div>}
         </div>
         <div onClick={onFilter} role="button" aria-label="filter" style={{ width: 48, display: "flex", alignItems: "center", justifyContent: "center", background: "var(--acDim)", border: "1px solid var(--ac)", borderRadius: 13, color: "var(--acText)" }}><Funnel /></div>

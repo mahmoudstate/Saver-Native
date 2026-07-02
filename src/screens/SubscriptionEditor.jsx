@@ -13,6 +13,7 @@ import ServiceLogo from "../ui/ServiceLogo.jsx";
 import CustomIconSheet from "../ui/CustomIconSheet.jsx";
 import { loadColors } from "../ui/ColorSheet.jsx";
 import { fmt, currentMonth, cardGradient, dayName, HAPTICS } from "../lib/format.js";
+import { focusNext } from "../lib/focusNext.js";
 import { SERVICE_CAT_TO_TYPE, BILL_TYPES } from "../lib/services.js";
 import { FREQS } from "../lib/billfreq.js";
 import { useT } from "../lib/i18n.js";
@@ -93,7 +94,7 @@ export default function SubscriptionEditor({ store, bill, onClose }) {
       <label className="field" style={{ marginTop: 12 }}>
         <Brand domain={custom ? "" : domain} glyph={custom ? glyph : ""} name={name} color={color} size={42} />
         <div style={{ flex: 1 }}><div className="fl">{tr("editor.name")}</div>
-          <input value={name} onChange={(e) => setName(e.target.value)} placeholder={tr("sub.serviceNamePlaceholder")} style={{ border: "none", background: "none", outline: "none", color: "var(--text)", font: "inherit", fontSize: 15, fontWeight: 700, marginTop: 2, width: "100%" }} />
+          <input value={name} onChange={(e) => setName(e.target.value)} onKeyDown={focusNext} enterKeyHint="done" placeholder={tr("sub.serviceNamePlaceholder")} style={{ border: "none", background: "none", outline: "none", color: "var(--text)", font: "inherit", fontSize: 15, fontWeight: 700, marginTop: 2, width: "100%" }} />
         </div>
       </label>
 

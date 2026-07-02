@@ -10,6 +10,7 @@ import DateSheet from "../ui/DateSheet.jsx";
 import SegToggle from "../ui/SegToggle.jsx";
 import { resolveCat } from "../ui/cats.js";
 import { fmt, today, monthName } from "../lib/format.js";
+import { focusNext } from "../lib/focusNext.js";
 import { calcGoalSaved, calcBankBalance, calcFrozenForBank } from "../lib/calc.js";
 import { useT } from "../lib/i18n.js";
 
@@ -115,7 +116,7 @@ export default function Add({ store, initial, onSaved, onClose }) {
 
       <label className="field note" style={{ marginTop: 12 }}>
         <Ico name="note" size={19} color="var(--faint)" style={{ marginRight: 2 }} />
-        <input value={note} onChange={(e) => setNote(e.target.value)} placeholder={tr("add.notePlaceholder")} style={{ border: "none", background: "none", outline: "none", color: "var(--text)", font: "inherit", flex: 1, minWidth: 0 }} />
+        <input value={note} onChange={(e) => setNote(e.target.value)} onKeyDown={focusNext} enterKeyHint="done" placeholder={tr("add.notePlaceholder")} style={{ border: "none", background: "none", outline: "none", color: "var(--text)", font: "inherit", flex: 1, minWidth: 0 }} />
       </label>
 
       <div className="cta"><div className={`btn btn-primary btn-full`} onClick={submit}><Ico name={meta.ctaIcon} size={19} />{meta.cta}</div></div>

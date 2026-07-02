@@ -5,6 +5,7 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import Ico from "../ui/Ico.jsx";
 import { useGuide, useFaq } from "../lib/guide.js";
+import { focusNext } from "../lib/focusNext.js";
 import { useT } from "../lib/i18n.js";
 
 const REDUCED = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
@@ -43,7 +44,7 @@ export default function Manual({ back, onOpenTopic, onStartTour }) {
 
       <label className="field" style={{ marginBottom: 18 }}>
         <span className="circ" style={{ width: 38, height: 38, borderRadius: 11, background: "var(--surface2)", color: "var(--muted)", display: "flex", alignItems: "center", justifyContent: "center" }}><Ico name="search" size={18} /></span>
-        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={tr("gd.searchGuide")} style={{ flex: 1, border: "none", background: "none", outline: "none", color: "var(--text)", font: "inherit", fontSize: 15, fontWeight: 700 }} />
+        <input value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={focusNext} enterKeyHint="search" placeholder={tr("gd.searchGuide")} style={{ flex: 1, border: "none", background: "none", outline: "none", color: "var(--text)", font: "inherit", fontSize: 15, fontWeight: 700 }} />
       </label>
 
       {groups.length === 0 ? <div style={{ textAlign: "center", color: "var(--muted)", padding: "40px", fontWeight: 600 }}>{tr("gd.nothingMatches")}</div>

@@ -15,6 +15,7 @@ import ColorField from "../ui/ColorField.jsx";
 import IconField from "../ui/IconField.jsx";
 import CatTile from "../ui/CatTile.jsx";
 import { fmt, today, HAPTICS } from "../lib/format.js";
+import { focusNext } from "../lib/focusNext.js";
 import { useT } from "../lib/i18n.js";
 
 const r2 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
@@ -127,12 +128,12 @@ export default function InstallmentEditor({ store, plan, onClose }) {
         <label className="field">
           <CatTile cat={glyph} name={title} color={color} size={42} />
           <div style={{ flex: 1 }}><div className="fl">{tr("inst.payingOff")}</div>
-            <input value={item} onChange={(e) => setItem(e.target.value)} placeholder={tr("inst.itemPlaceholder")} style={{ border: "none", background: "none", outline: "none", color: "var(--text)", font: "inherit", fontSize: 15, fontWeight: 700, marginTop: 2, width: "100%" }} />
+            <input value={item} onChange={(e) => setItem(e.target.value)} onKeyDown={focusNext} enterKeyHint="next" placeholder={tr("inst.itemPlaceholder")} style={{ border: "none", background: "none", outline: "none", color: "var(--text)", font: "inherit", fontSize: 15, fontWeight: 700, marginTop: 2, width: "100%" }} />
           </div>
         </label>
         <label className="field" style={{ marginTop: 12 }}>
           <div style={{ flex: 1 }}><div className="fl">{tr("inst.storeProvider")}</div>
-            <input value={company} onChange={(e) => setCompany(e.target.value)} placeholder={tr("inst.providerPlaceholder")} style={{ border: "none", background: "none", outline: "none", color: "var(--text)", font: "inherit", fontSize: 15, fontWeight: 700, marginTop: 2, width: "100%" }} />
+            <input value={company} onChange={(e) => setCompany(e.target.value)} onKeyDown={focusNext} enterKeyHint="done" placeholder={tr("inst.providerPlaceholder")} style={{ border: "none", background: "none", outline: "none", color: "var(--text)", font: "inherit", fontSize: 15, fontWeight: 700, marginTop: 2, width: "100%" }} />
           </div>
         </label>
         <ColorField value={color} onChange={setColor} style={{ marginTop: 12 }} />
@@ -163,7 +164,7 @@ export default function InstallmentEditor({ store, plan, onClose }) {
         <Row label={tr("sub.remindMe")} value={reminderDays === 0 ? tr("sub.off") : tr(reminderDays === 1 ? "sub.dayBefore" : "sub.daysBefore", { n: reminderDays })} onClick={() => setSheet("remind")} />
         <label className="field" style={{ marginTop: 12 }}>
           <div style={{ flex: 1 }}><div className="fl">{tr("inst.note")}</div>
-            <input value={note} onChange={(e) => setNote(e.target.value)} placeholder={tr("inst.notePlaceholder")} style={{ border: "none", background: "none", outline: "none", color: "var(--text)", font: "inherit", fontSize: 15, fontWeight: 700, marginTop: 2, width: "100%" }} />
+            <input value={note} onChange={(e) => setNote(e.target.value)} onKeyDown={focusNext} enterKeyHint="done" placeholder={tr("inst.notePlaceholder")} style={{ border: "none", background: "none", outline: "none", color: "var(--text)", font: "inherit", fontSize: 15, fontWeight: 700, marginTop: 2, width: "100%" }} />
           </div>
         </label>
 

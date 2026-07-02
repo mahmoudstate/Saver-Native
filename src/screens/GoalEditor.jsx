@@ -5,6 +5,7 @@ import CatTile from "../ui/CatTile.jsx";
 import AmountSheet from "../ui/AmountSheet.jsx";
 import { resolveCat } from "../ui/cats.js";
 import { fmt, HAPTICS } from "../lib/format.js";
+import { focusNext } from "../lib/focusNext.js";
 import ColorField from "../ui/ColorField.jsx";
 import IconField from "../ui/IconField.jsx";
 import { loadColors } from "../ui/ColorSheet.jsx";
@@ -44,7 +45,7 @@ export default function GoalEditor({ store, goal, onClose }) {
       <label className="field">
         <CatTile cat={goalCat({ name, glyph })} color={color} name={name} size={42} />
         <div style={{ flex: 1 }}><div className="fl">{tr("editor.name")}</div>
-          <input value={name} onChange={(e) => setName(e.target.value)} placeholder={tr("editor.goalNamePlaceholder")} style={{ border: "none", background: "none", outline: "none", color: "var(--text)", font: "inherit", fontSize: 15, fontWeight: 700, marginTop: 2, width: "100%" }} />
+          <input value={name} onChange={(e) => setName(e.target.value)} onKeyDown={focusNext} enterKeyHint="done" placeholder={tr("editor.goalNamePlaceholder")} style={{ border: "none", background: "none", outline: "none", color: "var(--text)", font: "inherit", fontSize: 15, fontWeight: 700, marginTop: 2, width: "100%" }} />
         </div><span className="chev"><Ico name="pencil" size={17} /></span>
       </label>
 

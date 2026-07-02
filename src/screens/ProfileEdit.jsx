@@ -3,6 +3,7 @@ import { useState, useRef } from "react";
 import Ico from "../ui/Ico.jsx";
 import AvatarCropper from "../ui/AvatarCropper.jsx";
 import { CURRENCIES } from "../lib/format.js";
+import { focusNext } from "../lib/focusNext.js";
 import { useT } from "../lib/i18n.js";
 
 function CurrencySheet({ value, onPick, onClose }) {
@@ -65,7 +66,7 @@ export default function ProfileEdit({ store, back }) {
       <label className="field" style={{ marginBottom: 18 }}>
         <span className="circ" style={{ width: 40, height: 40, borderRadius: 12, background: "var(--surface2)", color: "var(--muted)", display: "flex", alignItems: "center", justifyContent: "center" }}><Ico name="user" size={19} /></span>
         <div style={{ flex: 1 }}><div className="fl">{tr("editor.name")}</div>
-          <input value={name} onChange={(e) => setName(e.target.value)} placeholder={tr("profile.yourName")} style={{ border: "none", background: "none", outline: "none", color: "var(--text)", font: "inherit", fontSize: 15, fontWeight: 700, marginTop: 2, width: "100%" }} />
+          <input value={name} onChange={(e) => setName(e.target.value)} onKeyDown={focusNext} enterKeyHint="done" placeholder={tr("profile.yourName")} style={{ border: "none", background: "none", outline: "none", color: "var(--text)", font: "inherit", fontSize: 15, fontWeight: 700, marginTop: 2, width: "100%" }} />
         </div><span className="chev"><Ico name="pencil" size={17} /></span>
       </label>
 

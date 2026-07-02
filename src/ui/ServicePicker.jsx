@@ -7,6 +7,7 @@ import Ico from "./Ico.jsx";
 import ServiceLogo from "./ServiceLogo.jsx";
 import { SUBSCRIPTION_SERVICES, SERVICE_CATEGORIES, POPULAR_SERVICE_IDS } from "../lib/services.js";
 import { useT } from "../lib/i18n.js";
+import { focusNext } from "../lib/focusNext.js";
 
 const popular = POPULAR_SERVICE_IDS.map((id) => SUBSCRIPTION_SERVICES.find((s) => s.id === id)).filter(Boolean);
 
@@ -30,7 +31,7 @@ function ServiceSheet({ activeDomain, onPick, onCustom, onClose }) {
         <div style={{ color: "var(--muted)", fontSize: 13, fontWeight: 600, margin: "3px 0 14px" }}>{tr("servicePicker.subtitle")}</div>
         <div className="field" style={{ marginBottom: 14 }}>
           <Ico name="search" size={17} />
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={tr("servicePicker.search")} style={{ flex: 1, border: "none", background: "none", outline: "none", color: "var(--text)", font: "inherit", fontSize: 15, fontWeight: 600 }} />
+          <input value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={focusNext} enterKeyHint="search" placeholder={tr("servicePicker.search")} style={{ flex: 1, border: "none", background: "none", outline: "none", color: "var(--text)", font: "inherit", fontSize: 15, fontWeight: 600 }} />
           {q && <span className="chev" onClick={() => setQ("")}><Ico name="close" size={16} /></span>}
         </div>
         <div style={{ maxHeight: "52vh", overflowY: "auto", paddingBottom: 4 }}>

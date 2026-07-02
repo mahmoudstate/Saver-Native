@@ -12,6 +12,7 @@ import IconField from "../ui/IconField.jsx";
 import { resolveCat } from "../ui/cats.js";
 import { loadColors } from "../ui/ColorSheet.jsx";
 import { fmt, currentMonth, monthLabel, HAPTICS } from "../lib/format.js";
+import { focusNext } from "../lib/focusNext.js";
 import { BILL_TYPES } from "../lib/services.js";
 import { useT } from "../lib/i18n.js";
 
@@ -67,7 +68,7 @@ export default function BudgetEditor({ store, budget, initialKind, onClose }) {
       <label className="field">
         <CatTile cat={glyph} color={color} name={name} size={42} />
         <div style={{ flex: 1 }}><div className="fl">{tr("editor.name")}</div>
-          <input value={name} onChange={(e) => setName(e.target.value)} placeholder={isProject ? tr("editor.projectNamePlaceholder") : tr("editor.budgetNamePlaceholder")} style={{ border: "none", background: "none", outline: "none", color: "var(--text)", font: "inherit", fontSize: 15, fontWeight: 700, marginTop: 2, width: "100%" }} />
+          <input value={name} onChange={(e) => setName(e.target.value)} onKeyDown={focusNext} enterKeyHint="done" placeholder={isProject ? tr("editor.projectNamePlaceholder") : tr("editor.budgetNamePlaceholder")} style={{ border: "none", background: "none", outline: "none", color: "var(--text)", font: "inherit", fontSize: 15, fontWeight: 700, marginTop: 2, width: "100%" }} />
         </div><span className="chev"><Ico name="pencil" size={17} /></span>
       </label>
 
