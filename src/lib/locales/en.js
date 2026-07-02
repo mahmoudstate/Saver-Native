@@ -680,6 +680,12 @@ export default {
     lowSub: "{amt} left",
     backupTitle: "Back up your data",
     backupSub: "Keep a recent copy",
+    osDueOn: "Due {date}",
+    osPermTitle: "Notifications",
+    osPermDenied: "Notifications are off for Saver. Turn them on in iOS Settings to get reminders.",
+    osOffTitle: "Notifications",
+    osOffSub: "Reminders for bills & installments due soon",
+    nativeOnly: "Notifications are available on the iOS app.",
   },
   filter: {
     period_all: "All time",

@@ -5,6 +5,7 @@ import { useNativeStatusBar } from "./lib/useNativeStatusBar.js";
 import { useAppLock } from "./lib/useAppLock.js";
 import { HAPTICS, currentMonth } from "./lib/format.js";
 import { useKeyboardInsets } from "./lib/useKeyboardInsets.js";
+import { useLocalNotifications } from "./lib/useLocalNotifications.js";
 import LockScreen from "./ui/LockScreen.jsx";
 import BottomNav from "./ui/BottomNav.jsx";
 import Overlays from "./ui/Modal.jsx";
@@ -67,6 +68,7 @@ export default function App() {
   useNativeStatusBar();
   useKeyboardInsets();
   const store = useStore();
+  useLocalNotifications(store);
   const lock = useAppLock(store.appLock);
   const [tab, setTab] = useState("home");
   // Navigation stack of pushed detail screens; the top one renders as an overlay.

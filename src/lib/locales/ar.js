@@ -679,6 +679,12 @@ export default {
     lowSub: "{amt} متبقّي",
     backupTitle: "خذ نسخة احتياطية من بياناتك",
     backupSub: "احتفظ بنسخة حديثة",
+    osDueOn: "مستحق في {date}",
+    osPermTitle: "الإشعارات",
+    osPermDenied: "إشعارات Saver متوقفة. فعّلها من إعدادات iOS عشان توصلك التذكيرات.",
+    osOffTitle: "الإشعارات",
+    osOffSub: "تذكيرات بالفواتير والأقساط القريبة",
+    nativeOnly: "الإشعارات متاحة في تطبيق iOS.",
   },
   filter: {
     period_all: "كل الأوقات",

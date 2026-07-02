@@ -2,6 +2,7 @@
 import { useRef, useState } from "react";
 import Ico from "../ui/Ico.jsx";
 import AppLockRow from "../ui/AppLockRow.jsx";
+import NotificationsRow from "../ui/NotificationsRow.jsx";
 import PasswordPrompt from "../ui/PasswordPrompt.jsx";
 import { today } from "../lib/format.js";
 import { KEYS, loadKey } from "../lib/store.js";
@@ -90,7 +91,10 @@ export default function PrivacyBackup({ store, back }) {
         <div className="lbl">{tr("privacy.yourData")}</div><div className="big" style={{ fontSize: 34 }}>{tr("privacy.private")}</div><div className="sub">{tr("privacy.onDevice")}</div>
       </div>
 
-      <div className="over">{tr("privacy.security")}</div>
+      <div className="over">{tr("notif.osOffTitle")}</div>
+      <NotificationsRow store={store} tr={tr} />
+
+      <div className="over" style={{ marginTop: 16 }}>{tr("privacy.security")}</div>
       <AppLockRow store={store} tr={tr} />
       <div className="frozen" style={{ marginTop: 10, display: "flex", alignItems: "center", gap: 8, background: "var(--acDim)", color: "var(--acText)", borderRadius: 14, padding: "12px 14px", fontWeight: 700, fontSize: 13 }}>
         <Ico name="shield" size={15} color="var(--ac)" />{tr("privacy.onDeviceBadge")}

@@ -67,3 +67,16 @@ export function LangProvider({ children }) {
 
 export const useLang = () => useContext(LangCtx);
 export const useT = () => useContext(LangCtx).t;
+
+// Plain (non-hook) translator for code that runs outside React components
+// (e.g. scheduling native notifications). Re-reads the saved language each
+// call — fine for the low-frequency call sites that need this.
+export function translate(key, vars) {
+  const lang = detect();
+  const pick = (d) => key.split(".").reduce((o, p) => (o == null ? o : o[p]), d);
+  let s = pick(DICTS[lang]);
+  if (s == null) s = pick(DICTS.en);
+  if (s == null) return key;
+  if (vars) for (const k in vars) s = s.replaceAll(`{${k}}`, vars[k]);
+  return s;
+}
