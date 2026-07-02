@@ -14,6 +14,7 @@ export const CATS = {
   deposit: ["#0E9F6E", `<path d="M4 12.5v3.5a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3.5"/><path d="M12 3v9M8 8l4 4 4-4"/>`],
   goalReturn: ["#16BFA6", `<path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 3.5v4h-4"/>`],
   income: ["#0E9F6E", `<path d="M3 7a2 2 0 0 1 2-2h13a1 1 0 0 1 1 1v3M3 7v10a2 2 0 0 0 2 2h14a1 1 0 0 0 1-1v-4M3 7h16"/><circle cx="17" cy="13" r="1.4" fill="currentColor" stroke="none"/>`],
+  openingBalance: ["#8A8AA4", `<path d="M3 7a2 2 0 0 1 2-2h13a1 1 0 0 1 1 1v3M3 7v10a2 2 0 0 0 2 2h14a1 1 0 0 0 1-1v-4M3 7h16"/><circle cx="17" cy="13" r="1.4" fill="currentColor" stroke="none"/>`],
   groceries: ["#10B981", `<circle cx="9" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/><path d="M3 4h2l2.3 11a1 1 0 0 0 1 .8h8.4a1 1 0 0 0 1-.8L20 8H6"/>`],
   health: ["#EF4444", `<rect x="4" y="4" width="16" height="16" rx="3.5"/><path d="M12 8.5v7M8.5 12h7"/>`],
   fitness: ["#F97316", `<path d="M6 7v10M18 7v10M3.5 9.5v5M20.5 9.5v5M6 12h12"/>`],

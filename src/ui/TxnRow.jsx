@@ -17,6 +17,7 @@ export function txnView(t, bankNameOf = () => "", tr = (k, vars, fallback) => fa
   const bank = t.bankName || bankNameOf(t.bankId) || "";
   let cls = "", sign = "", cat = null, amtColor, title, sub, goalLine = null;
   if (t.type === "income") { cls = "in"; sign = "+"; title = t.catName || t.note || tr("activity.income", null, "Income"); sub = `${bank} · ${dl}`; }
+  else if (t.type === "opening_balance") { sign = "+"; amtColor = "var(--muted)"; cat = "openingBalance"; title = t.catName || tr("editor.openingBalance", null, "Opening balance"); sub = `${bank} · ${dl}`; }
   else if (t.type === "expense") { cls = "out"; sign = "−"; title = t.catName || t.note || tr("activity.expense", null, "Expense"); sub = `${bank} · ${dl}`; }
   else if (t.type === "saving") { cat = "deposit"; amtColor = "var(--ac)"; sub = `${bank} · ${dl}`; const sgn = t.goalName || t.catName; if (sgn) { title = tr("activity.savedTitle", null, "Saved"); goalLine = tr("activity.goalTag", { goal: sgn }, `Goal · ${sgn}`); } else title = tr("activity.saving", null, "Saving"); }
   else if (t.type === "goal_withdraw") { cls = "out"; sign = "−"; title = t.catName || tr("activity.goalSpend", null, "Goal spend"); sub = `${bank} · ${dl}`; const gn = t.goalName || tr("activity.goalFallback", null, "Goal"); goalLine = tr("activity.goalTag", { goal: gn }, `Goal · ${gn}`); }

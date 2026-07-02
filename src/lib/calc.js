@@ -1,10 +1,13 @@
 // Saver — core money math. PORTED VERBATIM from legacy App.jsx. **DO NOT change the maths.**
-// See saver-site/APP-LOGIC.md (locked). Transaction types: income|expense|saving|goal_withdraw|goal_return|transfer.
+// See saver-site/APP-LOGIC.md (locked). Transaction types: income|expense|saving|goal_withdraw|goal_return|transfer|opening_balance.
+// opening_balance behaves like income for balance purposes ONLY — it is
+// deliberately excluded from sumIncome() below and any income report, since
+// it isn't money earned, just the starting balance an account was created with.
 import { cyclePeriod } from "./format.js";
 
 export function calcBankBalance(bankId, txns) {
   return txns.reduce((acc, t) => {
-    if (t.bankId === bankId && t.type === "income") return acc + t.amount;
+    if (t.bankId === bankId && (t.type === "income" || t.type === "opening_balance")) return acc + t.amount;
     if (t.bankId === bankId && t.type === "expense") return acc - t.amount;
     if (t.bankId === bankId && t.type === "goal_withdraw") return acc - t.amount;
     if (t.toBankId === bankId && t.type === "transfer") return acc + t.amount;

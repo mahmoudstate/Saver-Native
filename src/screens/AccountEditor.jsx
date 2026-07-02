@@ -35,7 +35,7 @@ export default function AccountEditor({ store, account, onClose, onDeleted }) {
     } else {
       const id = Date.now().toString();
       store.set("banks", (list) => [...list, { id, name: name.trim(), color, glyph, lowBalanceThreshold }]);
-      if (opening > 0) store.addTxn({ type: "income", amount: opening, date: today(), bankId: id, bankName: name.trim(), catName: "Opening balance", catIcon: "wallet" });
+      if (opening > 0) store.addTxn({ type: "opening_balance", amount: opening, date: today(), bankId: id, bankName: name.trim(), catName: tr("editor.openingBalance"), catIcon: "openingBalance" });
     }
     store.flash({ title: editing ? tr("editor.accountSaved") : tr("editor.accountAdded"), sub: name.trim(), color: "var(--success)", icon: "check" });
     onClose();
