@@ -6,6 +6,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { setCurrency, currentMonth, HAPTICS, fmt } from "./format.js";
 import { makeCalc, goalBalancesPerBank } from "./calc.js";
 import { useT } from "./i18n.js";
+import { applyFirstRunDefaults } from "./firstRunDefaults.js";
 
 export const KEYS = {
   txns: "et_txns", banks: "et_banks", expCats: "et_expCats", incCats: "et_incCats",
@@ -76,6 +77,7 @@ const validateBackup = (p) => {
 export function useStore() {
   const tr = useT();
   const [data, setData] = useState(() => {
+    applyFirstRunDefaults();
     const d = {};
     for (const k in ENTITIES) d[k] = loadKey(KEYS[k], ENTITIES[k]);
     for (const k in SCALARS) d[k] = loadKey(KEYS[k], SCALARS[k]);
