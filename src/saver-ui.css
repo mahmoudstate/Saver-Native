@@ -67,6 +67,11 @@
   /* accent (set live by ds.js) */
   --ac:#5FE3C0; --ac2:#8af0d6; --onacc:#06251F;
   --acDim:color-mix(in srgb,var(--ac) 14%,transparent);
+  /* thin divider/border alias — many components reference --line, which was
+     never actually defined (resolved to nothing, e.g. invisible toggle
+     tracks); alias it to the theme's own border color instead of touching
+     every call site. */
+  --line:var(--border);
   /* hero — tinted by accent, always bright with dark text so it pops on any bg */
   --heroGrad:linear-gradient(155deg, color-mix(in srgb,var(--ac) 40%,#fff) 0%, color-mix(in srgb,var(--ac) 66%,#fff) 100%);
   --heroText:#1B332C; --heroSub:rgba(27,51,44,.80); --heroChip:rgba(255,255,255,.22);

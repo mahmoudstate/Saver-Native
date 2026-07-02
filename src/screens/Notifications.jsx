@@ -1,5 +1,6 @@
 // Saver — Notifications inbox screen. Logic lives in lib/notifications.js so the
 // Home bell badge stays in sync. This file just renders the list + read controls.
+import { useState } from "react";
 import Ico from "../ui/Ico.jsx";
 import SwipeToDismiss from "../ui/SwipeToDismiss.jsx";
 import { buildNotifications } from "../lib/notifications.js";
@@ -9,6 +10,7 @@ export default function Notifications({ store, back, onOpen }) {
   const tr = useT();
   const items = buildNotifications(store, tr);
   const newCount = items.filter((n) => n.unread).length;
+  const [openKey, setOpenKey] = useState(null); // which row (if any) has its delete button revealed
   const markAllRead = () => store.set("notifReadKeys", [...new Set([...(store.notifReadKeys || []), ...items.filter((n) => n.unread).map((n) => n.key)])]);
   // tapping an item: mark it read, then jump to the screen it's about
   const open = (n) => {
@@ -31,7 +33,7 @@ export default function Notifications({ store, back, onOpen }) {
           // .icard's own margin-bottom would get trapped by SwipeToDismiss's
           // overflow:hidden wrapper, so move the gap to the outer element instead.
           <div key={n.key} style={{ marginBottom: 11 }}>
-            <SwipeToDismiss onDismiss={() => dismiss(n)}>
+            <SwipeToDismiss isOpen={openKey === n.key} onOpenChange={(v) => setOpenKey(v ? n.key : null)} onDismiss={() => dismiss(n)}>
               <div className="icard" onClick={() => open(n)} style={{ opacity: n.unread ? 1 : .7, cursor: n.nav ? "pointer" : "default", marginBottom: 0 }}>
                 <span className="circ" style={{ width: 40, height: 40, borderRadius: 12, background: n.bg, color: n.col }}><Ico name={n.icon} size={19} /></span>
                 <div><div className="nm">{n.nm}</div><div className="mt">{n.mt}</div></div>

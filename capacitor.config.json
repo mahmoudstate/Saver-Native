@@ -11,6 +11,9 @@
     },
     "Keyboard": {
       "resize": "native"
+    },
+    "LocalNotifications": {
+      "presentationOptions": ["badge", "sound", "banner", "list"]
     }
   }
 }

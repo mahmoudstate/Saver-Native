@@ -31,7 +31,7 @@ export default function NotificationsRow({ store, tr }) {
       <span className="circ" style={{ width: 40, height: 40, borderRadius: 12, background: "var(--yellowDim)", color: "var(--yellow)" }}><Ico name="bell" size={20} /></span>
       <div><div className="nm">{tr("notif.osOffTitle")}</div><div className="mt">{tr("notif.osOffSub")}</div></div>
       <span style={{ marginInlineStart: "auto" }}>
-        <span style={{ width: 46, height: 28, borderRadius: 99, background: on ? "var(--ac)" : "var(--line)", display: "flex", alignItems: "center", justifyContent: on ? "flex-end" : "flex-start", padding: 3, transition: "background .2s, justify-content .2s" }}>
+        <span style={{ width: 46, height: 28, borderRadius: 99, background: on ? "var(--ac)" : "var(--track)", border: on ? "none" : "var(--cardBorder)", display: "flex", alignItems: "center", justifyContent: on ? "flex-end" : "flex-start", padding: 3, boxSizing: "border-box", transition: "background .2s, justify-content .2s" }}>
           <span style={{ width: 22, height: 22, borderRadius: 99, background: "#fff", flexShrink: 0 }} />
         </span>
       </span>

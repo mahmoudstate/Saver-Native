@@ -45,7 +45,7 @@ export default function AppLockRow({ store, tr }) {
         <span style={{ marginInlineStart: "auto" }}>
           {/* flex-start/flex-end are logical (follow text direction), unlike
               translateX/left — this keeps the knob correct in both LTR and RTL. */}
-          <span style={{ width: 46, height: 28, borderRadius: 99, background: on ? "var(--ac)" : "var(--line)", display: "flex", alignItems: "center", justifyContent: on ? "flex-end" : "flex-start", padding: 3, transition: "background .2s, justify-content .2s" }}>
+          <span style={{ width: 46, height: 28, borderRadius: 99, background: on ? "var(--ac)" : "var(--track)", border: on ? "none" : "var(--cardBorder)", display: "flex", alignItems: "center", justifyContent: on ? "flex-end" : "flex-start", padding: 3, boxSizing: "border-box", transition: "background .2s, justify-content .2s" }}>
             <span style={{ width: 22, height: 22, borderRadius: 99, background: "#fff", flexShrink: 0 }} />
           </span>
         </span>
