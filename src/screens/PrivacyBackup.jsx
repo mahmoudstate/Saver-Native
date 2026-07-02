@@ -23,14 +23,18 @@ export default function PrivacyBackup({ store, back }) {
     return payload;
   };
 
-  // Export flow: ask for a password, then write an encrypted .saver file.
+  // Export flow: ask for a password, then write an encrypted backup.
+  // Kept as .json (not a custom .saver extension) — iOS's file picker maps
+  // "accept" to known file types (UTIs), and a made-up extension has none,
+  // so it grays out the file in Files.app. The payload is valid JSON either
+  // way (the encryption lives in the content, not the extension).
   const download = () => setPrompt({ mode: "enc" });
 
   const doEncrypt = async (password) => {
     setPrompt(null);
     const enc = await encryptBackup(currentPayload(), password);
-    const done = await exportTextFile(`Saver_Backup_${today()}.saver`, enc, "Save Saver backup");
-    if (done) store.flash({ title: tr("privacy.backupDownloaded"), sub: "Saver_Backup.saver", color: "var(--success)", icon: "download" });
+    const done = await exportTextFile(`Saver_Backup_${today()}.json`, enc, "Save Saver backup");
+    if (done) store.flash({ title: tr("privacy.backupDownloaded"), sub: "Saver_Backup.json", color: "var(--success)", icon: "download" });
   };
 
   const applyRestore = (data) => {
@@ -93,13 +97,13 @@ export default function PrivacyBackup({ store, back }) {
       </div>
 
       <div className="over" style={{ marginTop: 16 }}>{tr("privacy.backup")}</div>
-      <Row icon="download" bg="var(--purpleDim)" color="var(--purple)" nm={tr("privacy.downloadBackup")} mt="Saver_Backup.saver · encrypted" right={<Ico name="chev" size={18} color="var(--faint)" />} onClick={download} />
+      <Row icon="download" bg="var(--purpleDim)" color="var(--purple)" nm={tr("privacy.downloadBackup")} mt="Saver_Backup.json · encrypted" right={<Ico name="chev" size={18} color="var(--faint)" />} onClick={download} />
       <Row icon="download" bg="var(--blueDim)" color="var(--blue)" nm={tr("privacy.restoreFromFile")} mt={tr("privacy.overwrites")} right={<Ico name="chev" size={18} color="var(--faint)" />} onClick={() => fileRef.current?.click()} />
       <Row icon="trash" bg="var(--redDim)" color="var(--red)" nm={tr("privacy.resetAllData")} mt={tr("privacy.resetSub")} right={<Ico name="chev" size={18} color="var(--faint)" />} onClick={reset} />
 
       <div className="over" style={{ marginTop: 16 }}>{tr("privacy.legal")}</div>
       <Row icon="shield" bg="var(--blueDim)" color="var(--blue)" nm={tr("privacy.policy")} mt={tr("privacy.policySub")} right={<Ico name="link" size={18} color="var(--faint)" />} onClick={() => window.open(PRIVACY_URL, "_blank", "noopener,noreferrer")} />
-      <input ref={fileRef} type="file" accept=".saver,application/json,.json" onChange={onFile} style={{ display: "none" }} />
+      <input ref={fileRef} type="file" accept=".json,application/json" onChange={onFile} style={{ display: "none" }} />
 
       {prompt?.mode === "enc" && (
         <PasswordPrompt title="Encrypt backup" sub="Choose a password. You’ll need it to restore." confirm submitText="Export"
