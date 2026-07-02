@@ -37,8 +37,8 @@ const GROUPS = [
     id: "control",
     topics: [
       { id: "breakdown", icon: "target", color: "var(--ac)", demo: "breakdown", stepIcons: ["cal", "layers"] },
-      { id: "notifications", icon: "bell", color: "var(--ac)", demo: "notifications", stepIcons: ["bell", "chev", "check"] },
-      { id: "privacy", icon: "shield", color: "var(--ac)", demo: "privacy", stepIcons: ["download", "download", "lock"] },
+      { id: "notifications", icon: "bell", color: "var(--ac)", demo: "notifications", stepIcons: ["bell", "check", "trash"] },
+      { id: "privacy", icon: "shield", color: "var(--ac)", demo: "privacy", stepIcons: ["lock", "download", "download"] },
     ],
   },
   {
