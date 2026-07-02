@@ -311,6 +311,11 @@ export default {
   account: {
     title: "Accounts",
     accountsCount: "{n} accounts",
+    active: "Active",
+    archived: "Archived",
+    noArchived: "No archived accounts.",
+    restore: "Restore",
+    restored: "Account restored",
     lowAlert: "Low-balance alert {amt}",
     frozenGoals: "{amt} frozen · goals",
     addAccount: "Add account",

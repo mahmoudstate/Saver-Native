@@ -310,6 +310,11 @@ export default {
   account: {
     title: "الحسابات",
     accountsCount: "{n} حسابات",
+    active: "نشط",
+    archived: "مؤرشف",
+    noArchived: "لا يوجد حسابات مؤرشفة.",
+    restore: "استرجاع",
+    restored: "تم استرجاع الحساب",
     lowAlert: "تنبيه رصيد منخفض {amt}",
     frozenGoals: "{amt} مجمّد · أهداف",
     addAccount: "إضافة حساب",
