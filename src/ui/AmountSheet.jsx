@@ -5,11 +5,8 @@ import Ico from "./Ico.jsx";
 import PickerSheet from "./PickerSheet.jsx";
 import { fmt } from "../lib/format.js";
 import { calcBankBalance, calcFrozenForBank } from "../lib/calc.js";
+import { bankIcon } from "../lib/bankIcon.js";
 import { useT } from "../lib/i18n.js";
-
-// Legacy bank records stored "banknote"/"landmark" glyphs that were never
-// real icon names — map them (and any future kind) to the actual Ico keys.
-const bankIcon = (glyph) => ({ banknote: "wallet", landmark: "card" }[glyph] || glyph || "card");
 
 export default function AmountSheet({ title, sub, confirmLabel = "Confirm", max, banks, txns, savings, onConfirm, onClose }) {
   const [amt, setAmt] = useState("");
@@ -63,7 +60,7 @@ export default function AmountSheet({ title, sub, confirmLabel = "Confirm", max,
 
         {pickerOpen && (
           <PickerSheet title={tr("add.pickAccount")} selectedId={bankId}
-            options={liveBanks.map((b) => ({ id: b.id, label: b.name, bankColor: b.color, sub: available(b.id) != null ? tr("ui.available", { amt: fmt(available(b.id)) }) : undefined }))}
+            options={liveBanks.map((b) => ({ id: b.id, label: b.name, bankColor: b.color, glyph: b.glyph, sub: available(b.id) != null ? tr("ui.available", { amt: fmt(available(b.id)) }) : undefined }))}
             onPick={setBankId} onClose={() => setPickerOpen(false)} />
         )}
 

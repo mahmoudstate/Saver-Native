@@ -124,7 +124,7 @@ export default function Add({ store, initial, onSaved, onClose }) {
       {sheet === "date" && <DateSheet value={date} onPick={(d) => { setDate(d); setSheet(null); }} onClose={() => setSheet(null)} />}
       {sheet === "amount" && <AmountSheet title={tr("add.enterAmount")} sub={meta.title} confirmLabel={tr("add.setAmount")} onConfirm={(v) => { setAmount(v); setSheet(null); }} onClose={() => setSheet(null)} />}
       {sheet === "account" && <PickerSheet title={meta.accLabel} selectedId={srcGoal ? "vault:" + srcGoal : bankId} onPick={(id) => { if (id.startsWith?.("vault:")) setSrcGoal(id.slice(6)); else { setBankId(id); setSrcGoal(null); } }} onClose={() => setSheet(null)} options={[
-        ...banks.filter((b) => !b.archived).map((b) => ({ id: b.id, label: b.name, bankColor: b.color, sub: type !== "income" ? `${fmt(Math.max(0, safeOf(b.id)))} ${tr("add.available")}` : undefined })),
+        ...banks.filter((b) => !b.archived).map((b) => ({ id: b.id, label: b.name, bankColor: b.color, glyph: b.glyph, sub: type !== "income" ? `${fmt(Math.max(0, safeOf(b.id)))} ${tr("add.available")}` : undefined })),
         ...(type === "expense" ? vaults.map((g, i) => ({ id: "vault:" + g.id, label: g.name, sub: `${fmt(Math.max(0, calcGoalSaved(g.id, store.txns)))} ${tr("add.available")}`, catKey: "goal", sectionHeader: i === 0 ? tr("add.goalsHeader") : undefined })) : []),
       ]} />}
       {sheet === "category" && <PickerSheet title={tr("add.category")} selectedId={type === "income" ? incCatId : expCatId} onPick={type === "income" ? setIncCatId : setExpCatId} onClose={() => setSheet(null)} options={(type === "income" ? incCats : expCats).map((c) => ({ id: c.id, label: c.name, sub: c.group, catKey: catKeyOf(c) }))} />}

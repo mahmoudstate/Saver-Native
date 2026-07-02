@@ -150,7 +150,7 @@ export default function SubscriptionEditor({ store, bill, onClose }) {
       {sheet === "day" && <DayGridSheet title={tr("sub.billingDay")} sub={tr("sub.billingDaySub")} value={clampDay(dueDay)} onConfirm={(v) => { setDueDay(v); setSheet(null); }} onClose={() => setSheet(null)} />}
       {sheet === "weekday" && <OptionSheet title={tr("sub.billingWeekday")} sub={tr("sub.billingWeekdaySub")} value={clampDow(dueDay)} onPick={(v) => { setDueDay(v); setSheet(null); }} onClose={() => setSheet(null)} options={[0, 1, 2, 3, 4, 5, 6].map((d) => ({ value: d, label: dayName(d) }))} />}
       {sheet === "remind" && <OptionSheet title={tr("sub.remindMe")} sub={tr("sub.beforeDue")} value={reminderDays} onPick={(v) => { setReminderDays(v); setSheet(null); }} onClose={() => setSheet(null)} options={[{ value: 0, label: tr("sub.off") }, { value: 1, label: tr("sub.remind1") }, { value: 2, label: tr("sub.remind2") }, { value: 3, label: tr("sub.remind3") }, { value: 7, label: tr("sub.remind7") }]} />}
-      {sheet === "account" && <PickerSheet title={tr("sub.paysFrom")} selectedId={bankId} onPick={setBankId} onClose={() => setSheet(null)} options={banks.filter((b) => !b.archived).map((b) => ({ id: b.id, label: b.name, bankColor: b.color }))} />}
+      {sheet === "account" && <PickerSheet title={tr("sub.paysFrom")} selectedId={bankId} onPick={setBankId} onClose={() => setSheet(null)} options={banks.filter((b) => !b.archived).map((b) => ({ id: b.id, label: b.name, bankColor: b.color, glyph: b.glyph }))} />}
     </div>
   );
 }

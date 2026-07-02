@@ -62,7 +62,7 @@ export default function QuickActionEditor({ store, action, onClose }) {
 
       {sheet === "amount" && <AmountSheet title={tr("quick.defaultAmount")} confirmLabel={tr("editor.setGeneric")} onConfirm={(v) => { setAmount(v); setSheet(null); }} onClose={() => setSheet(null)} />}
       {sheet === "category" && <PickerSheet title={tr("add.category")} selectedId={catId} onPick={setCatId} onClose={() => setSheet(null)} options={expCats.map((c) => ({ id: c.id, label: c.name, catKey: catKeyOf(c) }))} />}
-      {sheet === "account" && <PickerSheet title={tr("add.account")} selectedId={bankId} onPick={setBankId} onClose={() => setSheet(null)} options={banks.filter((b) => !b.archived).map((b) => ({ id: b.id, label: b.name, bankColor: b.color }))} />}
+      {sheet === "account" && <PickerSheet title={tr("add.account")} selectedId={bankId} onPick={setBankId} onClose={() => setSheet(null)} options={banks.filter((b) => !b.archived).map((b) => ({ id: b.id, label: b.name, bankColor: b.color, glyph: b.glyph }))} />}
     </div>
   );
 }

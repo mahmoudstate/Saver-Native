@@ -94,7 +94,7 @@ export default function EditTxn({ store, txn, onClose }) {
       </div>
 
       {sheet === "amount" && <AmountSheet title={tr("add.enterAmount")} sub={tr("edit.amountSub")} confirmLabel={tr("add.setAmount")} onConfirm={(v) => { setAmount(v); setSheet(null); }} onClose={() => setSheet(null)} />}
-      {sheet === "account" && <PickerSheet title={tr("add.account")} selectedId={bankId} onPick={setBankId} onClose={() => setSheet(null)} options={banks.filter((b) => !b.archived).map((b) => ({ id: b.id, label: b.name, bankColor: b.color }))} />}
+      {sheet === "account" && <PickerSheet title={tr("add.account")} selectedId={bankId} onPick={setBankId} onClose={() => setSheet(null)} options={banks.filter((b) => !b.archived).map((b) => ({ id: b.id, label: b.name, bankColor: b.color, glyph: b.glyph }))} />}
       {sheet === "category" && <PickerSheet title={tr("add.category")} selectedId={catId} onPick={setCatId} onClose={() => setSheet(null)} options={cats.map((c) => ({ id: c.id, label: c.name, sub: c.group, catKey: catKeyOf(c) }))} />}
     </div>
   );

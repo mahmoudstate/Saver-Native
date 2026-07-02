@@ -2,9 +2,10 @@
 import { Fragment } from "react";
 import Ico from "./Ico.jsx";
 import CatTile from "./CatTile.jsx";
+import { bankIcon } from "../lib/bankIcon.js";
 import { useT } from "../lib/i18n.js";
 
-// option: { id, label, sub, catKey, bankColor, sectionHeader }
+// option: { id, label, sub, catKey, bankColor, glyph, sectionHeader }
 // `sectionHeader` (optional) renders a small group label above that option.
 export default function PickerSheet({ title, options, selectedId, onPick, onClose }) {
   const tr = useT();
@@ -24,7 +25,7 @@ export default function PickerSheet({ title, options, selectedId, onPick, onClos
               {o.sectionHeader && <div className="over">{o.sectionHeader}</div>}
               <div className="icard" onClick={() => { onPick(o.id); onClose(); }} style={{ cursor: "pointer", ...(o.id === selectedId ? { borderColor: "var(--ac)", boxShadow: "inset 0 0 0 1.5px var(--ac)" } : {}) }}>
                 {o.bankColor != null
-                  ? <span className="circ" style={{ width: 42, height: 42, borderRadius: 13, background: o.bankColor || "var(--muted)", color: "#fff", fontWeight: 800, fontSize: 14 }}>{(o.label || "?").slice(0, 1).toUpperCase()}</span>
+                  ? <span className="circ" style={{ width: 42, height: 42, borderRadius: 13, background: `color-mix(in srgb, ${o.bankColor || "var(--muted)"} 20%, transparent)`, color: o.bankColor || "var(--muted)" }}><Ico name={bankIcon(o.glyph)} size={19} /></span>
                   : <CatTile cat={o.catKey} name={o.label} size={42} />}
                 <div><div className="nm">{o.label}</div>{o.sub && <div className="mt">{o.sub}</div>}</div>
                 {o.id === selectedId && <span className="amtb"><Ico name="check" size={18} color="var(--ac)" /></span>}
