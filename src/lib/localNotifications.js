@@ -58,35 +58,41 @@ function scheduleTimeFor(dueDate, reminderDays, now) {
 
 export async function syncScheduledNotifications(store) {
   if (!native()) return;
-  const perm = await notifPermissionStatus();
-  if (perm !== "granted") return;
+  try {
+    const perm = await notifPermissionStatus();
+    console.log("[notif] permission status:", perm);
+    if (perm !== "granted") return;
 
-  const pending = await LocalNotifications.getPending();
-  if (pending.notifications.length) await LocalNotifications.cancel({ notifications: pending.notifications.map((n) => ({ id: n.id })) });
+    const pending = await LocalNotifications.getPending();
+    if (pending.notifications.length) await LocalNotifications.cancel({ notifications: pending.notifications.map((n) => ({ id: n.id })) });
 
-  if (!store.notificationsEnabled) return;
+    if (!store.notificationsEnabled) { console.log("[notif] toggle is off, nothing scheduled"); return; }
 
-  const now = new Date();
-  const notifications = [];
+    const now = new Date();
+    const notifications = [];
 
-  (store.bills || []).forEach((b) => {
-    const per = billPeriod(b, new Date().toISOString().slice(0, 10));
-    if (!per.dueDate || isBillPaidForKey(b, per.key)) return;
-    const at = scheduleTimeFor(per.dueDate, b.reminderDays, now);
-    if (!at) return;
-    notifications.push({ id: idFor(`bill-${b.id}-${per.key}`), title: b.name, body: translate("notif.osDueOn", { date: per.dueDate }), schedule: { at } });
-  });
+    (store.bills || []).forEach((b) => {
+      const per = billPeriod(b, new Date().toISOString().slice(0, 10));
+      if (!per.dueDate || isBillPaidForKey(b, per.key)) return;
+      const at = scheduleTimeFor(per.dueDate, b.reminderDays, now);
+      if (!at) return;
+      notifications.push({ id: idFor(`bill-${b.id}-${per.key}`), title: b.name, body: translate("notif.osDueOn", { date: per.dueDate }), schedule: { at } });
+    });
 
-  (store.installments || []).forEach((i) => {
-    if (i.stopped || i.status === "completed") return;
-    if ((i.paidInstallments || 0) >= (i.totalInstallments || 0)) return;
-    const cm = currentMonth();
-    if (i.payments?.some((p) => p.month === cm)) return;
-    const dueDate = `${cm}-${String(Math.min(28, Math.max(1, i.dueDay || 1))).padStart(2, "0")}`;
-    const at = scheduleTimeFor(dueDate, i.reminderDays, now);
-    if (!at) return;
-    notifications.push({ id: idFor(`inst-${i.id}-${cm}`), title: i.name || i.company || translate("notif.instFallback"), body: translate("notif.osDueOn", { date: dueDate }), schedule: { at } });
-  });
+    (store.installments || []).forEach((i) => {
+      if (i.stopped || i.status === "completed") return;
+      if ((i.paidInstallments || 0) >= (i.totalInstallments || 0)) return;
+      const cm = currentMonth();
+      if (i.payments?.some((p) => p.month === cm)) return;
+      const dueDate = `${cm}-${String(Math.min(28, Math.max(1, i.dueDay || 1))).padStart(2, "0")}`;
+      const at = scheduleTimeFor(dueDate, i.reminderDays, now);
+      if (!at) return;
+      notifications.push({ id: idFor(`inst-${i.id}-${cm}`), title: i.name || i.company || translate("notif.instFallback"), body: translate("notif.osDueOn", { date: dueDate }), schedule: { at } });
+    });
 
-  if (notifications.length) await LocalNotifications.schedule({ notifications });
+    console.log("[notif] scheduling", notifications.length, "notification(s):", JSON.stringify(notifications.map((n) => ({ id: n.id, title: n.title, at: n.schedule.at }))));
+    if (notifications.length) await LocalNotifications.schedule({ notifications });
+  } catch (e) {
+    console.error("[notif] syncScheduledNotifications failed:", e);
+  }
 }
