@@ -5,8 +5,10 @@ import Ico from "../ui/Ico.jsx";
 import ConfettiBurst from "../ui/ConfettiBurst.jsx";
 import { fmt } from "../lib/format.js";
 import { useT } from "../lib/i18n.js";
+import { useThemedStatusBar } from "../lib/useNativeStatusBar.js";
 
 export default function Celebration({ goal, saved, onKeep }) {
+  useThemedStatusBar();
   const tr = useT();
   return (
     <div className="content" style={{ padding: 0, height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", cursor: "pointer", position: "relative" }} onClick={onKeep}>
