@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Ico from "../ui/Ico.jsx";
 import AmountSheet from "../ui/AmountSheet.jsx";
-import { fmt, today, cardGradient } from "../lib/format.js";
+import { fmt, today, cardGradient, HAPTICS } from "../lib/format.js";
 import { calcBankBalance } from "../lib/calc.js";
 import ColorField from "../ui/ColorField.jsx";
 import { loadColors } from "../ui/ColorSheet.jsx";
@@ -26,6 +26,7 @@ export default function AccountEditor({ store, account, onClose, onDeleted }) {
 
   const save = () => {
     if (!canSave) return;
+    HAPTICS.success();
     const lowBalanceThreshold = alertOn && threshold > 0 ? threshold : undefined;
     const glyph = kind === "cash" ? "banknote" : "landmark";
     if (editing) {

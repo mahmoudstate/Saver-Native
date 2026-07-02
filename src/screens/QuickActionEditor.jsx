@@ -5,7 +5,7 @@ import CatTile from "../ui/CatTile.jsx";
 import AmountSheet from "../ui/AmountSheet.jsx";
 import PickerSheet from "../ui/PickerSheet.jsx";
 import { resolveCat } from "../ui/cats.js";
-import { fmt } from "../lib/format.js";
+import { fmt, HAPTICS } from "../lib/format.js";
 import { useT } from "../lib/i18n.js";
 
 const catKeyOf = (c) => (c ? resolveCat({ catId: c.id, catGlyph: c.glyph, catName: c.name }) : null);
@@ -25,6 +25,7 @@ export default function QuickActionEditor({ store, action, onClose }) {
 
   const save = () => {
     if (!canSave) return;
+    HAPTICS.success();
     store.set("quickActions", (list = []) => {
       const arr = list.filter((q) => q.catId);
       if (editing) return arr.map((q) => (q.id === action.id ? { ...q, catId, amount, bankId } : q));

@@ -14,7 +14,7 @@ import PickerSheet from "../ui/PickerSheet.jsx";
 import ColorField from "../ui/ColorField.jsx";
 import IconField from "../ui/IconField.jsx";
 import CatTile from "../ui/CatTile.jsx";
-import { fmt, today } from "../lib/format.js";
+import { fmt, today, HAPTICS } from "../lib/format.js";
 import { useT } from "../lib/i18n.js";
 
 const r2 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
@@ -62,6 +62,7 @@ export default function InstallmentEditor({ store, plan, onClose }) {
 
   const save = () => {
     if (!valid) return;
+    HAPTICS.success();
     const dp = Math.max(0, downPayment || 0);
     const tot = total > 0 ? total : r2(count * monthly);
     const base = { itemType: item.trim(), company: company.trim(), name: title, color, glyph, totalInstallments: count, installmentAmount: monthly, totalAmount: tot, downPayment: dp, dueDay: clampDay(dueDay), reminderDays: Math.min(7, Math.max(0, reminderDays | 0)), note: note.trim(), bankId, startDate };

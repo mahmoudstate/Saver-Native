@@ -11,7 +11,7 @@ import ColorField from "../ui/ColorField.jsx";
 import IconField from "../ui/IconField.jsx";
 import { resolveCat } from "../ui/cats.js";
 import { loadColors } from "../ui/ColorSheet.jsx";
-import { fmt, currentMonth, monthLabel } from "../lib/format.js";
+import { fmt, currentMonth, monthLabel, HAPTICS } from "../lib/format.js";
 import { BILL_TYPES } from "../lib/services.js";
 import { useT } from "../lib/i18n.js";
 
@@ -42,6 +42,7 @@ export default function BudgetEditor({ store, budget, initialKind, onClose }) {
 
   const save = () => {
     if (!canSave) return;
+    HAPTICS.success();
     const base = { name: name.trim(), amount, cats, color, glyph };
     const extra = isProject ? { kind: "project", startMonth: month, month: undefined, cycleStartDay: undefined }
       : recurring ? { kind: undefined, startMonth: month, month: undefined, cycleStartDay }

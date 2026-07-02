@@ -5,6 +5,7 @@ import CatTile from "../ui/CatTile.jsx";
 import { CATS } from "../ui/cats.js";
 import ColorField from "../ui/ColorField.jsx";
 import { loadColors } from "../ui/ColorSheet.jsx";
+import { HAPTICS } from "../lib/format.js";
 import { useT } from "../lib/i18n.js";
 
 // Icons are split by type: expense icons show for an expense category, income icons for income.
@@ -68,6 +69,7 @@ export default function CategoryEditor({ store, category, kind: initialKind, onC
 
   const save = () => {
     if (!canSave) return;
+    HAPTICS.success();
     const entry = { name: name.trim(), glyph, color, group: category?.group || "daily" };
     if (editing) store.set(listKey, (list) => list.map((c) => (c.id === category.id ? { ...c, ...entry } : c)));
     else store.set(listKey, (list) => [...list, { id: Date.now().toString(), ...entry }]);

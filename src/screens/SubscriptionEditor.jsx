@@ -12,7 +12,7 @@ import ServicePicker from "../ui/ServicePicker.jsx";
 import ServiceLogo from "../ui/ServiceLogo.jsx";
 import CustomIconSheet from "../ui/CustomIconSheet.jsx";
 import { loadColors } from "../ui/ColorSheet.jsx";
-import { fmt, currentMonth, cardGradient, dayName } from "../lib/format.js";
+import { fmt, currentMonth, cardGradient, dayName, HAPTICS } from "../lib/format.js";
 import { SERVICE_CAT_TO_TYPE, BILL_TYPES } from "../lib/services.js";
 import { FREQS } from "../lib/billfreq.js";
 import { useT } from "../lib/i18n.js";
@@ -54,6 +54,7 @@ export default function SubscriptionEditor({ store, bill, onClose }) {
 
   const save = () => {
     if (!canSave) return;
+    HAPTICS.success();
     const dueClamped = frequency === "weekly" ? clampDow(dueDay) : clampDay(dueDay);
     const base = { name: name.trim(), amount, frequency, dueDay: dueClamped, reminderDays: Math.min(7, Math.max(0, reminderDays | 0)), bankId, color, domain: custom ? "" : domain, glyph: custom ? glyph : "", typeId };
     if (editing) store.set("bills", (list) => list.map((b) => (b.id === bill.id ? { ...b, ...base } : b)));

@@ -4,7 +4,7 @@ import Ico from "../ui/Ico.jsx";
 import CatTile from "../ui/CatTile.jsx";
 import AmountSheet from "../ui/AmountSheet.jsx";
 import { resolveCat } from "../ui/cats.js";
-import { fmt } from "../lib/format.js";
+import { fmt, HAPTICS } from "../lib/format.js";
 import ColorField from "../ui/ColorField.jsx";
 import IconField from "../ui/IconField.jsx";
 import { loadColors } from "../ui/ColorSheet.jsx";
@@ -25,6 +25,7 @@ export default function GoalEditor({ store, goal, onClose }) {
 
   const save = () => {
     if (!canSave) return;
+    HAPTICS.success();
     if (editing) store.set("savings", (list) => list.map((s) => (s.id === goal.id ? { ...s, name: name.trim(), goal: target, color, glyph, spendingMode: spending } : s)));
     else store.set("savings", (list) => [...list, { id: Date.now().toString(), name: name.trim(), goal: target, status: "active", spendingMode: spending, color, glyph }]);
     store.flash({ title: editing ? tr("editor.goalSaved") : tr("editor.goalCreated"), sub: name.trim(), color: "var(--acText)", icon: "check" });
