@@ -6,6 +6,7 @@ import { CSS } from "@dnd-kit/utilities";
 import Ico from "../ui/Ico.jsx";
 import Money from "../ui/Money.jsx";
 import SegToggle from "../ui/SegToggle.jsx";
+import SwipeToDismiss from "../ui/SwipeToDismiss.jsx";
 import { fmt } from "../lib/format.js";
 import { calcBankBalance, calcFrozenForBank, totalBalance, totalFrozen } from "../lib/calc.js";
 import { bankIcon } from "../lib/bankIcon.js";
@@ -44,15 +45,16 @@ function SortableBankRow({ b, sub, balance, onOpen }) {
 // so we only ever offer that for an account that was never actually used.
 const hasHistory = (bankId, txns) => txns.some((t) => t.bankId === bankId || t.fromBankId === bankId || t.toBankId === bankId);
 
-function ArchivedBankRow({ b, balance, empty, restoreLabel, deleteLabel, onRestore, onDelete }) {
+// Restore is the one visible action (a small pill, like the notifications
+// row style). Delete — only ever available on an unused account — lives
+// behind a left-swipe instead of a second crammed-in button, matching the
+// swipe-to-dismiss pattern already used for notifications.
+function ArchivedBankRow({ b, balance, restoreLabel, onRestore }) {
   return (
-    <div className="icard" style={{ opacity: .75 }}>
+    <div className="icard" style={{ opacity: .75, marginBottom: 0 }}>
       <span className="circ" style={{ width: 44, height: 44, borderRadius: 14, background: `color-mix(in srgb, ${b.color || "var(--muted)"} 20%, transparent)`, color: b.color || "var(--muted)" }}><Ico name={bankIcon(b.glyph)} size={20} /></span>
       <div><div className="nm">{b.name}</div><div className="mt tnum">{fmt(balance)}</div></div>
-      <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
-        {empty && <div className="btn btn-ghost" style={{ padding: "8px 12px", fontSize: 13, color: "var(--red)" }} onClick={() => onDelete(b)}><Ico name="trash" size={15} />{deleteLabel}</div>}
-        <div className="btn btn-ghost" style={{ padding: "8px 14px", fontSize: 13 }} onClick={() => onRestore(b)}><Ico name="back" size={15} />{restoreLabel}</div>
-      </div>
+      <div className="btn btn-ghost" style={{ marginLeft: "auto", padding: "8px 14px", fontSize: 13 }} onClick={() => onRestore(b)}><Ico name="back" size={15} />{restoreLabel}</div>
     </div>
   );
 }
@@ -65,6 +67,7 @@ export default function Accounts({ store, back, onOpen, onAdd }) {
   const active = banks.filter((b) => !b.archived);
   const archived = banks.filter((b) => b.archived);
   const [view, setView] = useState("active"); // active | archived
+  const [openKey, setOpenKey] = useState(null); // which archived row (if any) has swipe-delete revealed
   const dndSensors = useRowDndSensors();
   const onDragEnd = ({ active: a, over }) => {
     if (!over || a.id === over.id) return;
@@ -112,12 +115,23 @@ export default function Accounts({ store, back, onOpen, onAdd }) {
           </SortableContext>
         </DndContext>
       ) : (
-        archived.length === 0
-          ? <div style={{ textAlign: "center", color: "var(--muted)", padding: "40px", fontWeight: 600 }}>{tr("account.noArchived")}</div>
-          : archived.map((b) => (
-            <ArchivedBankRow key={b.id} b={b} balance={calcBankBalance(b.id, txns)} empty={!hasHistory(b.id, txns)}
-              restoreLabel={tr("account.restore")} deleteLabel={tr("account.deleteForever")} onRestore={restore} onDelete={deleteForever} />
-          ))
+        <div onClick={() => openKey && setOpenKey(null)}>
+          {archived.length === 0
+            ? <div style={{ textAlign: "center", color: "var(--muted)", padding: "40px", fontWeight: 600 }}>{tr("account.noArchived")}</div>
+            : archived.map((b) => {
+              const row = <ArchivedBankRow b={b} balance={calcBankBalance(b.id, txns)} restoreLabel={tr("account.restore")} onRestore={restore} />;
+              const empty = !hasHistory(b.id, txns);
+              return (
+                // .icard's own margin-bottom would get trapped by SwipeToDismiss's
+                // overflow:hidden wrapper, so move the gap to the outer element.
+                <div key={b.id} style={{ marginBottom: 11 }}>
+                  {empty
+                    ? <SwipeToDismiss isOpen={openKey === b.id} onOpenChange={(v) => setOpenKey(v ? b.id : null)} onDismiss={() => deleteForever(b)}>{row}</SwipeToDismiss>
+                    : row}
+                </div>
+              );
+            })}
+        </div>
       )}
 
       {view === "active" && (
