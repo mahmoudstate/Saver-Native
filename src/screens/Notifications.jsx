@@ -34,10 +34,13 @@ export default function Notifications({ store, back, onOpen }) {
           // overflow:hidden wrapper, so move the gap to the outer element instead.
           <div key={n.key} style={{ marginBottom: 11 }}>
             <SwipeToDismiss isOpen={openKey === n.key} onOpenChange={(v) => setOpenKey(v ? n.key : null)} onDismiss={() => dismiss(n)}>
-              <div className="icard" onClick={() => open(n)} style={{ opacity: n.unread ? 1 : .7, cursor: n.nav ? "pointer" : "default", marginBottom: 0 }}>
-                <span className="circ" style={{ width: 40, height: 40, borderRadius: 12, background: n.bg, color: n.col }}><Ico name={n.icon} size={19} /></span>
-                <div><div className="nm">{n.nm}</div><div className="mt">{n.mt}</div></div>
-                <span className="amtb" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              {/* opacity lives on the inner content, not the card itself — the
+                  card's own background must stay fully opaque, or it lets the
+                  swipe-reveal delete panel show through behind it. */}
+              <div className="icard" onClick={() => open(n)} style={{ cursor: n.nav ? "pointer" : "default", marginBottom: 0 }}>
+                <span className="circ" style={{ width: 40, height: 40, borderRadius: 12, background: n.bg, color: n.col, opacity: n.unread ? 1 : .7 }}><Ico name={n.icon} size={19} /></span>
+                <div style={{ opacity: n.unread ? 1 : .7 }}><div className="nm">{n.nm}</div><div className="mt">{n.mt}</div></div>
+                <span className="amtb" style={{ display: "flex", alignItems: "center", gap: 8, opacity: n.unread ? 1 : .7 }}>
                   {n.unread && <span style={{ width: 9, height: 9, borderRadius: "50%", background: "var(--ac)" }} />}
                   {n.nav && <Ico name="chev" size={18} color="var(--faint)" />}
                 </span>
