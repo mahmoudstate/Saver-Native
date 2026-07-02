@@ -271,7 +271,7 @@ header.lead{padding:48px 0 6px}
   background:color-mix(in srgb,var(--text) 15%,transparent);z-index:8}
 
 /* ---------- 16. ADD (sticky cta) ---------- */
-.cta{position:absolute;left:20px;right:20px;bottom:24px}
+.cta{position:absolute;left:20px;right:20px;bottom:calc(24px + var(--safe-bottom))}
 
 /* ---------- 18. PHASE-2 COMPONENTS ---------- */
 /* switch / toggle */
