@@ -1,5 +1,6 @@
 // Saver — global overlays: blocking AlertModal + ConfirmModal + transient Toast.
 // Ported 1:1 from the showcase .dialog / .toast helpers. Friendly hybrid messaging.
+import { useEffect, useRef, useState } from "react";
 import Ico from "./Ico.jsx";
 import ConfettiBurst from "./ConfettiBurst.jsx";
 import { useT } from "../lib/i18n.js";
@@ -65,15 +66,29 @@ const COLOR_TO_TYPE = {
   "var(--muted)": "neutral", "var(--purple)": "info",
 };
 
+// Keeps rendering the last toast for a moment after it clears, so the
+// disappearance can fade out instead of popping off instantly.
 export function Toast({ data }) {
-  if (!data) return null;
-  const preset = TOAST_TYPES[data.type] || TOAST_TYPES[COLOR_TO_TYPE[data.color]] || TOAST_TYPES.success;
+  const [shown, setShown] = useState(data);
+  const [closing, setClosing] = useState(false);
+  const timer = useRef(null);
+
+  useEffect(() => {
+    if (data) { clearTimeout(timer.current); setShown(data); setClosing(false); return; }
+    if (!shown) return;
+    setClosing(true);
+    timer.current = setTimeout(() => setShown(null), 220);
+    return () => clearTimeout(timer.current);
+  }, [data]); // eslint-disable-line
+
+  if (!shown) return null;
+  const preset = TOAST_TYPES[shown.type] || TOAST_TYPES[COLOR_TO_TYPE[shown.color]] || TOAST_TYPES.success;
   const color = preset.color; // normalize to a palette color so the tint matches the app
-  const icon = data.icon || preset.icon;
+  const icon = shown.icon || preset.icon;
   return (
-    <div className="toast" role="status">
+    <div className={`toast${closing ? " out" : ""}`} role="status">
       <span className="ic" style={tile(color)}><Ico name={icon} size={20} /></span>
-      <div><div className="tx">{data.title}</div>{data.sub && <div className="ts">{data.sub}</div>}</div>
+      <div><div className="tx">{shown.title}</div>{shown.sub && <div className="ts">{shown.sub}</div>}</div>
     </div>
   );
 }
