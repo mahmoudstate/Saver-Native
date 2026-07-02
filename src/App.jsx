@@ -3,6 +3,7 @@ import { useState, useRef } from "react";
 import { useStore } from "./lib/store.js";
 import { useNativeStatusBar } from "./lib/useNativeStatusBar.js";
 import { useAppLock } from "./lib/useAppLock.js";
+import { HAPTICS } from "./lib/format.js";
 import { useKeyboardInsets } from "./lib/useKeyboardInsets.js";
 import LockScreen from "./ui/LockScreen.jsx";
 import BottomNav from "./ui/BottomNav.jsx";
@@ -91,7 +92,7 @@ export default function App() {
     setBillsSeg(null); setStack([]);
     // Home: first tap from another tab restores the saved scroll (no remount); a second tap (already on Home) resets to the top.
     if (t === "home" && tab !== "home") { setTab("home"); return; }
-    if (t === "home") homeScroll.current = 0;
+    if (t === "home") { HAPTICS.light(); homeScroll.current = 0; } // re-tap Home while already there: snap to top
     setTab(t); setTabKey((k) => k + 1);
   };
   // Switch tab from inside a screen (e.g. Home's Bills card) without forcing a reset.
