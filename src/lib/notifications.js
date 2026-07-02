@@ -18,7 +18,7 @@ export function buildNotifications(store, tr = (k, vars, fallback) => fallback) 
     const { key, dueIn } = billPeriod(b, todayISO);
     if (isBillPaidForKey(b, key)) return;
     if (dueIn == null) return;
-    if (dueIn >= 0 && dueIn <= 3) items.push({ key: `bill-${b.id}-${key}`, icon: "bell", bg: "var(--yellowDim)", col: "var(--yellow)", nm: dueIn === 0 ? tr("notif.billDueToday", { name: b.name }, `${b.name}’s knocking — due today`) : dueIn === 1 ? tr("notif.billDueTomorrow", { name: b.name }, `${b.name}’s knocking — due tomorrow`) : tr("notif.billDueDays", { name: b.name, n: dueIn }, `${b.name}’s knocking — due in ${dueIn} days`), mt: tr("notif.catBills", null, "Bills"), nav: { type: "sub", bill: b } });
+    if (dueIn >= 0 && dueIn <= 3) items.push({ key: `bill-${b.id}-${key}`, icon: "bell", bg: "var(--yellowDim)", col: "var(--yellow)", nm: dueIn === 0 ? tr("notif.billDueToday", { name: b.name }, `${b.name} is due today`) : dueIn === 1 ? tr("notif.billDueTomorrow", { name: b.name }, `${b.name} is due tomorrow`) : tr("notif.billDueDays", { name: b.name, n: dueIn }, `${b.name} is due in ${dueIn} days`), mt: tr("notif.catBills", null, "Bills"), nav: { type: "sub", bill: b } });
   });
   // installment payments due this month (active plan, not yet paid)
   installments.forEach((i) => {
@@ -26,11 +26,11 @@ export function buildNotifications(store, tr = (k, vars, fallback) => fallback) 
     if ((i.paidInstallments || 0) >= (i.totalInstallments || 0)) return;
     if (i.payments?.some((p) => p.month === cm)) return;
     const label = i.name || i.company || tr("notif.instFallback", null, "Installment");
-    items.push({ key: `inst-${i.id}-${cm}`, icon: "card", bg: "var(--orangeDim)", col: "var(--orange)", nm: tr("notif.instDue", { name: label }, `${label} — this month’s payment is due`), mt: tr("notif.instSub", { amt: fmt(i.installmentAmount) }, `${fmt(i.installmentAmount)} · Installments`), nav: { type: "inst", instId: i.id } });
+    items.push({ key: `inst-${i.id}-${cm}`, icon: "card", bg: "var(--orangeDim)", col: "var(--orange)", nm: tr("notif.instDue", { name: label }, `${label}: this month’s payment is due`), mt: tr("notif.instSub", { amt: fmt(i.installmentAmount) }, `${fmt(i.installmentAmount)} · Installments`), nav: { type: "inst", instId: i.id } });
   });
   // goals reached
   savings.filter((s) => s.status !== "archived").forEach((s) => {
-    if (s.goal > 0 && calcGoalSaved(s.id, txns) >= s.goal) items.push({ key: `goal-${s.id}`, icon: "target", bg: "var(--acDim)", col: "var(--ac)", nm: tr("notif.goalDone", { name: s.name }, `You smashed it — ${s.name} goal done!`), mt: tr("notif.catGoals", null, "Goals"), nav: { type: "goal", goalId: s.id } });
+    if (s.goal > 0 && calcGoalSaved(s.id, txns) >= s.goal) items.push({ key: `goal-${s.id}`, icon: "target", bg: "var(--acDim)", col: "var(--ac)", nm: tr("notif.goalDone", { name: s.name }, `You reached your ${s.name} goal!`), mt: tr("notif.catGoals", null, "Goals"), nav: { type: "goal", goalId: s.id } });
   });
   // budgets overspent this month
   budgets.filter((b) => b.kind !== "project" && (b.month ? b.month === cm : (!b.startMonth || cm >= b.startMonth))).forEach((b) => {
@@ -43,10 +43,10 @@ export function buildNotifications(store, tr = (k, vars, fallback) => fallback) 
   banks.forEach((b) => {
     if (b.lowBalanceThreshold == null) return;
     const safe = calcBankBalance(b.id, txns) - Math.max(0, calcFrozenForBank(b.id, savings, txns));
-    if (safe <= b.lowBalanceThreshold) items.push({ key: `bank-low-${b.id}`, icon: "wallet", bg: "var(--redDim)", col: "var(--red)", nm: tr("notif.lowRunning", { name: b.name }, `${b.name}’s running low`), mt: tr("notif.lowSub", { amt: fmt(safe) }, `${fmt(safe)} left`), nav: { type: "account", bank: b } });
+    if (safe <= b.lowBalanceThreshold) items.push({ key: `bank-low-${b.id}`, icon: "wallet", bg: "var(--redDim)", col: "var(--red)", nm: tr("notif.lowRunning", { name: b.name }, `${b.name} is running low`), mt: tr("notif.lowSub", { amt: fmt(safe) }, `${fmt(safe)} left`), nav: { type: "account", bank: b } });
   });
   // backup nudge (informational — never counts as unread)
-  items.push({ key: "backup", icon: "download", bg: "var(--blueDim)", col: "var(--blue)", nm: tr("notif.backupTitle", null, "Your backup misses you"), mt: tr("notif.backupSub", null, "Keep a recent copy"), muted: true, nav: { type: "privacy" } });
+  items.push({ key: "backup", icon: "download", bg: "var(--blueDim)", col: "var(--blue)", nm: tr("notif.backupTitle", null, "Back up your data"), mt: tr("notif.backupSub", null, "Keep a recent copy"), muted: true, nav: { type: "privacy" } });
 
   const read = new Set(notifReadKeys);
   items.forEach((n) => { n.unread = !n.muted && !read.has(n.key); });
