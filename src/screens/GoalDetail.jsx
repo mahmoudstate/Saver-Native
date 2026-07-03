@@ -10,7 +10,7 @@ import LinkBadge from "../ui/LinkBadge.jsx";
 import Money from "../ui/Money.jsx";
 import { fmt, today, fmtDate } from "../lib/format.js";
 import { calcGoalSaved, goalBalancesPerBank } from "../lib/calc.js";
-import { bankIcon } from "../lib/bankIcon.js";
+import BankLogo from "../ui/BankLogo.jsx";
 import { useT } from "../lib/i18n.js";
 
 
@@ -95,7 +95,7 @@ export default function GoalDetail({ store, goalId, back, onReached, onEdit, onE
   return (
     <div className="content padnav">
       <div className="hero">
-        <div className="toprow"><div className="hib" onClick={back}><Ico name="back" size={20} /></div><div className="ttl">{goal.name}</div><div className="grow" /><div className="hib" onClick={() => onEdit?.(goal)} style={{ marginRight: 8 }}><Ico name="pencil" size={18} /></div><div className="hib" onClick={() => setMenu(true)}><Ico name="more" size={20} /></div></div>
+        <div className="toprow"><div className="hib" onClick={back}><Ico name="back" size={20} /></div><div className="ttl">{goal.name}</div><div className="grow" /><div className="hib" onClick={() => onEdit?.(goal)} style={{ marginInlineEnd: 8 }}><Ico name="pencil" size={18} /></div><div className="hib" onClick={() => setMenu(true)}><Ico name="more" size={20} /></div></div>
         <div className="lbl">{tr("goal.saved")}</div>
         <Money className="big tnum" v={saved} />
         <div className="sub">{left > 0 ? tr("goal.leftPctOf", { left: fmt(left), pct: Math.round(pct), target: fmt(target) }) : tr("goal.reached", { amt: fmt(target) })}</div>
@@ -118,7 +118,7 @@ export default function GoalDetail({ store, goalId, back, onReached, onEdit, onE
         <div className="over">{tr("goal.frozenAcross")}</div>
         {perBank.map(([bid, amt]) => { const b = bankOf(bid); return (
           <div className="icard" key={bid}>
-            <span className="circ" style={{ width: 40, height: 40, borderRadius: 12, background: `color-mix(in srgb, ${b?.color || "var(--muted)"} 20%, transparent)`, color: b?.color || "var(--muted)" }}><Ico name={bankIcon(b?.glyph)} size={18} /></span>
+            <BankLogo name={b?.name} domain={b?.domain} glyph={b?.glyph} color={b?.color} size={40} radius={12} iconSize={18} />
             <div><div className="nm">{b?.name || tr("add.account")}</div><div className="mt">{tr("goal.frozenForGoal")}</div></div>
             <div className="amtb"><b className="tnum">{fmt(amt)}</b></div>
           </div>

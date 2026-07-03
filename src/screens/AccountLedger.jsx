@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import Ico from "../ui/Ico.jsx";
 import TxnRow from "../ui/TxnRow.jsx";
 import Money from "../ui/Money.jsx";
+import BankLogo from "../ui/BankLogo.jsx";
 import { fmt, monthLabel, cardGradient } from "../lib/format.js";
 import { calcBankBalance, calcFrozenForBank } from "../lib/calc.js";
 import { useT } from "../lib/i18n.js";
@@ -37,8 +38,9 @@ export default function AccountLedger({ store, bank: bankProp, back, onMove, onE
         <span className="bc-orb" style={{ width: 130, height: 130, top: -44, right: -34 }} /><span className="bc-orb" style={{ width: 60, height: 60, bottom: 18, right: 42, opacity: .5 }} /><span className="bc-shine" />
         <div className="toprow" style={{ position: "relative", zIndex: 2 }}>
           <div className="hib" onClick={back} style={{ background: "rgba(255,255,255,.2)", color: "#fff" }}><Ico name="back" size={20} /></div>
+          <BankLogo domain={bank.domain} name={bank.name} glyph={bank.glyph} color={bank.color} size={38} radius={12} style={{ marginInlineEnd: 6 }} />
           <div className="ttl">{bank.name}</div><div className="grow" />
-          <Ico name="contactless" size={20} color="#fff" stroke={2} style={{ opacity: .9, marginRight: 8 }} />
+          <Ico name="contactless" size={20} color="#fff" stroke={2} style={{ opacity: .9, marginInlineEnd: 8 }} />
           <div className="hib" style={{ background: "rgba(255,255,255,.2)", color: "#fff" }} onClick={() => onEdit?.(bank)}><Ico name="pencil" size={18} /></div>
         </div>
         <div style={{ position: "relative", zIndex: 2 }}>

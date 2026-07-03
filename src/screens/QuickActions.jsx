@@ -26,7 +26,7 @@ export default function QuickActions({ store, back, onEdit }) {
         <div className="icard" key={q.id} onClick={() => onEdit?.(q)} style={{ cursor: "pointer" }}>
           <CatTile cat={catKeyOf(c)} name={c?.name} size={44} />
           <div><div className="nm">{c?.name || tr("quick.shortcut")}</div><div className="mt">{fmt(+q.amount || 0)} · {bankOf(q.bankId)?.name || "—"}</div></div>
-          <span className="chev" style={{ marginLeft: "auto", color: "var(--faint)" }}><Ico name="pencil" size={17} /></span>
+          <span className="chev" style={{ marginInlineStart: "auto", color: "var(--faint)" }}><Ico name="pencil" size={17} /></span>
         </div>
       ); })}
 

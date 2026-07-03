@@ -5,6 +5,7 @@ import { Capacitor } from "@capacitor/core";
 import Ico from "./Ico.jsx";
 import PinSetup from "./PinSetup.jsx";
 import { setPin, clearPin, biometryInfo } from "../lib/appLock.js";
+import { HAPTICS } from "../lib/format.js";
 
 export default function AppLockRow({ store, tr }) {
   const [setup, setSetup] = useState(false);
@@ -12,6 +13,7 @@ export default function AppLockRow({ store, tr }) {
   const native = Capacitor.isNativePlatform();
 
   const toggle = async () => {
+    HAPTICS.light();
     if (!native) {
       store.setAlert({ title: tr("privacy.appLock"), message: tr("lock.nativeOnly"), color: "var(--blue)" });
       return;

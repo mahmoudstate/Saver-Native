@@ -39,7 +39,7 @@ export default function BudgetDetail({ store, budgetId, viewMonth, back, onEdit,
   return (
     <div className="content padnav">
       <div className="hero">
-        <div className="toprow"><div className="hib" onClick={back}><Ico name="back" size={20} /></div><div className="ttl">{budget.name}</div><div className="grow" /><div className="hib" onClick={() => onEdit?.(budget)} style={{ marginRight: 8 }}><Ico name="pencil" size={18} /></div><div className="hib" onClick={() => setMenu(true)}><Ico name="more" size={20} /></div></div>
+        <div className="toprow"><div className="hib" onClick={back}><Ico name="back" size={20} /></div><div className="ttl">{budget.name}</div><div className="grow" /><div className="hib" onClick={() => onEdit?.(budget)} style={{ marginInlineEnd: 8 }}><Ico name="pencil" size={18} /></div><div className="hib" onClick={() => setMenu(true)}><Ico name="more" size={20} /></div></div>
         <div className="lbl">{tr("budget.spent")}</div>
         <Money className="big tnum" v={spent} />
         <div className="sub">{tr("budget.ofBudget", { amt: fmt(limit) })} &nbsp;·&nbsp; {tr("budget.pctUsed", { pct: limit > 0 ? Math.round((spent / limit) * 100) : 0 })}</div>

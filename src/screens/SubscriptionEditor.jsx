@@ -16,7 +16,7 @@ import { fmt, currentMonth, cardGradient, dayName, HAPTICS } from "../lib/format
 import { focusNext } from "../lib/focusNext.js";
 import { SERVICE_CAT_TO_TYPE, BILL_TYPES } from "../lib/services.js";
 import { FREQS } from "../lib/billfreq.js";
-import { bankIcon } from "../lib/bankIcon.js";
+import BankLogo from "../ui/BankLogo.jsx";
 import { useT } from "../lib/i18n.js";
 
 const clampDay = (d) => Math.min(28, Math.max(1, d || 1));
@@ -31,6 +31,7 @@ function Brand({ domain, glyph, name, color, size = 42 }) {
 
 export default function SubscriptionEditor({ store, bill, onClose }) {
   const { banks = [] } = store;
+  const liveBanks = banks.filter((b) => !b.archived);
   const tr = useT();
   const editing = !!bill;
   const [name, setName] = useState(bill?.name || "");
@@ -38,7 +39,7 @@ export default function SubscriptionEditor({ store, bill, onClose }) {
   const [frequency, setFrequency] = useState(bill?.frequency || "monthly");
   const [dueDay, setDueDay] = useState(bill?.dueDay || 1);
   const [reminderDays, setReminderDays] = useState(bill?.reminderDays ?? 2);
-  const [bankId, setBankId] = useState(bill?.bankId || banks[0]?.id || null);
+  const [bankId, setBankId] = useState(bill?.bankId || liveBanks[0]?.id || null);
   const [color, setColor] = useState(bill?.color || loadColors()[0]);
   const [domain, setDomain] = useState(bill?.domain || "");
   const [glyph, setGlyph] = useState(bill?.glyph || "");
@@ -114,7 +115,7 @@ export default function SubscriptionEditor({ store, bill, onClose }) {
         <div style={{ flex: 1 }}><div className="fl">{tr("sub.remindMe")}</div><div className="fv tnum">{reminderDays === 0 ? tr("sub.off") : tr(reminderDays === 1 ? "sub.dayBefore" : "sub.daysBefore", { n: reminderDays })}</div></div><span className="chev"><Ico name="chev" size={18} /></span>
       </div>
       <div className="field" onClick={() => setSheet("account")} style={{ cursor: "pointer", marginTop: 10 }}>
-        <span className="circ" style={{ width: 42, height: 42, borderRadius: 13, background: `color-mix(in srgb, ${bank?.color || "var(--muted)"} 20%, transparent)`, color: bank?.color || "var(--muted)" }}><Ico name={bankIcon(bank?.glyph)} size={19} /></span>
+        <BankLogo name={bank?.name} domain={bank?.domain} glyph={bank?.glyph} color={bank?.color} size={42} radius={13} iconSize={19} />
         <div><div className="fl">{tr("sub.paysFrom")}</div><div className="fv">{bank?.name || tr("sub.pick")}</div></div><span className="chev"><Ico name="chev" size={18} /></span>
       </div>
 
@@ -151,7 +152,7 @@ export default function SubscriptionEditor({ store, bill, onClose }) {
       {sheet === "day" && <DayGridSheet title={tr("sub.billingDay")} sub={tr("sub.billingDaySub")} value={clampDay(dueDay)} onConfirm={(v) => { setDueDay(v); setSheet(null); }} onClose={() => setSheet(null)} />}
       {sheet === "weekday" && <OptionSheet title={tr("sub.billingWeekday")} sub={tr("sub.billingWeekdaySub")} value={clampDow(dueDay)} onPick={(v) => { setDueDay(v); setSheet(null); }} onClose={() => setSheet(null)} options={[0, 1, 2, 3, 4, 5, 6].map((d) => ({ value: d, label: dayName(d) }))} />}
       {sheet === "remind" && <OptionSheet title={tr("sub.remindMe")} sub={tr("sub.beforeDue")} value={reminderDays} onPick={(v) => { setReminderDays(v); setSheet(null); }} onClose={() => setSheet(null)} options={[{ value: 0, label: tr("sub.off") }, { value: 1, label: tr("sub.remind1") }, { value: 2, label: tr("sub.remind2") }, { value: 3, label: tr("sub.remind3") }, { value: 7, label: tr("sub.remind7") }]} />}
-      {sheet === "account" && <PickerSheet title={tr("sub.paysFrom")} selectedId={bankId} onPick={setBankId} onClose={() => setSheet(null)} options={banks.filter((b) => !b.archived).map((b) => ({ id: b.id, label: b.name, bankColor: b.color, glyph: b.glyph }))} />}
+      {sheet === "account" && <PickerSheet title={tr("sub.paysFrom")} selectedId={bankId} onPick={setBankId} onClose={() => setSheet(null)} options={banks.filter((b) => !b.archived).map((b) => ({ id: b.id, label: b.name, bankColor: b.color, bankDomain: b.domain, glyph: b.glyph }))} />}
     </div>
   );
 }

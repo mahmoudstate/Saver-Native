@@ -191,15 +191,15 @@ export function useStore() {
       if (t.type === "expense" || t.type === "transfer") {
         const checkId = t.type === "transfer" ? (t.fromBankId || t.bankId) : t.bankId;
         const avail = calc.safeToSpend(checkId);
-        if (avail < t.amount) { HAPTICS.warning(); setAlert({ title: "Not enough balance", message: `Available balance is ${fmt(avail)}. That doesn't cover this.`, color: "var(--red)" }); return false; }
+        if (avail < t.amount) { HAPTICS.warning(); setAlert({ title: tr("alerts.notEnoughBalanceTitle"), message: tr("alerts.notEnoughBalanceForThis", { amt: fmt(avail) }), color: "var(--red)" }); return false; }
       }
       if (t.type === "saving") {
         const avail = calc.safeToSpend(t.bankId);
-        if (avail < t.amount) { HAPTICS.warning(); setAlert({ title: "Not enough balance", message: `Available balance is ${fmt(avail)}. Not enough to save.`, color: "var(--red)" }); return false; }
+        if (avail < t.amount) { HAPTICS.warning(); setAlert({ title: tr("alerts.notEnoughBalanceTitle"), message: tr("alerts.notEnoughToSave", { amt: fmt(avail) }), color: "var(--red)" }); return false; }
       }
       if (t.type === "goal_withdraw" || t.type === "goal_return") {
         const saved = calc.goalSaved(t.goalId);
-        if (t.amount > saved) { HAPTICS.warning(); setAlert({ title: "Not enough in this goal", message: `This goal only has ${fmt(saved)}.`, color: "var(--red)" }); return false; }
+        if (t.amount > saved) { HAPTICS.warning(); setAlert({ title: tr("alerts.notEnoughInGoalTitle"), message: tr("alerts.goalOnlyHas", { amt: fmt(saved) }), color: "var(--red)" }); return false; }
         let rem = t.amount;
         const bpb = goalBalancesPerBank(t.goalId, txns);
         const newTxns = [];
@@ -235,7 +235,7 @@ export function useStore() {
     for (const t of list) { if (t.type === "expense" || t.type === "transfer") { const b = t.type === "transfer" ? (t.fromBankId || t.bankId) : t.bankId; byBank[b] = (byBank[b] || 0) + t.amount; } }
     for (const [bId, total] of Object.entries(byBank)) {
       const avail = calc.safeToSpend(bId);
-      if (avail < total) { HAPTICS.warning(); setAlert({ title: "Not enough balance", message: `Available balance is ${fmt(avail)}. That doesn't cover this.`, color: "var(--red)" }); return false; }
+      if (avail < total) { HAPTICS.warning(); setAlert({ title: tr("alerts.notEnoughBalanceTitle"), message: tr("alerts.notEnoughBalanceForThis", { amt: fmt(avail) }), color: "var(--red)" }); return false; }
     }
     const withIds = list.map((t) => ({ ...t, id: newId(), createdAt: stamp() }));
     set("txns", (prev) => [...withIds, ...prev]);
@@ -248,7 +248,7 @@ export function useStore() {
     if (!t) return false;
     if (t.type === "saving") {
       const calc = makeCalc(txns, savings);
-      if (calc.goalSaved(t.goalId) - t.amount < 0) { HAPTICS.warning(); setAlert({ title: "Can't remove this", message: "These funds were already spent or returned, so this saving can't be deleted.", color: "var(--red)" }); return false; }
+      if (calc.goalSaved(t.goalId) - t.amount < 0) { HAPTICS.warning(); setAlert({ title: tr("alerts.cantRemoveTitle"), message: tr("alerts.fundsAlreadySpentOrReturned"), color: "var(--red)" }); return false; }
     }
     const removedIds = t.splitGroupId ? txns.filter((x) => x.splitGroupId === t.splitGroupId).map((x) => x.id) : [id];
     const next = t.splitGroupId ? txns.filter((x) => x.splitGroupId !== t.splitGroupId) : txns.filter((x) => x.id !== id);
@@ -262,13 +262,13 @@ export function useStore() {
     const orig = txns.find((t) => t.id === id);
     if (!orig) return false;
     const calc = makeCalc(txns, savings);
-    if (orig.splitGroupId && patch.amount && patch.amount !== orig.amount) { HAPTICS.warning(); setAlert({ title: "Split transaction", message: "This is split across banks. Delete it and add it again to change the amount.", color: "var(--yellow)" }); return false; }
+    if (orig.splitGroupId && patch.amount && patch.amount !== orig.amount) { HAPTICS.warning(); setAlert({ title: tr("alerts.splitTxnTitle"), message: tr("alerts.splitTxnMsg"), color: "var(--yellow)" }); return false; }
     if (patch.amount && patch.amount !== orig.amount) {
       if (orig.type === "saving") {
-        if (patch.amount < orig.amount) { const diff = orig.amount - patch.amount; if (calc.goalSaved(orig.goalId) - diff < 0) { HAPTICS.warning(); setAlert({ title: "Can't reduce this", message: "Those funds have already been spent.", color: "var(--red)" }); return false; } }
-        else { const extra = patch.amount - orig.amount; if (calc.safeToSpend(orig.bankId) < extra) { HAPTICS.warning(); setAlert({ title: "Not enough balance", message: `Available balance is ${fmt(calc.safeToSpend(orig.bankId))}. Not enough to increase this saving.`, color: "var(--red)" }); return false; } }
+        if (patch.amount < orig.amount) { const diff = orig.amount - patch.amount; if (calc.goalSaved(orig.goalId) - diff < 0) { HAPTICS.warning(); setAlert({ title: tr("alerts.cantReduceTitle"), message: tr("alerts.fundsAlreadySpent"), color: "var(--red)" }); return false; } }
+        else { const extra = patch.amount - orig.amount; if (calc.safeToSpend(orig.bankId) < extra) { HAPTICS.warning(); setAlert({ title: tr("alerts.notEnoughBalanceTitle"), message: tr("alerts.notEnoughToIncrease", { amt: fmt(calc.safeToSpend(orig.bankId)) }), color: "var(--red)" }); return false; } }
       }
-      if (orig.type === "expense" || orig.type === "transfer") { const checkId = orig.type === "transfer" ? (orig.fromBankId || orig.bankId) : orig.bankId; const availWithout = calc.safeToSpend(checkId) + orig.amount; if (availWithout < patch.amount) { HAPTICS.warning(); setAlert({ title: "Not enough balance", message: "Not enough balance for this change.", color: "var(--red)" }); return false; } }
+      if (orig.type === "expense" || orig.type === "transfer") { const checkId = orig.type === "transfer" ? (orig.fromBankId || orig.bankId) : orig.bankId; const availWithout = calc.safeToSpend(checkId) + orig.amount; if (availWithout < patch.amount) { HAPTICS.warning(); setAlert({ title: tr("alerts.notEnoughBalanceTitle"), message: tr("alerts.notEnoughForChange"), color: "var(--red)" }); return false; } }
     }
     set("txns", txns.map((t) => (t.id === id ? { ...t, ...patch } : t)));
     return true;

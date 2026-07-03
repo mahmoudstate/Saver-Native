@@ -1,5 +1,5 @@
 // Saver — Accounts list: ported 1:1 from showcase 40 (manage banks & cash).
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { DndContext, closestCenter, MouseSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, useSortable, arrayMove, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -9,7 +9,7 @@ import SegToggle from "../ui/SegToggle.jsx";
 import SwipeToDismiss from "../ui/SwipeToDismiss.jsx";
 import { fmt } from "../lib/format.js";
 import { calcBankBalance, calcFrozenForBank, totalBalance, totalFrozen } from "../lib/calc.js";
-import { bankIcon } from "../lib/bankIcon.js";
+import BankLogo from "../ui/BankLogo.jsx";
 import { useT } from "../lib/i18n.js";
 
 // Rows are dragged directly (no separate grip handle). MouseSensor needs a small
@@ -30,7 +30,7 @@ function SortableBankRow({ b, sub, balance, onOpen }) {
   };
   return (
     <div className="icard" ref={setNodeRef} style={style} {...attributes} {...listeners} onClick={() => onOpen?.(b)}>
-      <span className="circ" style={{ width: 44, height: 44, borderRadius: 14, background: `color-mix(in srgb, ${b.color || "var(--muted)"} 20%, transparent)`, color: b.color || "var(--muted)" }}><Ico name={bankIcon(b.glyph)} size={20} /></span>
+      <BankLogo name={b.name} domain={b.domain} glyph={b.glyph} color={b.color} size={44} radius={14} iconSize={20} />
       <div><div className="nm">{b.name}</div><div className="mt">{sub}</div></div>
       <div className="amt tnum">{fmt(balance)}</div>
     </div>
@@ -49,14 +49,15 @@ const hasHistory = (bankId, txns) => txns.some((t) => t.bankId === bankId || t.f
 // row style). Delete — only ever available on an unused account — lives
 // behind a left-swipe instead of a second crammed-in button, matching the
 // swipe-to-dismiss pattern already used for notifications.
-function ArchivedBankRow({ b, balance, restoreLabel, onRestore }) {
+function ArchivedBankRow({ b, balance, restoreLabel, onRestore, deletable }) {
   // opacity lives on the inner content, never the card itself — an opaque
   // card is required so the swipe-reveal delete panel can't bleed through.
   return (
     <div className="icard" style={{ marginBottom: 0 }}>
-      <span className="circ" style={{ width: 44, height: 44, borderRadius: 14, background: `color-mix(in srgb, ${b.color || "var(--muted)"} 20%, transparent)`, color: b.color || "var(--muted)", opacity: .75 }}><Ico name={bankIcon(b.glyph)} size={20} /></span>
+      <BankLogo name={b.name} domain={b.domain} glyph={b.glyph} color={b.color} size={44} radius={14} iconSize={20} style={{ opacity: .75 }} />
       <div style={{ opacity: .75 }}><div className="nm">{b.name}</div><div className="mt tnum">{fmt(balance)}</div></div>
-      <div className="btn btn-ghost" style={{ marginLeft: "auto", padding: "8px 14px", fontSize: 13, opacity: .75 }} onClick={() => onRestore(b)}><Ico name="back" size={15} />{restoreLabel}</div>
+      <div className="btn btn-ghost" style={{ marginInlineStart: "auto", padding: "8px 14px", fontSize: 13, opacity: .75 }} onClick={() => onRestore(b)}><Ico name="back" size={15} />{restoreLabel}</div>
+      {deletable && <Ico name="trash" size={14} style={{ color: "var(--red)", opacity: .3, marginInlineStart: 4 }} />}
     </div>
   );
 }
@@ -64,8 +65,8 @@ function ArchivedBankRow({ b, balance, restoreLabel, onRestore }) {
 export default function Accounts({ store, back, onOpen, onAdd }) {
   const { banks = [], txns = [], savings = [] } = store;
   const tr = useT();
-  const total = totalBalance(banks, txns);
-  const frozen = totalFrozen(banks, txns, savings);
+  const total = useMemo(() => totalBalance(banks, txns), [banks, txns]);
+  const frozen = useMemo(() => totalFrozen(banks, txns, savings), [banks, txns, savings]);
   const active = banks.filter((b) => !b.archived);
   const archived = banks.filter((b) => b.archived);
   const [view, setView] = useState("active"); // active | archived
@@ -101,7 +102,7 @@ export default function Accounts({ store, back, onOpen, onAdd }) {
         <div className="toprow"><div className="hib" onClick={back}><Ico name="back" size={20} /></div><div className="ttl">{tr("account.title")}</div><div className="grow" /><div className="hib" onClick={onAdd}><Ico name="plus" size={20} /></div></div>
         <div className="lbl">{tr("home.totalBalance")}</div>
         <Money className="big tnum" v={total} />
-        <div className="sub">{tr("account.accountsCount", { n: active.length })}{frozen > 0 ? ` · ${tr("home.frozenInGoals", { amt: fmt(frozen) })}` : ""}</div>
+        <div className="sub">{tr(active.length === 1 ? "account.accountsCountOne" : "account.accountsCount", { n: active.length })}{frozen > 0 ? ` · ${tr("home.frozenInGoals", { amt: fmt(frozen) })}` : ""}</div>
       </div>
 
       {archived.length > 0 && <SegToggle style={{ marginBottom: 16 }} value={view} onChange={setView} options={[{ id: "active", label: tr("account.active") }, { id: "archived", label: tr("account.archived") }]} />}
@@ -121,8 +122,8 @@ export default function Accounts({ store, back, onOpen, onAdd }) {
           {archived.length === 0
             ? <div style={{ textAlign: "center", color: "var(--muted)", padding: "40px", fontWeight: 600 }}>{tr("account.noArchived")}</div>
             : archived.map((b) => {
-              const row = <ArchivedBankRow b={b} balance={calcBankBalance(b.id, txns)} restoreLabel={tr("account.restore")} onRestore={restore} />;
               const empty = !hasHistory(b.id, txns);
+              const row = <ArchivedBankRow b={b} balance={calcBankBalance(b.id, txns)} restoreLabel={tr("account.restore")} onRestore={restore} deletable={empty} />;
               return (
                 // .icard's own margin-bottom would get trapped by SwipeToDismiss's
                 // overflow:hidden wrapper, so move the gap to the outer element.

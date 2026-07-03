@@ -199,6 +199,8 @@ header.lead{padding:48px 0 6px}
 .pbar i{display:block;height:100%;border-radius:var(--r-pill)}
 .bar i{animation:grow .9s var(--e-soft) both;animation-delay:.45s}
 /* open-ended (no target) bar: a soft, slow breathing fill = "ongoing, no cap" */
+@keyframes voicePulse{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--ac) 35%,transparent)}50%{box-shadow:0 0 0 14px color-mix(in srgb,var(--ac) 0%,transparent)}}
+.voice-pulse{animation:voicePulse 1.4s ease-out infinite}
 @keyframes barBreathe{0%,100%{opacity:.32}50%{opacity:.72}}
 .bar-flow{width:100%;background:color-mix(in srgb,var(--c,var(--ac)) 55%,transparent);animation:barBreathe 2.6s ease-in-out infinite !important}
 .bcard{background:var(--surface);border:var(--cardBorder);box-shadow:var(--cardShadow);border-radius:var(--r-lg);padding:15px 16px;margin-bottom:12px}

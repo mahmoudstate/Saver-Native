@@ -11,7 +11,7 @@ export default function Privacy({ onBack }) {
     }}>
       <div style={{ maxWidth: "520px", margin: "0 auto", width: "100%", flex: 1 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 24 }}>
-          <button onClick={onBack} style={{ background: "transparent", border: "none", color: "#8888a8", fontSize: 22, cursor: "pointer", padding: "10px 15px 10px 0", display: "flex", alignItems: "center", marginRight: 4 }}>
+          <button onClick={onBack} style={{ background: "transparent", border: "none", color: "#8888a8", fontSize: 22, cursor: "pointer", padding: "10px 15px 10px 0", display: "flex", alignItems: "center", marginInlineEnd: 4 }}>
             <span style={{ display: "block", transform: "translateY(-1px)" }}>❮</span>
           </button>
           <div style={{ color: "#e8e8f0", fontSize: 22, fontWeight: 800 }}>Privacy Policy</div>

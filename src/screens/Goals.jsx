@@ -1,5 +1,5 @@
 // Saver — Goals list: ported 1:1 from showcase 04 (savings · frozen funds).
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Ico from "../ui/Ico.jsx";
 import CatTile from "../ui/CatTile.jsx";
 import SegToggle from "../ui/SegToggle.jsx";
@@ -19,7 +19,7 @@ export default function Goals({ store, back, onAdd, onOpenGoal }) {
   const goals = savings.filter((s) => s.status !== "archived").map(withSaved);
   const archived = savings.filter((s) => s.status === "archived").map(withSaved);
   const totalSaved = goals.reduce((a, g) => a + g.saved, 0);
-  const frozen = totalFrozen(banks, txns, savings);
+  const frozen = useMemo(() => totalFrozen(banks, txns, savings), [banks, txns, savings]);
   const list = view === "active" ? goals : archived;
 
   return (

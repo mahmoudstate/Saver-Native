@@ -76,7 +76,7 @@ export default function SubscriptionDetail({ store, bill: billProp, back, onEdit
         <div className="toprow" style={{ position: "relative", zIndex: 2 }}>
           <div className="hib" onClick={back} style={{ background: "rgba(255,255,255,.2)", color: "#fff" }}><Ico name="back" size={20} /></div>
           <div className="grow" />
-          <div className="hib" onClick={() => onEdit?.(bill)} style={{ background: "rgba(255,255,255,.2)", color: "#fff", marginRight: 8 }}><Ico name="pencil" size={18} /></div>
+          <div className="hib" onClick={() => onEdit?.(bill)} style={{ background: "rgba(255,255,255,.2)", color: "#fff", marginInlineEnd: 8 }}><Ico name="pencil" size={18} /></div>
           <div className="hib" onClick={() => setMenu(true)} style={{ background: "rgba(255,255,255,.2)", color: "#fff" }}><Ico name="more" size={20} /></div>
         </div>
         <div style={{ position: "relative", zIndex: 2, display: "flex", alignItems: "center", gap: 13, marginTop: 4 }}>

@@ -9,11 +9,34 @@
 // stale/paid reminders never linger.
 import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
-import { currentMonth } from "./format.js";
+import { currentMonth, fmt } from "./format.js";
 import { billPeriod, isBillPaidForKey } from "./billfreq.js";
-import { translate } from "./i18n.js";
+import { translate, currentLang } from "./i18n.js";
 
 const native = () => Capacitor.isNativePlatform();
+
+// An OS notification banner has no surrounding dir="rtl" the way the in-app
+// UI does, so each line's direction/alignment gets guessed independently from
+// its own first strong character — title and body ended up on opposite sides.
+// A leading U+200E (left-to-right mark) forces every line to the same
+// left-aligned block, title and body stacked flush under each other, exactly
+// like the English notifications — the Arabic words still shape correctly
+// within it, only the paragraph's overall alignment is pinned.
+const pinLeft = (s) => (currentLang() === "ar" ? "‎" + s : s);
+
+// Title pairs the name with its category ("Anghami · Bill"), body pairs the
+// amount with the relative due date ("£10 · Due tomorrow") — this plugin's
+// iOS layer has no `subtitle` field, so the category has to live somewhere
+// visible, and grouping it with the name (not the amount) is what reads as
+// one sentence instead of two unrelated fragments.
+// `at` is the moment the OS will actually fire this, so the day count is
+// measured from there, not from now.
+function dueRelative(dueDate, at) {
+  const days = Math.round((dueDateTime(dueDate) - at) / 86400000);
+  if (days <= 0) return translate("notif.dueToday");
+  if (days === 1) return translate("notif.dueTomorrow");
+  return translate("notif.dueInDays", { n: days });
+}
 
 export async function notifPermissionStatus() {
   if (!native()) return "unsupported";
@@ -60,13 +83,12 @@ export async function syncScheduledNotifications(store) {
   if (!native()) return;
   try {
     const perm = await notifPermissionStatus();
-    console.log("[notif] permission status:", perm);
     if (perm !== "granted") return;
 
     const pending = await LocalNotifications.getPending();
     if (pending.notifications.length) await LocalNotifications.cancel({ notifications: pending.notifications.map((n) => ({ id: n.id })) });
 
-    if (!store.notificationsEnabled) { console.log("[notif] toggle is off, nothing scheduled"); return; }
+    if (!store.notificationsEnabled) return;
 
     const now = new Date();
     const notifications = [];
@@ -76,7 +98,12 @@ export async function syncScheduledNotifications(store) {
       if (!per.dueDate || isBillPaidForKey(b, per.key)) return;
       const at = scheduleTimeFor(per.dueDate, b.reminderDays, now);
       if (!at) return;
-      notifications.push({ id: idFor(`bill-${b.id}-${per.key}`), title: b.name, body: translate("notif.osDueOn", { date: per.dueDate }), schedule: { at } });
+      notifications.push({
+        id: idFor(`bill-${b.id}-${per.key}`),
+        title: pinLeft(`${b.name} · ${translate("notif.billCat")}`),
+        body: pinLeft(`${fmt(b.amount)} · ${dueRelative(per.dueDate, at)}`),
+        schedule: { at }, sound: "default", extra: { kind: "bill", id: b.id },
+      });
     });
 
     (store.installments || []).forEach((i) => {
@@ -87,10 +114,15 @@ export async function syncScheduledNotifications(store) {
       const dueDate = `${cm}-${String(Math.min(28, Math.max(1, i.dueDay || 1))).padStart(2, "0")}`;
       const at = scheduleTimeFor(dueDate, i.reminderDays, now);
       if (!at) return;
-      notifications.push({ id: idFor(`inst-${i.id}-${cm}`), title: i.name || i.company || translate("notif.instFallback"), body: translate("notif.osDueOn", { date: dueDate }), schedule: { at } });
+      const label = i.name || i.company || translate("notif.instFallback");
+      notifications.push({
+        id: idFor(`inst-${i.id}-${cm}`),
+        title: pinLeft(`${label} · ${translate("notif.instCat")}`),
+        body: pinLeft(`${fmt(i.installmentAmount)} · ${dueRelative(dueDate, at)}`),
+        schedule: { at }, sound: "default", extra: { kind: "installment", id: i.id },
+      });
     });
 
-    console.log("[notif] scheduling", notifications.length, "notification(s):", JSON.stringify(notifications.map((n) => ({ id: n.id, title: n.title, at: n.schedule.at }))));
     if (notifications.length) await LocalNotifications.schedule({ notifications });
   } catch (e) {
     console.error("[notif] syncScheduledNotifications failed:", e);

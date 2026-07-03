@@ -1,11 +1,12 @@
 // Saver — formatting & time helpers (ported verbatim from legacy; LOGIC LOCKED)
-export const APP_VERSION = "3.0";
+export const APP_VERSION = "1.0.0";
 
 export const CURRENCIES = [
   { code: "EGP", name: "Egyptian Pound", flag: "🇪🇬" }, { code: "GBP", name: "British Pound", flag: "🇬🇧" },
   { code: "USD", name: "US Dollar", flag: "🇺🇸" }, { code: "EUR", name: "Euro", flag: "🇪🇺" },
   { code: "SAR", name: "Saudi Riyal", flag: "🇸🇦" }, { code: "AED", name: "UAE Dirham", flag: "🇦🇪" },
-  { code: "KWD", name: "Kuwaiti Dinar", flag: "🇰🇼" },
+  { code: "KWD", name: "Kuwaiti Dinar", flag: "🇰🇼" }, { code: "QAR", name: "Qatari Riyal", flag: "🇶🇦" },
+  { code: "OMR", name: "Omani Rial", flag: "🇴🇲" },
 ];
 
 let _currency = "EGP";

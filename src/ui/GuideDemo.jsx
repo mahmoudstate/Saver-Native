@@ -10,7 +10,6 @@ import BudgetRing from "./BudgetRing.jsx";
 import ServiceLogo from "./ServiceLogo.jsx";
 import Money from "./Money.jsx";
 import Ico from "./Ico.jsx";
-import InstallSteps from "./InstallSteps.jsx";
 import { fmt, CURRENCIES } from "../lib/format.js";
 import { useT } from "../lib/i18n.js";
 
@@ -217,11 +216,6 @@ function CurrencyDemo() {
   );
 }
 
-function InstallDemo() {
-  const tr = useT();
-  return <Stage label={tr("demo.onHome")}><InstallSteps /></Stage>;
-}
-
 function QuickDemo() {
   const tr = useT();
   const items = [{ icon: "drinks", name: tr("demo.coffee"), amt: 3.5 }, { icon: "groceries", name: tr("demo.lunch"), amt: 12 }];
@@ -286,7 +280,7 @@ function SpendGoalDemo() {
   );
 }
 
-const DEMOS = { home: HomeDemo, add: AddDemo, goals: GoalsDemo, bills: BillsDemo, categories: CategoriesDemo, accounts: AccountsDemo, activity: ActivityDemo, budgets: BudgetsDemo, breakdown: BreakdownDemo, notifications: NotificationsDemo, privacy: PrivacyDemo, appearance: AppearanceDemo, currency: CurrencyDemo, install: InstallDemo, quick: QuickDemo, customize: CustomizeDemo, transfer: TransferDemo, spendgoal: SpendGoalDemo };
+const DEMOS = { home: HomeDemo, add: AddDemo, goals: GoalsDemo, bills: BillsDemo, categories: CategoriesDemo, accounts: AccountsDemo, activity: ActivityDemo, budgets: BudgetsDemo, breakdown: BreakdownDemo, notifications: NotificationsDemo, privacy: PrivacyDemo, appearance: AppearanceDemo, currency: CurrencyDemo, quick: QuickDemo, customize: CustomizeDemo, transfer: TransferDemo, spendgoal: SpendGoalDemo };
 
 export default function GuideDemo({ demo }) {
   const C = DEMOS[demo];

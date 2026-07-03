@@ -7,7 +7,7 @@ export default function Money({ v, sign = "", masked = false, className = "", st
   const { cur, num } = fmtParts(v);
   return (
     <span className={className} style={style}>
-      {cur && <span style={{ fontSize: `${curSize}em`, fontWeight: 700, opacity: 0.55, marginRight: "0.18em" }}>{cur}</span>}
+      {cur && <span style={{ fontSize: `${curSize}em`, fontWeight: 700, opacity: 0.55, marginInlineEnd: "0.18em" }}>{cur}</span>}
       {sign}{num}
     </span>
   );

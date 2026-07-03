@@ -4,12 +4,14 @@
 import { Capacitor } from "@capacitor/core";
 import Ico from "./Ico.jsx";
 import { requestNotifPermission, notifPermissionStatus } from "../lib/localNotifications.js";
+import { HAPTICS } from "../lib/format.js";
 
 export default function NotificationsRow({ store, tr }) {
   const on = !!store.notificationsEnabled;
   const native = Capacitor.isNativePlatform();
 
   const toggle = async () => {
+    HAPTICS.light();
     if (!native) {
       store.setAlert({ title: tr("notif.osPermTitle"), message: tr("notif.nativeOnly"), color: "var(--blue)" });
       return;

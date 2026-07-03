@@ -1,10 +1,8 @@
 // Saver — Onboarding / Welcome (first run): new design + GSAP entrance.
-// What you can do + how to add Saver to the home screen, then Get started.
 import { useRef } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import Ico from "../ui/Ico.jsx";
-import InstallSteps from "../ui/InstallSteps.jsx";
 import iconUrl from "../../icon.png";
 import { useT } from "../lib/i18n.js";
 
@@ -67,9 +65,6 @@ export default function Onboarding({ onDone }) {
       <div style={{ display: "flex", gap: 10 }}>
         {TRUST.map((b) => <Badge key={b.label} icon={b.icon} label={tr(b.label)} />)}
       </div>
-
-      <Title>{tr("onb.addToHome")}</Title>
-      <InstallSteps />
 
       <div className="cta"><div className="btn btn-primary btn-full gsap-cta" onClick={onDone}>{tr("onb.getStarted")}</div></div>
     </div>

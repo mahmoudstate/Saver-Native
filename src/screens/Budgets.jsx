@@ -131,7 +131,7 @@ export default function Budgets({ store, back, onAdd, onOpenBudget, onOpenProjec
   return (
     <div className="content padnav">
       <div className="hero">
-        <div className="toprow"><div className="hib" onClick={back}><Ico name="back" size={20} /></div><div className="ttl">{isMonthly ? tr("budget.titleMonthly") : tr("budget.projects")}</div><div className="grow" />{isMonthly && <div className="hchip" onClick={() => setMonthSheet(true)} style={{ cursor: "pointer", marginRight: 8 }}><Ico name="cal" size={14} />{monthChip(vm, cm, tr)}</div>}<div className="hib" onClick={() => onAdd?.(seg)}><Ico name="plus" size={20} /></div></div>
+        <div className="toprow"><div className="hib" onClick={back}><Ico name="back" size={20} /></div><div className="ttl">{isMonthly ? tr("budget.titleMonthly") : tr("budget.projects")}</div><div className="grow" />{isMonthly && <div className="hchip" onClick={() => setMonthSheet(true)} style={{ cursor: "pointer", marginInlineEnd: 8 }}><Ico name="cal" size={14} />{monthChip(vm, cm, tr)}</div>}<div className="hib" onClick={() => onAdd?.(seg)}><Ico name="plus" size={20} /></div></div>
         {isMonthly ? <>
           <div className="lbl">{tr("budget.spent")}</div><Money className="big tnum" v={mSpent} /><div className="sub">{tr("budget.ofBudget", { amt: fmt(mLimit) })} &nbsp;·&nbsp; {tr("budget.pctUsed", { pct: mLimit > 0 ? Math.round((mSpent / mLimit) * 100) : 0 })}</div>{cycleRange && <div className="sub" style={{ marginTop: 2, opacity: .85, display: "flex", alignItems: "center", gap: 6 }}><Ico name="cal" size={13} />{tr("budget.cycleRange", { range: cycleRange })}</div>}
         </> : <>

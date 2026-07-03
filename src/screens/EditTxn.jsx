@@ -8,7 +8,7 @@ import PickerSheet from "../ui/PickerSheet.jsx";
 import { resolveCat } from "../ui/cats.js";
 import { fmt, fmtDate } from "../lib/format.js";
 import { focusNext } from "../lib/focusNext.js";
-import { bankIcon } from "../lib/bankIcon.js";
+import BankLogo from "../ui/BankLogo.jsx";
 import { useT } from "../lib/i18n.js";
 
 const catKeyOf = (c) => (c ? resolveCat({ catId: c.id, catGlyph: c.glyph, catName: c.name }) : null);
@@ -71,7 +71,9 @@ export default function EditTxn({ store, txn, onClose }) {
           : (bank?.name || txn.bankName || "Deleted account");
         return (
           <div className="field" onClick={() => editable && setSheet("account")} style={{ cursor: editable ? "pointer" : "default", opacity: editable ? 1 : .7 }}>
-            <span className="circ" style={{ width: 42, height: 42, borderRadius: 13, background: bank ? `color-mix(in srgb, ${bank.color || "var(--muted)"} 20%, transparent)` : "var(--surface2)", color: bank?.color || "var(--muted)", flexShrink: 0 }}><Ico name={bank ? bankIcon(bank.glyph) : (isTransfer ? "transfer" : "wallet")} size={18} /></span>
+            {bank
+              ? <BankLogo name={bank.name} domain={bank.domain} glyph={bank.glyph} color={bank.color} size={42} radius={13} iconSize={18} style={{ flexShrink: 0 }} />
+              : <span className="circ" style={{ width: 42, height: 42, borderRadius: 13, background: "var(--surface2)", color: "var(--muted)", flexShrink: 0 }}><Ico name={isTransfer ? "transfer" : "wallet"} size={18} /></span>}
             <div style={{ minWidth: 0 }}><div className="fl">{isTransfer ? tr("transfer.title") : tr("add.account")}</div><div className="fv" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</div></div>{editable && <span className="chev"><Ico name="chev" size={18} /></span>}
           </div>
         );
@@ -85,7 +87,7 @@ export default function EditTxn({ store, txn, onClose }) {
       )}
 
       <label className="field note" style={{ marginTop: 12 }}>
-        <Ico name="note" size={19} color="var(--faint)" style={{ marginRight: 2 }} />
+        <Ico name="note" size={19} color="var(--faint)" style={{ marginInlineEnd: 2 }} />
         <input value={note} onChange={(e) => setNote(e.target.value)} onKeyDown={focusNext} enterKeyHint="done" placeholder={tr("add.notePlaceholder")} style={{ border: "none", background: "none", outline: "none", color: "var(--text)", font: "inherit", flex: 1, minWidth: 0 }} />
       </label>
 
@@ -95,7 +97,7 @@ export default function EditTxn({ store, txn, onClose }) {
       </div>
 
       {sheet === "amount" && <AmountSheet title={tr("add.enterAmount")} sub={tr("edit.amountSub")} confirmLabel={tr("add.setAmount")} onConfirm={(v) => { setAmount(v); setSheet(null); }} onClose={() => setSheet(null)} />}
-      {sheet === "account" && <PickerSheet title={tr("add.account")} selectedId={bankId} onPick={setBankId} onClose={() => setSheet(null)} options={banks.filter((b) => !b.archived).map((b) => ({ id: b.id, label: b.name, bankColor: b.color, glyph: b.glyph }))} />}
+      {sheet === "account" && <PickerSheet title={tr("add.account")} selectedId={bankId} onPick={setBankId} onClose={() => setSheet(null)} options={banks.filter((b) => !b.archived).map((b) => ({ id: b.id, label: b.name, bankColor: b.color, bankDomain: b.domain, glyph: b.glyph }))} />}
       {sheet === "category" && <PickerSheet title={tr("add.category")} selectedId={catId} onPick={setCatId} onClose={() => setSheet(null)} options={cats.map((c) => ({ id: c.id, label: c.name, sub: c.group, catKey: catKeyOf(c) }))} />}
     </div>
   );

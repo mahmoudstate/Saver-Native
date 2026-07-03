@@ -1,6 +1,6 @@
 // Saver — Guide hub: searchable list of topics grouped by area. Each topic opens
 // a page with a live demo built from the real app components.
-import { useRef, useState, useMemo } from "react";
+import { useRef, useState, useMemo, useLayoutEffect } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import Ico from "../ui/Ico.jsx";
@@ -9,6 +9,10 @@ import { focusNext } from "../lib/focusNext.js";
 import { useT } from "../lib/i18n.js";
 
 const REDUCED = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
+// remembers scroll position across topic visits: Manual unmounts when a topic
+// opens and remounts on back, so this can't live in component state.
+let savedScroll = 0;
 
 export default function Manual({ back, onOpenTopic, onStartTour }) {
   const scope = useRef(null);
@@ -24,10 +28,24 @@ export default function Manual({ back, onOpenTopic, onStartTour }) {
     return guide.map((g) => ({ ...g, topics: g.topics.filter((t) => (t.title + " " + t.blurb).toLowerCase().includes(term)) })).filter((g) => g.topics.length);
   }, [q, guide]);
 
+  // returning to a scrolled-down spot: skip the fade-in so cards already in
+  // view don't sit invisible while GSAP staggers through everything above them.
+  const isReturn = useRef(savedScroll > 0).current;
+  const firstRun = useRef(true);
+
   useGSAP(() => {
     if (REDUCED) return;
+    const skip = firstRun.current && isReturn;
+    firstRun.current = false;
+    if (skip) return;
     gsap.from(".gsap-card", { opacity: 0, y: 20, duration: 0.5, stagger: 0.06, ease: "power3.out" });
   }, { scope, dependencies: [q] });
+
+  useLayoutEffect(() => {
+    const el = scope.current;
+    el.scrollTop = savedScroll;
+    return () => { savedScroll = el.scrollTop; };
+  }, []);
 
   return (
     <div ref={scope} className="content padnav">

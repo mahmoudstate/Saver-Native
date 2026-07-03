@@ -47,7 +47,6 @@ const GROUPS = [
       { id: "customize", icon: "grip", color: "var(--ac)", demo: "customize", stepIcons: ["grip", "eye"] },
       { id: "appearance", icon: "palette", color: "var(--ac)", demo: "appearance", stepIcons: ["sun", "palette", "book"] },
       { id: "currency", icon: "coins", color: "var(--ac)", demo: "currency", stepIcons: ["coins", "check"] },
-      { id: "install", icon: "share", color: "var(--ac)", demo: "install", stepIcons: ["share", "plus", "home"] },
     ],
   },
 ];

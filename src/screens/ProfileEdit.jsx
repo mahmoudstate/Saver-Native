@@ -74,7 +74,7 @@ export default function ProfileEdit({ store, back }) {
       <div className="icard" onClick={() => setCurOpen(true)} style={{ cursor: "pointer" }}>
         <span className="circ" style={{ width: 36, height: 36, borderRadius: 11, background: "var(--acDim)", color: "var(--ac)", display: "flex", alignItems: "center", justifyContent: "center" }}><Ico name="coins" size={19} /></span>
         <div className="nm">{tr("pedit.currency")}</div>
-        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8, color: "var(--faint)" }}><span style={{ fontSize: 12.5, color: "var(--muted)", fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}><span style={{ fontSize: 16, lineHeight: 1 }}>{CURRENCIES.find((c) => c.code === cur)?.flag}</span>{cur}</span><Ico name="chev" size={18} /></div>
+        <div style={{ marginInlineStart: "auto", display: "flex", alignItems: "center", gap: 8, color: "var(--faint)" }}><span style={{ fontSize: 12.5, color: "var(--muted)", fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}><span style={{ fontSize: 16, lineHeight: 1 }}>{CURRENCIES.find((c) => c.code === cur)?.flag}</span>{cur}</span><Ico name="chev" size={18} /></div>
       </div>
 
       <div className="cta"><div className="btn btn-primary btn-full" onClick={save}><Ico name="check" size={18} />{tr("editor.saveShort")}</div></div>

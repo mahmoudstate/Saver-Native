@@ -7,15 +7,16 @@ import PickerSheet from "../ui/PickerSheet.jsx";
 import { fmt, today } from "../lib/format.js";
 import { focusNext } from "../lib/focusNext.js";
 import { calcBankBalance } from "../lib/calc.js";
-import { bankIcon } from "../lib/bankIcon.js";
+import BankLogo from "../ui/BankLogo.jsx";
 import { useT } from "../lib/i18n.js";
 
 export default function Transfer({ store, fromBankId: initialFrom, onClose }) {
   const { banks = [], txns = [] } = store;
+  const liveBanks = banks.filter((b) => !b.archived);
   const tr = useT();
   const [amount, setAmount] = useState(0);
-  const [fromId, setFromId] = useState(initialFrom || banks[0]?.id || null);
-  const [toId, setToId] = useState(banks.find((b) => b.id !== (initialFrom || banks[0]?.id))?.id || null);
+  const [fromId, setFromId] = useState(initialFrom || liveBanks[0]?.id || null);
+  const [toId, setToId] = useState(liveBanks.find((b) => b.id !== (initialFrom || liveBanks[0]?.id))?.id || null);
   const [note, setNote] = useState("");
   const [sheet, setSheet] = useState(null); // amount | from | to
 
@@ -34,7 +35,7 @@ export default function Transfer({ store, fromBankId: initialFrom, onClose }) {
 
   const acctRow = (label, color, b, onTap) => (
     <div className="field" onClick={onTap} style={{ cursor: "pointer", marginTop: 12 }}>
-      <span className="circ" style={{ width: 42, height: 42, borderRadius: 13, background: `color-mix(in srgb, ${b?.color || "var(--muted)"} 20%, transparent)`, color: b?.color || "var(--muted)" }}><Ico name={bankIcon(b?.glyph)} size={19} /></span>
+      <BankLogo name={b?.name} domain={b?.domain} glyph={b?.glyph} color={b?.color} size={42} radius={13} iconSize={19} />
       <div><div className="fl" style={{ color }}>{label}</div><div className="fv">{b ? `${b.name} · ${fmt(bal(b.id))}` : tr("add.pickAccount")}</div></div><span className="chev"><Ico name="chev" size={18} /></span>
     </div>
   );
@@ -52,15 +53,15 @@ export default function Transfer({ store, fromBankId: initialFrom, onClose }) {
       {acctRow(tr("transfer.to"), "var(--success)", to, () => setSheet("to"))}
 
       <label className="field note" style={{ marginTop: 12 }}>
-        <Ico name="note" size={19} color="var(--faint)" style={{ marginRight: 2 }} />
+        <Ico name="note" size={19} color="var(--faint)" style={{ marginInlineEnd: 2 }} />
         <input value={note} onChange={(e) => setNote(e.target.value)} onKeyDown={focusNext} enterKeyHint="done" placeholder={tr("add.notePlaceholder")} style={{ border: "none", background: "none", outline: "none", color: "var(--text)", font: "inherit", flex: 1, minWidth: 0 }} />
       </label>
 
       <div className="cta"><div className="btn btn-primary btn-full" style={{ opacity: canSave ? 1 : .5 }} onClick={submit}><Ico name="check" size={18} />{amount > 0 ? tr("transfer.ctaWithAmt", { amt: fmt(amount) }) : tr("transfer.title")}</div></div>
 
       {sheet === "amount" && <AmountSheet title={tr("add.enterAmount")} sub={tr("transfer.title")} confirmLabel={tr("add.setAmount")} max={from ? Math.max(0, bal(fromId)) : undefined} onConfirm={(v) => { setAmount(v); setSheet(null); }} onClose={() => setSheet(null)} />}
-      {sheet === "from" && <PickerSheet title={tr("add.fromAccount")} selectedId={fromId} onPick={(id) => { setFromId(id); if (id === toId) setToId(banks.find((b) => b.id !== id)?.id || null); }} onClose={() => setSheet(null)} options={banks.filter((b) => !b.archived).map((b) => ({ id: b.id, label: b.name, sub: fmt(bal(b.id)), bankColor: b.color, glyph: b.glyph }))} />}
-      {sheet === "to" && <PickerSheet title={tr("add.toAccount")} selectedId={toId} onPick={(id) => { setToId(id); if (id === fromId) setFromId(banks.find((b) => b.id !== id)?.id || null); }} onClose={() => setSheet(null)} options={banks.filter((b) => !b.archived).map((b) => ({ id: b.id, label: b.name, sub: fmt(bal(b.id)), bankColor: b.color, glyph: b.glyph }))} />}
+      {sheet === "from" && <PickerSheet title={tr("add.fromAccount")} selectedId={fromId} onPick={(id) => { setFromId(id); if (id === toId) setToId(banks.find((b) => b.id !== id)?.id || null); }} onClose={() => setSheet(null)} options={banks.filter((b) => !b.archived).map((b) => ({ id: b.id, label: b.name, sub: fmt(bal(b.id)), bankColor: b.color, bankDomain: b.domain, glyph: b.glyph }))} />}
+      {sheet === "to" && <PickerSheet title={tr("add.toAccount")} selectedId={toId} onPick={(id) => { setToId(id); if (id === fromId) setFromId(banks.find((b) => b.id !== id)?.id || null); }} onClose={() => setSheet(null)} options={banks.filter((b) => !b.archived).map((b) => ({ id: b.id, label: b.name, sub: fmt(bal(b.id)), bankColor: b.color, bankDomain: b.domain, glyph: b.glyph }))} />}
     </div>
   );
 }

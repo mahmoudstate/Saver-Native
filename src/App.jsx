@@ -6,6 +6,7 @@ import { useAppLock } from "./lib/useAppLock.js";
 import { HAPTICS, currentMonth } from "./lib/format.js";
 import { useKeyboardInsets } from "./lib/useKeyboardInsets.js";
 import { useLocalNotifications } from "./lib/useLocalNotifications.js";
+import { useNotificationTaps } from "./lib/useNotificationTaps.js";
 import LockScreen from "./ui/LockScreen.jsx";
 import BottomNav from "./ui/BottomNav.jsx";
 import Overlays from "./ui/Modal.jsx";
@@ -85,6 +86,7 @@ export default function App() {
   const [whatsNew, setWhatsNew] = useState(false);
   const [tour, setTour] = useState(false); // interactive coach-mark tour over Home
   const push = (v) => setStack((s) => [...s, v]);          // open a deeper screen
+  useNotificationTaps(store, push);
   // NOTE: back is wired straight to onClick/onClose in screens, so it must take NO
   // numeric arg (the click event would land there). Use popN for multi-level pops.
   const back = () => setStack((s) => s.slice(0, -1));       // pop back to the previous screen

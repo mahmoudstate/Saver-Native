@@ -12,7 +12,7 @@ import { resolveCat } from "../ui/cats.js";
 import { fmt, today, monthName } from "../lib/format.js";
 import { focusNext } from "../lib/focusNext.js";
 import { calcGoalSaved, calcBankBalance, calcFrozenForBank } from "../lib/calc.js";
-import { bankIcon } from "../lib/bankIcon.js";
+import BankLogo from "../ui/BankLogo.jsx";
 import { useT } from "../lib/i18n.js";
 
 const catKeyOf = (c) => (c ? resolveCat({ catId: c.id, catGlyph: c.glyph, catName: c.name }) : null);
@@ -20,6 +20,7 @@ const catKeyOf = (c) => (c ? resolveCat({ catId: c.id, catGlyph: c.glyph, catNam
 export default function Add({ store, initial, onSaved, onClose, onReached }) {
   const { banks = [], expCats = [], incCats = [], savings = [], txns = [] } = store;
   const tr = useT();
+  const liveBanks = banks.filter((b) => !b.archived);
   const goals = savings.filter((s) => s.status !== "archived");
   // amount you can still spend from a bank (balance − money frozen for goals)
   const safeOf = (id) => calcBankBalance(id, txns) - Math.max(0, calcFrozenForBank(id, savings, txns));
@@ -27,7 +28,7 @@ export default function Add({ store, initial, onSaved, onClose, onReached }) {
   // `initial` pre-fills the form (e.g. opened from a Quick Add shortcut).
   const [type, setType] = useState(initial?.type || "expense");
   const [amount, setAmount] = useState(+initial?.amount || 0);
-  const [bankId, setBankId] = useState(initial?.bankId || banks[0]?.id || null);
+  const [bankId, setBankId] = useState(initial?.bankId || liveBanks[0]?.id || null);
   const [srcGoal, setSrcGoal] = useState(null); // expense paid from a goal vault (spending mode)
   const vaults = goals.filter((g) => g.spendingMode);
   const [expCatId, setExpCatId] = useState(initial?.expCatId || expCats[0]?.id || null);
@@ -111,7 +112,7 @@ export default function Add({ store, initial, onSaved, onClose, onReached }) {
       <div className="field" onClick={() => setSheet("account")} style={{ cursor: "pointer", marginTop: 12 }}>
         {vaultGoal
           ? <CatTile cat="goal" name={vaultGoal.name} size={42} />
-          : <span className="circ" style={{ width: 42, height: 42, borderRadius: 13, background: `color-mix(in srgb, ${bank?.color || "var(--muted)"} 20%, transparent)`, color: bank?.color || "var(--muted)" }}><Ico name={bankIcon(bank?.glyph)} size={19} /></span>}
+          : <BankLogo name={bank?.name} domain={bank?.domain} glyph={bank?.glyph} color={bank?.color} size={42} radius={13} iconSize={19} />}
         <div style={{ minWidth: 0 }}>
           <div className="fl">{vaultGoal ? tr("add.fromVault") : meta.accLabel}</div>
           <div className="fv" style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
@@ -129,7 +130,7 @@ export default function Add({ store, initial, onSaved, onClose, onReached }) {
       </div>
 
       <label className="field note" style={{ marginTop: 12 }}>
-        <Ico name="note" size={19} color="var(--faint)" style={{ marginRight: 2 }} />
+        <Ico name="note" size={19} color="var(--faint)" style={{ marginInlineEnd: 2 }} />
         <input value={note} onChange={(e) => setNote(e.target.value)} onKeyDown={focusNext} enterKeyHint="done" placeholder={tr("add.notePlaceholder")} style={{ border: "none", background: "none", outline: "none", color: "var(--text)", font: "inherit", flex: 1, minWidth: 0 }} />
       </label>
 
@@ -138,7 +139,7 @@ export default function Add({ store, initial, onSaved, onClose, onReached }) {
       {sheet === "date" && <DateSheet value={date} onPick={(d) => { setDate(d); setSheet(null); }} onClose={() => setSheet(null)} />}
       {sheet === "amount" && <AmountSheet title={tr("add.enterAmount")} sub={meta.title} confirmLabel={tr("add.setAmount")} onConfirm={(v) => { setAmount(v); setSheet(null); }} onClose={() => setSheet(null)} />}
       {sheet === "account" && <PickerSheet title={meta.accLabel} selectedId={srcGoal ? "vault:" + srcGoal : bankId} onPick={(id) => { if (id.startsWith?.("vault:")) setSrcGoal(id.slice(6)); else { setBankId(id); setSrcGoal(null); } }} onClose={() => setSheet(null)} options={[
-        ...banks.filter((b) => !b.archived).map((b) => ({ id: b.id, label: b.name, bankColor: b.color, glyph: b.glyph, sub: type !== "income" ? `${fmt(Math.max(0, safeOf(b.id)))} ${tr("add.available")}` : undefined })),
+        ...banks.filter((b) => !b.archived).map((b) => ({ id: b.id, label: b.name, bankColor: b.color, bankDomain: b.domain, glyph: b.glyph, sub: type !== "income" ? `${fmt(Math.max(0, safeOf(b.id)))} ${tr("add.available")}` : undefined })),
         ...(type === "expense" ? vaults.map((g, i) => ({ id: "vault:" + g.id, label: g.name, sub: `${fmt(Math.max(0, calcGoalSaved(g.id, store.txns)))} ${tr("add.available")}`, catKey: "goal", sectionHeader: i === 0 ? tr("add.goalsHeader") : undefined })) : []),
       ]} />}
       {sheet === "category" && <PickerSheet title={tr("add.category")} selectedId={type === "income" ? incCatId : expCatId} onPick={type === "income" ? setIncCatId : setExpCatId} onClose={() => setSheet(null)} options={(type === "income" ? incCats : expCats).map((c) => ({ id: c.id, label: c.name, sub: c.group, catKey: catKeyOf(c) }))} />}

@@ -3,6 +3,7 @@ import { useState, useRef, useMemo, useLayoutEffect, useEffect, Fragment } from 
 import Ico from "../ui/Ico.jsx";
 import Money from "../ui/Money.jsx";
 import ActivationCard from "../ui/ActivationCard.jsx";
+import BankLogo from "../ui/BankLogo.jsx";
 import { fmt, currentMonth, monthName, cardGradient, today, dayName } from "../lib/format.js";
 import { calcBankBalance, calcGoalSaved, calcFrozenForBank, totalBalance, totalSafe, totalFrozen, monthTxns, sumIncome, sumExpense, projectSpent, budgetSpentMonth } from "../lib/calc.js";
 import { freqOf, billPeriod, isBillPaidForKey } from "../lib/billfreq.js";
@@ -31,7 +32,10 @@ export function BankCard({ bank, available, frozen, low, money, masked, onClick,
       <span className="bc-orb" style={{ width: 44, height: 44, bottom: 30, right: 34, opacity: .5 }} />
       <span className="bc-shine" />
       <div style={{ position: "relative", zIndex: 2, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <span style={{ fontWeight: 800, fontSize: grid ? 13.5 : 14.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{bank.name}</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 7, minWidth: 0 }}>
+          <BankLogo domain={bank.domain} name={bank.name} glyph={bank.glyph} color={bank.color} size={grid ? 22 : 24} radius={8} />
+          <span style={{ fontWeight: 800, fontSize: grid ? 13.5 : 14.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{bank.name}</span>
+        </div>
         {available < 0 ? <span style={{ width: 9, height: 9, borderRadius: 99, background: "#fff", flexShrink: 0 }} />
           : low ? <span style={{ display: "flex", alignItems: "center", gap: 3, background: "#F8B53D", color: "#3A2400", fontWeight: 800, fontSize: 10.5, letterSpacing: ".02em", padding: "4px 8px 4px 6px", borderRadius: 8, flexShrink: 0 }}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3A2400" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M19 12l-7 7-7-7" /></svg>{t("home.lowBadge")}</span>
             : <Contactless />}

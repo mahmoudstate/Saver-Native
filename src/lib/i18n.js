@@ -30,6 +30,8 @@ const apply = (lang) => {
 // Set dir/lang BEFORE first paint so an Arabic user sees no LTR→RTL flash.
 if (typeof document !== "undefined") apply(detect());
 
+export const currentLang = detect;
+
 const LangCtx = createContext({ lang: "en", setLang: () => {}, t: (k) => k, dir: "ltr" });
 
 export function LangProvider({ children }) {

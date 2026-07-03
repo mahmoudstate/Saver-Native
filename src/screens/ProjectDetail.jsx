@@ -43,7 +43,7 @@ export default function ProjectDetail({ store, projectId, back, onEdit, onEditTx
   return (
     <div className="content padnav">
       <div className="hero">
-        <div className="toprow"><div className="hib" onClick={back}><Ico name="back" size={20} /></div><div className="ttl">{project.name}</div><div className="grow" /><div className="hib" onClick={() => onEdit?.(project)} style={{ marginRight: 8 }}><Ico name="pencil" size={18} /></div><div className="hib" onClick={() => setMenu(true)}><Ico name="more" size={20} /></div></div>
+        <div className="toprow"><div className="hib" onClick={back}><Ico name="back" size={20} /></div><div className="ttl">{project.name}</div><div className="grow" /><div className="hib" onClick={() => onEdit?.(project)} style={{ marginInlineEnd: 8 }}><Ico name="pencil" size={18} /></div><div className="hib" onClick={() => setMenu(true)}><Ico name="more" size={20} /></div></div>
         <div className="lbl">{tr("budget.spentSoFar")}</div>
         <Money className="big tnum" v={spent} />
         <div className="sub">{tr("budget.ofPct", { amt: fmt(total), pct: Math.round(pct) })}{range ? ` · ${range}` : ""}</div>

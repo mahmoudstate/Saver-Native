@@ -1,4 +1,5 @@
 // Saver — Appearance: ported 1:1 from showcase 24 (light/dark + 6 calm accents).
+import { useMemo } from "react";
 import Ico from "../ui/Ico.jsx";
 import Money from "../ui/Money.jsx";
 import { fmt } from "../lib/format.js";
@@ -9,7 +10,7 @@ import { totalBalance } from "../lib/calc.js";
 export default function Appearance({ store, back }) {
   const { theme, accent, banks = [], txns = [] } = store;
   const { lang, setLang, t } = useLang();
-  const total = totalBalance(banks, txns);
+  const total = useMemo(() => totalBalance(banks, txns), [banks, txns]);
 
   return (
     <div className="content padnav">

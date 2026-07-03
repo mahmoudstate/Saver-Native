@@ -12,6 +12,7 @@ import { useT } from "../lib/i18n.js";
 const RING_C = 2 * Math.PI * 40; // r = 40
 
 const addMonths = (m, n) => { const [y, mo] = m.split("-").map(Number); const d = new Date(y, mo - 1 + n, 1); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`; };
+const r2 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
 
 export default function InstallmentDetail({ store, instId, back, onEdit }) {
   const { installments = [], banks = [] } = store;
@@ -40,7 +41,11 @@ export default function InstallmentDetail({ store, instId, back, onEdit }) {
   const payments = ensurePayments();
   const paid = payments.length;
   const total = inst.totalInstallments;
-  const paidAmt = paid * inst.installmentAmount;
+  // Splitting totalAmount into equal installments almost never divides evenly
+  // (e.g. 1000 / 3 = 333.33 × 3 = 999.99) — the last payment absorbs the
+  // leftover cent(s) so the schedule always sums to exactly totalAmount.
+  const amountFor = (num) => (num >= total ? r2(inst.totalAmount - inst.installmentAmount * (total - 1)) : inst.installmentAmount);
+  const paidAmt = paid >= total ? inst.totalAmount : r2(paid * inst.installmentAmount);
   const remaining = Math.max(0, inst.totalAmount - paidAmt);
   const pct = total ? paid / total : 0;
   const done = paid >= total;
@@ -66,7 +71,7 @@ export default function InstallmentDetail({ store, instId, back, onEdit }) {
     return newStatus;
   };
 
-  const mkTxn = (num) => ({ type: "expense", amount: inst.installmentAmount, date: today(), bankId: inst.bankId, bankName, catId: "installment", catName: "Installments", catIcon: inst.glyph || "installment", catColor: color, note: `Installment ${num}/${total}: ${label}` });
+  const mkTxn = (num) => ({ type: "expense", amount: amountFor(num), date: today(), bankId: inst.bankId, bankName, catId: "installment", catName: "Installments", catIcon: inst.glyph || "installment", catColor: color, note: `Installment ${num}/${total}: ${label}` });
 
   // Pay the next N installments at once (default 1). Tags each with its scheduled month.
   const payN = (n) => {
@@ -81,7 +86,7 @@ export default function InstallmentDetail({ store, instId, back, onEdit }) {
     for (let k = 0; k < n; k++) newPays.push({ month: addMonths(startMonth, paid + k), date: today(), txnId: ids[k], num: paid + k + 1 });
     const status = persist([...payments, ...newPays]);
     if (status === "completed") store.setAlert({ title: tr("instd.paidOff"), message: tr("instd.paidOffMsg", { name: label }), color: "var(--acText)", icon: "check" });
-    else store.flash({ title: n === 1 ? tr("instd.payLoggedOne", { n: paid + 1, total }) : tr("instd.payLoggedMany", { n }), sub: `${fmt(inst.installmentAmount * n)} · ${label}`, color: "var(--success)" });
+    else store.flash({ title: n === 1 ? tr("instd.payLoggedOne", { n: paid + 1, total }) : tr("instd.payLoggedMany", { n }), sub: `${fmt(batch.reduce((s, t) => s + t.amount, 0))} · ${label}`, color: "var(--success)" });
   };
 
   const undo = (row) => {
@@ -108,10 +113,10 @@ export default function InstallmentDetail({ store, instId, back, onEdit }) {
   return (
     <div className="content padnav">
       <div className="hero">
-        <div className="toprow"><div className="hib" onClick={back}><Ico name="back" size={20} /></div><div className="ttl">{label}</div><div className="grow" /><div className="hib" onClick={() => onEdit?.(inst)} style={{ marginRight: 8 }}><Ico name="pencil" size={18} /></div><div className="hib" onClick={() => setMenu(true)}><Ico name="more" size={20} /></div></div>
+        <div className="toprow"><div className="hib" onClick={back}><Ico name="back" size={20} /></div><div className="ttl">{label}</div><div className="grow" /><div className="hib" onClick={() => onEdit?.(inst)} style={{ marginInlineEnd: 8 }}><Ico name="pencil" size={18} /></div><div className="hib" onClick={() => setMenu(true)}><Ico name="more" size={20} /></div></div>
         <div className="lbl">{inst.company ? inst.company + " · " : ""}{tr("instd.perMo", { amt: fmt(inst.installmentAmount) })}</div>
         <Money className="big tnum" v={remaining} />
-        <div className="sub">{inst.stopped ? tr("instd.stopped") : done ? tr("instd.fullyPaid") : tr("instd.nextDue", { month: nextDueMonth, amt: fmt(inst.installmentAmount) })}</div>
+        <div className="sub">{inst.stopped ? tr("instd.stopped") : done ? tr("instd.fullyPaid") : tr("instd.nextDue", { month: nextDueMonth, amt: fmt(amountFor(paid + 1)) })}</div>
       </div>
 
       <div className="card ringcard r" style={{ "--d": ".16s", display: "flex", alignItems: "center", gap: 20, marginBottom: 16 }}>
@@ -136,7 +141,7 @@ export default function InstallmentDetail({ store, instId, back, onEdit }) {
             <Ico name={r.isPaid ? "check" : "card"} size={18} color={r.isPaid ? "var(--success)" : r.isNext ? "var(--ac)" : "var(--faint)"} />
           </span>
           <div><div className="nm">{tr("instd.paymentN", { n: r.num })}</div><div className="mt">{monthLabel(r.month)}{r.isPaid ? tr("instd.tapToUndo") : ""}</div></div>
-          <div className="amtb"><b className="tnum">{fmt(inst.installmentAmount)}</b><small style={{ color: r.isPaid ? "var(--success)" : r.isNext ? "var(--ac)" : "var(--faint)" }}>{r.isPaid ? tr("instd.paid") : r.isNext ? tr("instd.next") : tr("instd.upcoming")}</small></div>
+          <div className="amtb"><b className="tnum">{fmt(amountFor(r.num))}</b><small style={{ color: r.isPaid ? "var(--success)" : r.isNext ? "var(--ac)" : "var(--faint)" }}>{r.isPaid ? tr("instd.paid") : r.isNext ? tr("instd.next") : tr("instd.upcoming")}</small></div>
         </div>
       ))}
 
@@ -145,7 +150,7 @@ export default function InstallmentDetail({ store, instId, back, onEdit }) {
           {inst.stopped
             ? <div className="btn btn-primary btn-full" onClick={toggleStop}><Ico name="check" size={18} />{tr("instd.resumePlan")}</div>
             : !paidThisMonth
-              ? <div className="btn btn-primary btn-full" onClick={() => payN(1)}><Ico name="check" size={18} />{tr("instd.payNext", { n: paid + 1, amt: fmt(inst.installmentAmount) })}</div>
+              ? <div className="btn btn-primary btn-full" onClick={() => payN(1)}><Ico name="check" size={18} />{tr("instd.payNext", { n: paid + 1, amt: fmt(amountFor(paid + 1)) })}</div>
               : <div className="btn btn-secondary btn-full" style={{ pointerEvents: "none", opacity: .8 }}><Ico name="check" size={18} />{tr("instd.thisMonthPaid")}</div>}
         </div>
       )}

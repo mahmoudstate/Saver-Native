@@ -8,14 +8,20 @@ import { today } from "../lib/format.js";
 import { KEYS, loadKey } from "../lib/store.js";
 import { encryptBackup, decryptBackup, isEncryptedBackup } from "../lib/backupCrypto.js";
 import { exportTextFile } from "../lib/nativeFile.js";
-import { useT } from "../lib/i18n.js";
+import { useT, useLang } from "../lib/i18n.js";
 
-// TODO: swap for the live marketing-site privacy page once it is ready.
-const PRIVACY_URL = "https://savertrack.app/privacy";
+// The site can't guess the app's language/theme from the browser — a direct
+// deep link like this skips its own auto-detect (that only runs on "/").
+// Pass both explicitly instead, straight from the app's own settings.
+const privacyUrl = (lang, theme) => {
+  const url = `https://www.savertrack.app/${lang}/privacy-policy`;
+  return theme === "light" || theme === "dark" ? `${url}?theme=${theme}` : url;
+};
 
 export default function PrivacyBackup({ store, back }) {
   const fileRef = useRef(null);
   const tr = useT();
+  const { lang } = useLang();
   const [prompt, setPrompt] = useState(null); // { mode:'enc'|'dec', text? }
 
   const currentPayload = () => {
@@ -56,7 +62,7 @@ export default function PrivacyBackup({ store, back }) {
       const text = reader.result;
       if (isEncryptedBackup(text)) { setPrompt({ mode: "dec", text }); return; }
       try { applyRestore(JSON.parse(text)); }
-      catch { store.setAlert({ title: tr("privacy.cantRead"), message: tr("privacy.cantReadMsg"), color: "var(--red)" }); }
+      catch (err) { console.error("[backup] restore failed:", err); store.setAlert({ title: tr("privacy.cantRead"), message: tr("privacy.cantReadMsg"), color: "var(--red)" }); }
     };
     reader.readAsText(file);
     e.target.value = "";
@@ -84,7 +90,7 @@ export default function PrivacyBackup({ store, back }) {
     <div className="icard" onClick={onClick} style={{ cursor: onClick ? "pointer" : "default" }}>
       <span className="circ" style={{ width: 40, height: 40, borderRadius: 12, background: bg, color }}><Ico name={icon} size={20} /></span>
       <div><div className="nm">{nm}</div><div className="mt">{mt}</div></div>
-      <span style={{ marginLeft: "auto" }}>{right}</span>
+      <span style={{ marginInlineStart: "auto" }}>{right}</span>
     </div>
   );
 
@@ -110,7 +116,7 @@ export default function PrivacyBackup({ store, back }) {
       <Row icon="trash" bg="var(--redDim)" color="var(--red)" nm={tr("privacy.resetAllData")} mt={tr("privacy.resetSub")} right={<Ico name="chev" size={18} color="var(--faint)" />} onClick={reset} />
 
       <div className="over" style={{ marginTop: 16 }}>{tr("privacy.legal")}</div>
-      <Row icon="shield" bg="var(--blueDim)" color="var(--blue)" nm={tr("privacy.policy")} mt={tr("privacy.policySub")} right={<Ico name="link" size={18} color="var(--faint)" />} onClick={() => window.open(PRIVACY_URL, "_blank", "noopener,noreferrer")} />
+      <Row icon="shield" bg="var(--blueDim)" color="var(--blue)" nm={tr("privacy.policy")} mt={tr("privacy.policySub")} right={<Ico name="link" size={18} color="var(--faint)" />} onClick={() => window.open(privacyUrl(lang, store.theme), "_blank", "noopener,noreferrer")} />
       <input ref={fileRef} type="file" accept=".json,application/json" onChange={onFile} style={{ display: "none" }} />
 
       {prompt?.mode === "enc" && (

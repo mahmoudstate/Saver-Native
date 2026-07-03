@@ -1,6 +1,6 @@
 // Saver — All Accounts: same two-page swipeable hero as Home (safe to spend
 // first, then total balance) + every bank as its gradient card.
-import { useRef, useState } from "react";
+import { useRef, useState, useMemo } from "react";
 import Ico from "../ui/Ico.jsx";
 import { BankCard } from "./Home.jsx";
 import Money from "../ui/Money.jsx";
@@ -11,13 +11,14 @@ import { useT } from "../lib/i18n.js";
 export default function AllAccounts({ store, back, onOpenBank, onAdd }) {
   const { banks = [], txns = [], savings = [] } = store;
   const tr = useT();
-  const total = totalBalance(banks, txns);
-  const safe = totalSafe(banks, txns, savings);
-  const frozen = totalFrozen(banks, txns, savings);
+  const total = useMemo(() => totalBalance(banks, txns), [banks, txns]);
+  const safe = useMemo(() => totalSafe(banks, txns, savings), [banks, txns, savings]);
+  const frozen = useMemo(() => totalFrozen(banks, txns, savings), [banks, txns, savings]);
   const [page, setPage] = useState(0);
   const pagerRef = useRef(null);
   const onScroll = () => { const el = pagerRef.current; if (el) setPage(Math.round(el.scrollLeft / el.clientWidth)); };
-  const countSub = `${tr("account.accountsCount", { n: banks.filter((b) => !b.archived).length })}${frozen > 0 ? ` · ${tr("home.frozenInGoals", { amt: fmt(frozen) })}` : ""}`;
+  const liveCount = banks.filter((b) => !b.archived).length;
+  const countSub = `${tr(liveCount === 1 ? "account.accountsCountOne" : "account.accountsCount", { n: liveCount })}${frozen > 0 ? ` · ${tr("home.frozenInGoals", { amt: fmt(frozen) })}` : ""}`;
 
   return (
     <div className="content padnav">

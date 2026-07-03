@@ -16,7 +16,7 @@ import IconField from "../ui/IconField.jsx";
 import CatTile from "../ui/CatTile.jsx";
 import { fmt, today, HAPTICS } from "../lib/format.js";
 import { focusNext } from "../lib/focusNext.js";
-import { bankIcon } from "../lib/bankIcon.js";
+import BankLogo from "../ui/BankLogo.jsx";
 import { useT } from "../lib/i18n.js";
 
 const r2 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
@@ -158,7 +158,7 @@ export default function InstallmentEditor({ store, plan, onClose }) {
       {step === 2 && <>
         <div className="over">{tr("inst.whereWhen")}</div>
         <div className="field" onClick={() => setSheet("account")} style={{ cursor: "pointer" }}>
-          <span className="circ" style={{ width: 42, height: 42, borderRadius: 13, background: `color-mix(in srgb, ${bank?.color || "var(--muted)"} 20%, transparent)`, color: bank?.color || "var(--muted)" }}><Ico name={bankIcon(bank?.glyph)} size={19} /></span>
+          <BankLogo name={bank?.name} domain={bank?.domain} glyph={bank?.glyph} color={bank?.color} size={42} radius={13} iconSize={19} />
           <div style={{ flex: 1 }}><div className="fl">{tr("inst.payFrom")}</div><div className="fv">{bank?.name || tr("sub.pick")}</div></div><span className="chev"><Ico name="chev" size={18} /></span>
         </div>
         <Row label={tr("inst.dueDay")} value={tr("sub.dayN", { n: clampDay(dueDay) })} onClick={() => setSheet("due")} />
@@ -194,7 +194,7 @@ export default function InstallmentEditor({ store, plan, onClose }) {
       {sheet === "paid" && <StepSheet title={tr("inst.monthsAlreadyPaid")} sub={tr("inst.outOf", { n: count })} value={paidInit} picks={[1, 2, 3, 6]} min={0} max={count} onConfirm={(v) => { setPaidInit(v); setSheet(null); }} onClose={() => setSheet(null)} />}
       {sheet === "due" && <DayGridSheet title={tr("inst.dueDay")} sub={tr("inst.dueDaySub")} value={clampDay(dueDay)} onConfirm={(v) => { setDueDay(v); setSheet(null); }} onClose={() => setSheet(null)} />}
       {sheet === "remind" && <OptionSheet title={tr("sub.remindMe")} sub={tr("sub.beforeDue")} value={reminderDays} onPick={(v) => { setReminderDays(v); setSheet(null); }} onClose={() => setSheet(null)} options={[{ value: 0, label: tr("sub.off") }, { value: 1, label: tr("sub.remind1") }, { value: 2, label: tr("sub.remind2") }, { value: 3, label: tr("sub.remind3") }, { value: 7, label: tr("sub.remind7") }]} />}
-      {sheet === "account" && <PickerSheet title={tr("inst.payFrom")} selectedId={bankId} onPick={setBankId} onClose={() => setSheet(null)} options={liveBanks.map((b) => ({ id: b.id, label: b.name, bankColor: b.color, glyph: b.glyph }))} />}
+      {sheet === "account" && <PickerSheet title={tr("inst.payFrom")} selectedId={bankId} onPick={setBankId} onClose={() => setSheet(null)} options={liveBanks.map((b) => ({ id: b.id, label: b.name, bankColor: b.color, bankDomain: b.domain, glyph: b.glyph }))} />}
     </div>
   );
 }

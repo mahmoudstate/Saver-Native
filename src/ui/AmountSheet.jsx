@@ -3,9 +3,9 @@
 import { useState } from "react";
 import Ico from "./Ico.jsx";
 import PickerSheet from "./PickerSheet.jsx";
-import { fmt } from "../lib/format.js";
+import { fmt, fmtParts, HAPTICS } from "../lib/format.js";
 import { calcBankBalance, calcFrozenForBank } from "../lib/calc.js";
-import { bankIcon } from "../lib/bankIcon.js";
+import BankLogo from "./BankLogo.jsx";
 import { useT } from "../lib/i18n.js";
 
 export default function AmountSheet({ title, sub, confirmLabel = "Confirm", max, banks, txns, savings, onConfirm, onClose }) {
@@ -20,11 +20,30 @@ export default function AmountSheet({ title, sub, confirmLabel = "Confirm", max,
   const bank = liveBanks.find((b) => b.id === bankId);
   const available = (id) => txns ? calcBankBalance(id, txns) - Math.max(0, calcFrozenForBank(id, savings || [], txns)) : null;
 
+  // Live display shows exactly what was typed (grouping the integer part only) —
+  // never round-trips through parseFloat/fmt while typing, which used to silently
+  // swallow a trailing "." or a trailing decimal "0" and made the keypad look dead.
+  const groupInt = (s) => { const n = parseInt(s || "0", 10); return isNaN(n) ? "0" : new Intl.NumberFormat("en-US").format(n); };
+  const liveNum = () => {
+    if (!amt) return "0";
+    const [intPart, ...rest] = amt.split(".");
+    return rest.length ? `${groupInt(intPart)}.${rest[0]}` : groupInt(intPart);
+  };
+  const curSym = fmtParts(val).cur;
+
+  // A rejected key (dot already present, or 2 decimals already typed) gets a
+  // distinct "denied" tap instead of silently doing nothing, so it doesn't feel
+  // like the keypad stopped responding.
   const press = (k) => {
     setAmt((s) => {
-      if (k === "del") return s.slice(0, -1);
-      if (k === ".") return s.includes(".") ? s : (s || "0") + ".";
-      if (s.includes(".") && s.split(".")[1].length >= 2) return s; // cap 2 decimals
+      if (k === "del") { HAPTICS.light(); return s.slice(0, -1); }
+      if (k === ".") {
+        if (s.includes(".")) { HAPTICS.warning(); return s; }
+        HAPTICS.light();
+        return (s || "0") + ".";
+      }
+      if (s.includes(".") && s.split(".")[1].length >= 2) { HAPTICS.warning(); return s; } // cap 2 decimals
+      HAPTICS.light();
       return (s === "0" ? "" : s) + k;
     });
   };
@@ -41,15 +60,16 @@ export default function AmountSheet({ title, sub, confirmLabel = "Confirm", max,
         </div>
 
         <div style={{ textAlign: "center", padding: "14px 0 6px" }}>
-          <div className="tnum" style={{ fontSize: 44, fontWeight: 800, letterSpacing: -1.5, color: over ? "var(--red)" : "var(--text)" }}>{amt ? fmt(val) : fmt(0)}</div>
+          <div className="tnum" style={{ fontSize: 44, fontWeight: 800, letterSpacing: -1.5, color: over ? "var(--red)" : "var(--text)" }}>
+            {curSym && <span style={{ fontSize: "0.5em", fontWeight: 700, opacity: .55, marginInlineEnd: "0.18em" }}>{curSym}</span>}
+            {liveNum()}
+          </div>
           {max != null && <div className="caption" style={{ marginTop: 4, color: over ? "var(--red)" : "var(--muted)" }}>{over ? tr("ui.max", { amt: fmt(max) }) : tr("ui.available", { amt: fmt(max) })}</div>}
         </div>
 
         {banks && bank && (
           <div className="field" onClick={() => setPickerOpen(true)} style={{ cursor: "pointer", margin: "6px 0 14px" }}>
-            <span className="circ" style={{ width: 34, height: 34, borderRadius: 10, background: `color-mix(in srgb, ${bank.color || "var(--muted)"} 20%, transparent)`, color: bank.color || "var(--muted)" }}>
-              <Ico name={bankIcon(bank.glyph)} size={16} />
-            </span>
+            <BankLogo name={bank.name} domain={bank.domain} glyph={bank.glyph} color={bank.color} size={34} radius={10} iconSize={16} />
             <div style={{ flex: 1 }}>
               <div className="fv" style={{ fontWeight: 700 }}>{bank.name}</div>
               {available(bank.id) != null && <div className="caption" style={{ marginTop: 1 }}>{tr("ui.available", { amt: fmt(available(bank.id)) })}</div>}
@@ -60,7 +80,7 @@ export default function AmountSheet({ title, sub, confirmLabel = "Confirm", max,
 
         {pickerOpen && (
           <PickerSheet title={tr("add.pickAccount")} selectedId={bankId}
-            options={liveBanks.map((b) => ({ id: b.id, label: b.name, bankColor: b.color, glyph: b.glyph, sub: available(b.id) != null ? tr("ui.available", { amt: fmt(available(b.id)) }) : undefined }))}
+            options={liveBanks.map((b) => ({ id: b.id, label: b.name, bankColor: b.color, bankDomain: b.domain, glyph: b.glyph, sub: available(b.id) != null ? tr("ui.available", { amt: fmt(available(b.id)) }) : undefined }))}
             onPick={setBankId} onClose={() => setPickerOpen(false)} />
         )}
 

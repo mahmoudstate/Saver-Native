@@ -16,6 +16,20 @@ export default function ServiceLogo({ domain, name, color, size = 44, style = {}
   const radius = size * 0.3;
   const ic = domain && BRAND_ICONS[domain];
   const box = { width: size, height: size, borderRadius: radius, background: tile, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, ...style };
+  if (ic?.img && ic.full) {
+    return (
+      <div style={{ ...box, overflow: "hidden" }}>
+        <img src={ic.img} alt={name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+      </div>
+    );
+  }
+  if (ic?.img) {
+    return (
+      <div style={{ ...box, background: "#fff", boxShadow: "inset 0 0 0 1px rgba(0,0,0,.08)" }}>
+        <img src={ic.img} alt={name} style={{ width: "68%", height: "68%", objectFit: "contain" }} />
+      </div>
+    );
+  }
   if (ic) {
     return (
       <div style={box}>

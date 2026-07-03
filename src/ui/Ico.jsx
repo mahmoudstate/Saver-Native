@@ -50,6 +50,7 @@ export const MARKS = {
   coins: `<ellipse cx="9" cy="7" rx="6" ry="3"/><path d="M3 7v5c0 1.7 2.7 3 6 3s6-1.3 6-3"/><path d="M15 11.5c2.8.3 6 1.5 6 3.5 0 1.7-2.7 3-6 3-1.2 0-2.3-.2-3.2-.5"/>`,
   user: `<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>`,
   info: `<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>`,
+  mic: `<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v1a7 7 0 0 0 14 0v-1M12 18v3M9 21h6"/>`,
 };
 
 // Horizontal/directional glyphs that must mirror under RTL (back arrow + row chevron).
