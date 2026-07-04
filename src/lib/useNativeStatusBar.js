@@ -34,6 +34,10 @@ export function useNativeStatusBar() {
     };
     syncFn = sync;
 
+    // Android-only: scoped class so CSS can opt specific fixes in without
+    // touching iOS (e.g. the overscroll-bounce ghost-row repaint glitch).
+    if (Capacitor.getPlatform() === "android") root.classList.add("is-android");
+
     sync(); // initial
     const obs = new MutationObserver(sync);
     obs.observe(root, { attributes: true, attributeFilter: ["data-theme"] });
