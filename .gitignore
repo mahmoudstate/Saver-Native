@@ -27,6 +27,7 @@ shot.cjs
 !icon.png
 !assets/**/*.png
 !ios/**/*.png
+!android/**/*.png
 dist/
 TASKS.md
 
