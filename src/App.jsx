@@ -7,6 +7,8 @@ import { HAPTICS, currentMonth } from "./lib/format.js";
 import { useKeyboardInsets } from "./lib/useKeyboardInsets.js";
 import { useLocalNotifications } from "./lib/useLocalNotifications.js";
 import { useNotificationTaps } from "./lib/useNotificationTaps.js";
+import { useICloudRestoreCheck } from "./hooks/useICloudRestoreCheck.js";
+import iconUrl from "../icon.png";
 import LockScreen from "./ui/LockScreen.jsx";
 import BottomNav from "./ui/BottomNav.jsx";
 import Overlays from "./ui/Modal.jsx";
@@ -49,6 +51,7 @@ import InstallmentEditor from "./screens/InstallmentEditor.jsx";
 import Notifications from "./screens/Notifications.jsx";
 import CustomizeDashboard from "./screens/CustomizeDashboard.jsx";
 import Onboarding from "./screens/Onboarding.jsx";
+import LangPrompt from "./screens/LangPrompt.jsx";
 import Celebration from "./screens/Celebration.jsx";
 import WhatsNew from "./ui/WhatsNew.jsx";
 import AllAccounts from "./screens/AllAccounts.jsx";
@@ -70,6 +73,7 @@ export default function App() {
   useKeyboardInsets();
   const store = useStore();
   useLocalNotifications(store);
+  const checkingICloudRestore = useICloudRestoreCheck(store);
   const lock = useAppLock(store.appLock);
   const [tab, setTab] = useState("home");
   // Navigation stack of pushed detail screens; the top one renders as an overlay.
@@ -104,6 +108,11 @@ export default function App() {
   const openTab = (t) => { setBillsSeg(null); setStack([]); setTab(t); };
 
   if (lock.locked) return <div className="app"><LockScreen onUnlock={lock.unlock} tryBiometric={lock.tryBiometric} /></div>;
+  // Hold off on Onboarding/LangPrompt until we know whether there's a previous
+  // iCloud backup to offer, avoiding a flash of Onboarding interrupted a
+  // moment later by a restore dialog.
+  if (checkingICloudRestore) return <div className="app" style={{ alignItems: "center", justifyContent: "center" }}><img src={iconUrl} alt="" style={{ width: 64, height: 64, borderRadius: 18 }} /></div>;
+  if (store.needsLangChoice) return <div className="app"><LangPrompt onDone={() => store.set("needsLangChoice", false)} /></div>;
   if (!store.seenWelcome) return <div className="app"><Onboarding onDone={() => { store.set("seenWelcome", true); setTour(true); }} /></div>;
 
   // The underlying tab — stays mounted under any pushed view so returning restores scroll/state.

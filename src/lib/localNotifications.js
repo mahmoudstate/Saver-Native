@@ -9,9 +9,10 @@
 // stale/paid reminders never linger.
 import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
-import { currentMonth, fmt } from "./format.js";
+import { currentMonth, fmt, today } from "./format.js";
 import { billPeriod, isBillPaidForKey } from "./billfreq.js";
 import { translate, currentLang } from "./i18n.js";
+import { KEYS, loadKey } from "./store.js";
 
 const native = () => Capacitor.isNativePlatform();
 
@@ -79,6 +80,85 @@ function scheduleTimeFor(dueDate, reminderDays, now) {
   return new Date(now.getTime() + 5000);
 }
 
+// Rotating daily "did you log anything today?" nudge. iOS can't pick a random
+// body at delivery time, so instead of one repeating notification with a
+// fixed message, a rolling window of individual day-by-day notifications is
+// scheduled in advance, each with a different line, deterministically picked
+// so the same date always gets the same message (no drift if this resyncs
+// mid-day). A day already logged (or already past its reminder time) is
+// skipped, so logging an expense before the reminder fires cancels it.
+const EXPENSE_REMINDER_HOUR = 20; // 8pm local time
+const EXPENSE_REMINDER_DAYS_AHEAD = 14;
+const EXPENSE_MSGS = {
+  en: [
+    "Did you spend anything today?",
+    "Quick reminder to add today's expenses.",
+    "Don't forget to log today's spending.",
+    "Add today's expenses when you get a chance.",
+    "A quick note now saves time later.",
+    "Take a second to log today's expenses.",
+    "Remember to add what you spent today.",
+  ],
+  ar: [
+    "هل صرفت أي شيء اليوم؟",
+    "تذكير بسيط لإضافة مصاريف اليوم.",
+    "لا تنسَ تسجيل مصاريف اليوم.",
+    "أضف مصاريف اليوم متى استطعت.",
+    "ملاحظة سريعة الآن توفر وقتك لاحقًا.",
+    "خذ لحظة لتسجيل مصاريف اليوم.",
+    "تذكر أن تضيف ما صرفته اليوم.",
+  ],
+};
+
+function addDays(dateStr, n) {
+  const d = new Date(dateStr + "T12:00:00");
+  d.setDate(d.getDate() + n);
+  return d.toISOString().slice(0, 10);
+}
+
+function dayOfYear(dateStr) {
+  const d = new Date(dateStr + "T12:00:00");
+  const start = new Date(d.getFullYear(), 0, 0);
+  return Math.floor((d - start) / 86400000);
+}
+
+function expenseReminderNotifications(store, now) {
+  const msgs = EXPENSE_MSGS[currentLang()] || EXPENSE_MSGS.en;
+  const loggedDates = new Set((store.txns || []).map((t) => t.date));
+  const notifications = [];
+  const base = today();
+  for (let i = 0; i < EXPENSE_REMINDER_DAYS_AHEAD; i++) {
+    const dateStr = i === 0 ? base : addDays(base, i);
+    if (loggedDates.has(dateStr)) continue;
+    const at = new Date(`${dateStr}T${String(EXPENSE_REMINDER_HOUR).padStart(2, "0")}:00:00`);
+    if (at <= now) continue;
+    notifications.push({
+      id: idFor(`expense-reminder-${dateStr}`),
+      title: pinLeft(translate("notif.expenseReminderTitle")),
+      body: pinLeft(msgs[dayOfYear(dateStr) % msgs.length]),
+      schedule: { at }, sound: "default", extra: { kind: "expenseReminder", date: dateStr },
+    });
+  }
+  return notifications;
+}
+
+// One-shot nudge to back up manually, only relevant when the automatic
+// iCloud backup is off (it already covers users who leave it on) and it's
+// been a while since any backup (auto or manual) — see KEYS.lastBackup.
+const BACKUP_REMINDER_DAYS = 30;
+
+function backupReminderNotification(now) {
+  const last = loadKey(KEYS.lastBackup, null);
+  const at = new Date((last || now.getTime()) + BACKUP_REMINDER_DAYS * 86400000);
+  if (at <= now) return null;
+  return {
+    id: idFor("backup-reminder"),
+    title: pinLeft(translate("notif.backupReminderTitle")),
+    body: pinLeft(translate("notif.backupReminderBody")),
+    schedule: { at }, sound: "default", extra: { kind: "backupReminder" },
+  };
+}
+
 export async function syncScheduledNotifications(store) {
   if (!native()) return;
   try {
@@ -122,6 +202,12 @@ export async function syncScheduledNotifications(store) {
         schedule: { at }, sound: "default", extra: { kind: "installment", id: i.id },
       });
     });
+
+    notifications.push(...expenseReminderNotifications(store, now));
+    if (!store.iCloudBackupEnabled) {
+      const backupReminder = backupReminderNotification(now);
+      if (backupReminder) notifications.push(backupReminder);
+    }
 
     if (notifications.length) await LocalNotifications.schedule({ notifications });
   } catch (e) {

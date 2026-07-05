@@ -42,15 +42,16 @@ export function ConfirmModal({ data, onClose }) {
   if (!data) return null;
   const color = data.color || "var(--red)";
   const run = () => { HAPTICS[data.danger ? "warning" : "medium"](); data.onConfirm?.(); onClose(); };
+  const cancel = () => { data.onCancel?.(); onClose(); };
   return (
     <>
-      <div className="dim" onClick={onClose} />
+      <div className="dim" onClick={cancel} />
       <div className="dialog" role="alertdialog" aria-label={data.title}>
         <div className="dico" style={tile(color)}><Ico name={data.icon || (data.danger ? "trash" : "bell")} size={26} color={color} /></div>
         <div className="dttl">{data.title}</div>
         <div className="dmsg">{data.message}</div>
         <div className="drow">
-          <button className="btn btn-ghost btn-full" onClick={onClose}>{data.cancelText || tr("ui.cancel")}</button>
+          <button className="btn btn-ghost btn-full" onClick={cancel}>{data.cancelText || tr("ui.cancel")}</button>
           <button className={`btn btn-full ${data.danger ? "btn-danger" : "btn-primary"}`} onClick={run}>{data.confirmText || tr("ui.confirm")}</button>
         </div>
       </div>

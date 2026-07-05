@@ -1,0 +1,4 @@
+/* Arabic localization — UI text itself lives in src/lib/locales/ (JS-driven,
+   not native strings); this file only needs to exist so iOS recognizes "ar"
+   as a real supported localization and offers it in Settings > Saver > Language. */
+"CFBundleDisplayName" = "Saver";

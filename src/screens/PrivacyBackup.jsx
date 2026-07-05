@@ -1,13 +1,16 @@
 // Saver — Privacy & Backup: ported from showcase 25 + 39 (on-device · export/restore).
 import { useRef, useState } from "react";
+import { Capacitor } from "@capacitor/core";
 import Ico from "../ui/Ico.jsx";
 import AppLockRow from "../ui/AppLockRow.jsx";
 import NotificationsRow from "../ui/NotificationsRow.jsx";
 import PasswordPrompt from "../ui/PasswordPrompt.jsx";
-import { today } from "../lib/format.js";
-import { KEYS, loadKey } from "../lib/store.js";
+import { today, HAPTICS } from "../lib/format.js";
+import { KEYS, loadKey, saveKey } from "../lib/store.js";
 import { encryptBackup, decryptBackup, isEncryptedBackup } from "../lib/backupCrypto.js";
+import { buildBackupPayload } from "../lib/backupPayload.js";
 import { exportTextFile } from "../lib/nativeFile.js";
+import { runICloudBackup } from "../hooks/useICloudAutoBackup.js";
 import { useT, useLang } from "../lib/i18n.js";
 
 // The site can't guess the app's language/theme from the browser — a direct
@@ -24,12 +27,6 @@ export default function PrivacyBackup({ store, back }) {
   const { lang } = useLang();
   const [prompt, setPrompt] = useState(null); // { mode:'enc'|'dec', text? }
 
-  const currentPayload = () => {
-    const payload = { _app: "Saver", _version: 3, _exported: today() };
-    for (const k in KEYS) payload[k] = loadKey(KEYS[k], null);
-    return payload;
-  };
-
   // Export flow: ask for a password, then write an encrypted backup.
   // Kept as .json (not a custom .saver extension) — iOS's file picker maps
   // "accept" to known file types (UTIs), and a made-up extension has none,
@@ -40,9 +37,12 @@ export default function PrivacyBackup({ store, back }) {
   const doEncrypt = async (password) => {
     const andReset = prompt?.andReset;
     setPrompt(null);
-    const enc = await encryptBackup(currentPayload(), password);
+    const enc = await encryptBackup(buildBackupPayload(), password);
     const done = await exportTextFile(`Saver_Backup_${today()}.json`, enc, "Save Saver backup");
     if (!done) return; // user backed out of the share sheet — don't wipe anything
+    const ts = Date.now();
+    saveKey(KEYS.lastBackup, ts);
+    setLastBackupAt(ts);
     store.flash({ title: tr("privacy.backupDownloaded"), sub: "Saver_Backup.json", color: "var(--success)", icon: "download" });
     if (andReset) store.resetAll();
   };
@@ -86,6 +86,40 @@ export default function PrivacyBackup({ store, back }) {
     });
   };
 
+  const [lastBackupAt, setLastBackupAt] = useState(() => loadKey(KEYS.lastBackup, null));
+  const [backingUp, setBackingUp] = useState(false);
+  const lastBackupText = lastBackupAt
+    ? tr("privacy.lastBackupAt", { time: new Intl.DateTimeFormat(lang === "ar" ? "ar" : "en", { hour: "numeric", minute: "2-digit" }).format(lastBackupAt) })
+    : tr("privacy.neverBackedUp");
+  // 3+ silent consecutive background-write failures (iCloud full, signed out,
+  // etc.) is worth surfacing — a single blip isn't (transient network hiccups
+  // are common and self-resolve on the next debounced write).
+  const iCloudBackupFailing = loadKey(KEYS.iCloudBackupFailCount, 0) >= 3;
+
+  const toggleICloudBackup = () => { HAPTICS.light(); store.set("iCloudBackupEnabled", !store.iCloudBackupEnabled); };
+
+  const backupNow = async () => {
+    if (backingUp) return;
+    HAPTICS.light();
+    setBackingUp(true);
+    try {
+      const ok = await runICloudBackup();
+      if (ok) {
+        const ts = Date.now();
+        saveKey(KEYS.lastBackup, ts);
+        saveKey(KEYS.iCloudBackupFailCount, 0);
+        setLastBackupAt(ts);
+        store.flash({ title: tr("privacy.backedUpNow"), color: "var(--success)", icon: "check" });
+      } else {
+        store.setAlert({ title: tr("privacy.iCloudBackup"), message: tr("privacy.iCloudUnavailable"), color: "var(--red)" });
+      }
+    } catch {
+      store.setAlert({ title: tr("privacy.iCloudBackup"), message: tr("privacy.iCloudUnavailable"), color: "var(--red)" });
+    } finally {
+      setBackingUp(false);
+    }
+  };
+
   const Row = ({ icon, bg, color, nm, mt, right, onClick }) => (
     <div className="icard" onClick={onClick} style={{ cursor: onClick ? "pointer" : "default" }}>
       <span className="circ" style={{ width: 40, height: 40, borderRadius: 12, background: bg, color }}><Ico name={icon} size={20} /></span>
@@ -111,6 +145,27 @@ export default function PrivacyBackup({ store, back }) {
       </div>
 
       <div className="over" style={{ marginTop: 16 }}>{tr("privacy.backup")}</div>
+      {Capacitor.getPlatform() === "ios" && (
+        <>
+          <div className="icard" onClick={toggleICloudBackup} style={{ cursor: "pointer" }}>
+            <span className="circ" style={{ width: 40, height: 40, borderRadius: 12, background: "var(--acDim)", color: "var(--ac)" }}><Ico name="check" size={20} /></span>
+            <div><div className="nm">{tr("privacy.iCloudBackup")}</div><div className="mt">{store.iCloudBackupEnabled ? tr("privacy.iCloudBackupSub") : tr("privacy.iCloudBackupOffSub")}</div></div>
+            <span style={{ marginInlineStart: "auto" }}>
+              <span style={{ width: 46, height: 28, borderRadius: 99, background: store.iCloudBackupEnabled ? "var(--ac)" : "var(--track)", border: store.iCloudBackupEnabled ? "none" : "var(--cardBorder)", display: "flex", alignItems: "center", justifyContent: store.iCloudBackupEnabled ? "flex-end" : "flex-start", padding: 3, boxSizing: "border-box", transition: "background .2s, justify-content .2s" }}>
+                <span style={{ width: 22, height: 22, borderRadius: 99, background: "#fff", flexShrink: 0 }} />
+              </span>
+            </span>
+          </div>
+          {store.iCloudBackupEnabled && (
+            <Row icon="download" bg="var(--acDim)" color="var(--ac)" nm={tr("privacy.backUpNow")} mt={backingUp ? tr("privacy.backingUp") : lastBackupText} onClick={backupNow} />
+          )}
+          {store.iCloudBackupEnabled && iCloudBackupFailing && (
+            <div className="frozen" style={{ marginTop: 10, marginBottom: 10, display: "flex", alignItems: "center", gap: 8, background: "var(--redDim)", color: "var(--red)", borderRadius: 14, padding: "12px 14px", fontWeight: 700, fontSize: 13 }}>
+              <Ico name="bell" size={15} color="var(--red)" />{tr("privacy.iCloudBackupFailing")}
+            </div>
+          )}
+        </>
+      )}
       <Row icon="download" bg="var(--purpleDim)" color="var(--purple)" nm={tr("privacy.downloadBackup")} mt={`Saver_Backup.json · ${tr("privacy.encrypted")}`} right={<Ico name="chev" size={18} color="var(--faint)" />} onClick={download} />
       <Row icon="download" bg="var(--blueDim)" color="var(--blue)" nm={tr("privacy.restoreFromFile")} mt={tr("privacy.overwrites")} right={<Ico name="chev" size={18} color="var(--faint)" />} onClick={() => fileRef.current?.click()} />
       <Row icon="trash" bg="var(--redDim)" color="var(--red)" nm={tr("privacy.resetAllData")} mt={tr("privacy.resetSub")} right={<Ico name="chev" size={18} color="var(--faint)" />} onClick={reset} />

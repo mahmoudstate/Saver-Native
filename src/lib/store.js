@@ -7,6 +7,8 @@ import { setCurrency, currentMonth, HAPTICS, fmt } from "./format.js";
 import { makeCalc, goalBalancesPerBank } from "./calc.js";
 import { useT } from "./i18n.js";
 import { applyFirstRunDefaults } from "./firstRunDefaults.js";
+import { useICloudAutoBackup } from "../hooks/useICloudAutoBackup.js";
+import { useNativeRegionCorrection } from "../hooks/useNativeRegionCorrection.js";
 
 export const KEYS = {
   txns: "et_txns", banks: "et_banks", expCats: "et_expCats", incCats: "et_incCats",
@@ -15,7 +17,9 @@ export const KEYS = {
   budgets: "et_budgets", quickActions: "et_quick_actions", seenWelcome: "et_seenWelcome",
   theme: "et_theme", installments: "et_installments", accent: "et_accent", dashboard: "et_dashboard",
   avatar: "et_avatar", billTypes: "et_billTypes", notifReadKeys: "et_notifReadKeys", notifDismissedKeys: "et_notifDismissedKeys", notificationsEnabled: "et_notificationsEnabled",
-  lang: "et_lang", appLock: "et_appLock",
+  lang: "et_lang", appLock: "et_appLock", needsLangChoice: "et_needsLangChoice",
+  regionCorrected: "et_regionCorrected", iCloudBackupEnabled: "et_iCloudBackupEnabled",
+  iCloudRestoreDismissed: "et_iCloudRestoreDismissed", iCloudBackupFailCount: "et_iCloudBackupFailCount",
 };
 
 export const DASH_SECTIONS = [
@@ -56,7 +60,10 @@ const ENTITIES = {
   txns: [], banks: [], expCats: [], incCats: [], groups: [], savings: [],
   bills: [], budgets: [], installments: [], quickActions: [], billTypes: [],
 };
-const SCALARS = { currency: "EGP", username: "", avatar: "", theme: "system", accent: "mint", dashboard: DASH_DEFAULT, seenWelcome: false, notifReadKeys: [], notifDismissedKeys: [], lang: "en", appLock: false, notificationsEnabled: false };
+// regionCorrected defaults to true so existing installs (no key saved yet) are
+// left alone, only a genuinely fresh install (see firstRunDefaults.js) sets
+// it to false, opting into the one-time native-region currency correction.
+const SCALARS = { currency: "EGP", username: "", avatar: "", theme: "system", accent: "mint", dashboard: DASH_DEFAULT, seenWelcome: false, notifReadKeys: [], notifDismissedKeys: [], lang: "en", appLock: false, notificationsEnabled: false, needsLangChoice: false, regionCorrected: true, iCloudBackupEnabled: true, iCloudRestoreDismissed: false };
 
 // Validate a backup payload before restoring — never mutates state.
 // Accepts both the current envelope ({_app:"Saver", _version, ...}) and legacy
@@ -97,6 +104,13 @@ export function useStore() {
   // mirror latest data into a ref so actions can read/validate synchronously
   const dataRef = useRef(data);
   useEffect(() => { dataRef.current = data; }, [data]);
+
+  // silently mirror every change to iCloud Drive (encrypted, debounced, iOS only)
+  useICloudAutoBackup(
+    data, data.iCloudBackupEnabled,
+    (ts) => { saveKey(KEYS.lastBackup, ts); saveKey(KEYS.iCloudBackupFailCount, 0); },
+    () => saveKey(KEYS.iCloudBackupFailCount, loadKey(KEYS.iCloudBackupFailCount, 0) + 1),
+  );
 
   // global message surface (friendly hybrid: blocking dialogs + confirms + toasts)
   const [alert, setAlert] = useState(null);     // { title, message, color }
@@ -148,6 +162,9 @@ export function useStore() {
       return { ...prev, [key]: val };
     });
   }, []);
+
+  // one-time, fresh-install-only currency/lang-choice correction from the true native region
+  useNativeRegionCorrection(data, set);
 
   // ── Transaction CRUD (LOCKED logic, ported verbatim from legacy) ──
   // Re-entrancy guard for addTxn. addTxn is fully synchronous, but `dataRef.current`

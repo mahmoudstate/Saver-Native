@@ -9,7 +9,7 @@ import { totalBalance } from "../lib/calc.js";
 
 export default function Appearance({ store, back }) {
   const { theme, accent, banks = [], txns = [] } = store;
-  const { lang, setLang, t } = useLang();
+  const { t } = useLang();
   const total = useMemo(() => totalBalance(banks, txns), [banks, txns]);
 
   return (
@@ -28,16 +28,6 @@ export default function Appearance({ store, back }) {
         ))}
       </div>
       <div className="caption" style={{ marginBottom: 20 }}>{theme === "system" ? t("appr.followsSystem") : t("appr.always", { theme: t(theme === "dark" ? "common.themeDark" : "common.themeLight") })}</div>
-
-      <div className="over">{t("appearance.language")}</div>
-      <div style={{ display: "flex", gap: 10, marginBottom: 8 }}>
-        {[["en", "English"], ["ar", "العربية"]].map(([code, label]) => (
-          <div key={code} className="card" onClick={() => setLang(code)} style={{ flex: 1, padding: "18px 8px", textAlign: "center", boxShadow: "none", cursor: "pointer", border: `2px solid ${lang === code ? "var(--ac)" : "var(--border)"}` }}>
-            <div style={{ fontWeight: 800, fontSize: 15 }}>{label}</div>
-          </div>
-        ))}
-      </div>
-      <div className="caption" style={{ marginBottom: 20 }}>{t("appearance.languageCaption")}</div>
 
       <div className="over">{t("appr.accentColour")}</div>
       <div style={{ display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "space-between", padding: "0 4px" }}>

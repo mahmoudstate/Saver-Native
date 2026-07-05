@@ -3,9 +3,10 @@
 // existing install: every check below bails out the moment any of this data
 // already exists, so a returning user's choices are never overwritten.
 //
-// Three things are seeded: the UI language (already handled live by
-// i18n.js's own navigator.language detection — nothing to do here), the
-// currency (guessed from the device's region), and a small starter set of
+// Seeded here: whether to show the one-time Arabic/English prompt (a few
+// markets only, see ASKS_LANG_CHOICE — everywhere else i18n.js's own
+// navigator.language detection is enough, nothing to do), the currency
+// (guessed from the device's region), and a small starter set of
 // expense/income categories so the app isn't a blank list on first open.
 import { loadKey, saveKey, KEYS } from "./store.js";
 import { CURRENCIES } from "./format.js";
@@ -14,17 +15,35 @@ const newId = () => { try { if (crypto?.randomUUID) return crypto.randomUUID(); 
 
 // Region → currency, limited to what Saver actually supports (CURRENCIES in
 // format.js). Everything else falls back to USD rather than guessing wrong.
-const REGION_CURRENCY = { EG: "EGP", GB: "GBP", US: "USD", SA: "SAR", AE: "AED", KW: "KWD" };
+const REGION_CURRENCY = { EG: "EGP", GB: "GBP", US: "USD", SA: "SAR", AE: "AED", KW: "KWD", QA: "QAR", OM: "OMR" };
 const EUROZONE = new Set(["DE", "FR", "IT", "ES", "NL", "BE", "AT", "PT", "IE", "FI", "GR", "LU", "SK", "SI", "EE", "LV", "LT", "CY", "MT", "HR"]);
+
+// Markets where the OS device language alone isn't a reliable signal — plenty of
+// users here keep their iPhone set to English but still want Saver in Arabic.
+// These regions get a one-time "Arabic or English?" prompt on first launch
+// instead of silently following navigator.language (see LangPrompt.jsx / App.jsx).
+const ASKS_LANG_CHOICE = new Set(["EG", "SA", "AE", "KW", "QA", "OM"]);
 
 function detectRegion() {
   try { return new Intl.Locale(navigator.language).maximize().region || null; } catch { return null; }
 }
 
-function detectCurrency() {
-  const region = detectRegion();
+// Shared with the native-region correction (see useNativeRegionCorrection.js).
+// WKWebView's navigator.language collapses to "en-US" on real devices whenever
+// the app only bundles generic "en"/"ar" localizations, regardless of the
+// device's actual Region setting, so this JS guess is only a best-effort
+// fallback until the native region comes back.
+export function currencyForRegion(region) {
   const code = region && (REGION_CURRENCY[region] || (EUROZONE.has(region) ? "EUR" : null));
   return code && CURRENCIES.some((c) => c.code === code) ? code : "USD";
+}
+
+export function needsLangChoiceForRegion(region) {
+  return !!(region && ASKS_LANG_CHOICE.has(region));
+}
+
+function detectCurrency() {
+  return currencyForRegion(detectRegion());
 }
 
 function isArabic() {
@@ -53,8 +72,14 @@ export function applyFirstRunDefaults() {
     && loadKey(KEYS.currency, null) == null;
   if (!fresh) return;
 
-  const lang = isArabic() ? "ar" : "en";
+  const region = detectRegion();
+  if (region && ASKS_LANG_CHOICE.has(region)) saveKey(KEYS.needsLangChoice, true);
+  const lang = isArabic() ? "ar" : "en"; // best-guess for starter category names; LangPrompt (if shown) only affects UI language, not these seeded names
   saveKey(KEYS.currency, detectCurrency());
   saveKey(KEYS.expCats, seedCategories(SEED_EXPENSE[lang], lang));
   saveKey(KEYS.incCats, seedCategories(SEED_INCOME[lang], lang));
+  // Opt this fresh install into the one-time native-region correction (iOS
+  // only, see useNativeRegionCorrection.js) since the JS guess above can be
+  // wrong on-device.
+  saveKey(KEYS.regionCorrected, false);
 }

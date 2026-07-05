@@ -10,6 +10,11 @@
 	<string>Unlock Saver with Face ID to keep your financial data private.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+		<string>ar</string>
+	</array>
 	<key>CFBundleDisplayName</key>
         <string>Saver</string>
 	<key>CFBundleExecutable</key>
