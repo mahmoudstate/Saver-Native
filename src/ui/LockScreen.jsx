@@ -3,10 +3,12 @@ import { useState, useEffect, useCallback } from "react";
 import logo from "../../icon.png";
 import Ico from "./Ico.jsx";
 import { verifyPin, hasPin } from "../lib/appLock.js";
+import { useBiometryLabel } from "../hooks/useBiometryLabel.js";
 import { useT } from "../lib/i18n.js";
 
 export default function LockScreen({ onUnlock, tryBiometric }) {
   const tr = useT();
+  const biometry = useBiometryLabel();
   const [pin, setPin] = useState("");
   const [err, setErr] = useState(false);
   const [pinMode, setPinMode] = useState(false);
@@ -39,7 +41,7 @@ export default function LockScreen({ onUnlock, tryBiometric }) {
         <>
           <div style={{ color: "var(--muted)", fontSize: 13, marginBottom: 28 }}>{tr("lock.unlockToContinue")}</div>
           <button onClick={() => tryBiometric?.()} style={btn}>
-            <Ico name="lock" size={18} color="#fff" /> {tr("lock.unlockFaceId")}
+            <Ico name="lock" size={18} color="#fff" /> {tr("lock.unlockFaceId", { biometry })}
           </button>
           {pinExists && (
             <button onClick={() => setPinMode(true)} style={{ ...btn, background: "transparent", color: "var(--ac)", marginTop: 12 }}>

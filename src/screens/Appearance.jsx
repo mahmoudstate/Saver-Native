@@ -8,9 +8,11 @@ import { useLang } from "../lib/i18n.js";
 import { totalBalance } from "../lib/calc.js";
 
 export default function Appearance({ store, back }) {
-  const { theme, accent, banks = [], txns = [] } = store;
+  const { theme, accent, banks = [], txns = [], hapticsEnabled } = store;
   const { t } = useLang();
   const total = useMemo(() => totalBalance(banks, txns), [banks, txns]);
+  const haptics = hapticsEnabled !== false;
+  const toggleHaptics = () => store.set("hapticsEnabled", !haptics);
 
   return (
     <div className="content padnav">
@@ -36,6 +38,17 @@ export default function Appearance({ store, back }) {
         ))}
       </div>
       <div className="caption" style={{ textAlign: "center", marginTop: 18 }}>{t("appr.retint", { name: t("accent." + (accent || "mint")) })}</div>
+
+      <div className="over" style={{ marginTop: 16 }}>{t("appr.feedback")}</div>
+      <div className="icard" onClick={toggleHaptics} style={{ cursor: "pointer" }}>
+        <span className="circ" style={{ width: 40, height: 40, borderRadius: 12, background: "var(--acDim)", color: "var(--ac)" }}><Ico name="sparkles" size={20} /></span>
+        <div><div className="nm">{t("appr.haptics")}</div><div className="mt">{t(haptics ? "appr.hapticsOnSub" : "appr.hapticsOffSub")}</div></div>
+        <span style={{ marginInlineStart: "auto" }}>
+          <span style={{ width: 46, height: 28, borderRadius: 99, background: haptics ? "var(--ac)" : "var(--track)", border: haptics ? "none" : "var(--cardBorder)", display: "flex", alignItems: "center", justifyContent: haptics ? "flex-end" : "flex-start", padding: 3, boxSizing: "border-box", transition: "background .2s, justify-content .2s" }}>
+            <span style={{ width: 22, height: 22, borderRadius: 99, background: "#fff", flexShrink: 0 }} />
+          </span>
+        </span>
+      </div>
     </div>
   );
 }

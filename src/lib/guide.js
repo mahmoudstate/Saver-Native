@@ -3,6 +3,7 @@
 // under `guide.*` (en + ar). Hooks merge the two so topics stay in sync with the
 // active language.
 import { useMemo } from "react";
+import { Capacitor } from "@capacitor/core";
 import { useT } from "./i18n.js";
 
 // id → icon, colour (CSS var, follows theme), demo (GuideDemo key), step icons.
@@ -54,8 +55,12 @@ const GROUPS = [
 const ALL = GROUPS.flatMap((g) => g.topics);
 
 // Merge a skeleton topic with its translated text (guide.topics.<id>).
+// The "privacy" topic mentions the platform's own auto-backup cloud (iCloud
+// vs Google Drive) by name, so on Android it reads from a parallel
+// `privacyAndroid` key instead — everything else is platform-agnostic.
 function build(t, tr) {
-  const x = tr(`guide.topics.${t.id}`) || {};
+  const key = t.id === "privacy" && Capacitor.getPlatform() === "android" ? "privacyAndroid" : t.id;
+  const x = tr(`guide.topics.${key}`) || {};
   const steps = (x.steps || []).map((s, i) => ({ icon: t.stepIcons[i], title: s.title, text: s.text }));
   return { id: t.id, icon: t.icon, color: t.color, demo: t.demo, title: x.title, blurb: x.blurb, intro: x.intro, tip: x.tip, steps };
 }

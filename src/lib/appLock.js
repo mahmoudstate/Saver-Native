@@ -16,6 +16,13 @@ export async function biometryInfo() {
   } catch { return { available: false, type: 0 }; }
 }
 
+// Maps @aparajita/capacitor-biometric-auth's BiometryType enum to a
+// lock.biometryNames.* i18n key, so the UI shows the device's real biometry
+// name (Face ID/Touch ID on iOS, fingerprint/face/iris on Android) instead of
+// a hardcoded "Face ID" everywhere.
+const BIOMETRY_KIND = { 1: "touchId", 2: "faceId", 3: "fingerprint", 4: "face", 5: "iris" };
+export function biometryKindKey(type) { return BIOMETRY_KIND[type] || "generic"; }
+
 export async function authBiometric(reason = "Unlock Saver") {
   try {
     await BiometricAuth.authenticate({

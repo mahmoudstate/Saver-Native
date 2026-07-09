@@ -16,10 +16,12 @@ Same copy as the App Store description (`store-listing.md`) works as-is for both
 
 ## Data Safety form
 
-Maps 1:1 to the App Privacy answers already given to Apple — no analytics/crash/ad SDKs, nothing collected:
-- Data collection: **No data collected**
-- Data sharing: **No data shared with third parties**
-- Security practices: data is encrypted in transit (n/a — no network calls) and at rest (local encrypted backup only); users can request data deletion (Reset all data, on-device).
+No analytics/crash/ad SDKs. Everything below is opt-in and only applies to users who turn on the Google Drive auto-backup toggle — with it off, the app collects and shares nothing (same as Apple's answers):
+- Data collected: **Personal info (email address)** and **App activity (encrypted backup file)** — both only if the user connects Google Drive backup, via Google Sign-In.
+- Purpose: **App functionality** only (account backup), never analytics, advertising, or profiling.
+- Data shared with third parties: **Yes, with Google** — the email (via Google Sign-In) and the backup file (stored in the user's own Google Drive `appDataFolder`, not a server we run). We never see the data ourselves: the backup content is end-to-end encrypted client-side before it's uploaded.
+- Data deletion: users can turn off the backup and/or disconnect the Google account at any time (revokes access at Google's account permissions page), and can wipe all local data via Reset All Data.
+- Security practices: data is encrypted in transit (HTTPS to Google's servers) and at rest (client-side AES-256 encryption before upload, plus the device's own on-device storage encryption).
 
 ## Content rating questionnaire
 

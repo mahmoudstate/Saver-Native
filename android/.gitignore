@@ -6,6 +6,11 @@
 *.ap_
 *.aab
 
+# Signing credentials (never commit real keystores/passwords)
+*.jks
+*.keystore
+keystore.properties
+
 # Files for the ART/Dalvik VM
 *.dex
 
@@ -62,7 +67,7 @@ captures/
 .cxx/
 
 # Google Services (e.g. APIs or Firebase)
-# google-services.json
+google-services.json
 
 # Freeline
 freeline.py

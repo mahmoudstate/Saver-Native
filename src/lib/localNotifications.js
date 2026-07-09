@@ -209,7 +209,11 @@ export async function syncScheduledNotifications(store) {
       if (backupReminder) notifications.push(backupReminder);
     }
 
-    if (notifications.length) await LocalNotifications.schedule({ notifications });
+    // largeIcon has no global capacitor.config equivalent (unlike smallIcon/
+    // iconColor) — set per-notification so Android's notification shade shows
+    // Saver's full-color logo next to the text, matching Gmail/Play Store etc.
+    // Ignored on iOS.
+    if (notifications.length) await LocalNotifications.schedule({ notifications: notifications.map((n) => ({ ...n, largeIcon: "ic_notif_large" })) });
   } catch (e) {
     console.error("[notif] syncScheduledNotifications failed:", e);
   }

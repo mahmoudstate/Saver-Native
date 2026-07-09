@@ -129,8 +129,12 @@ export const vibrate = (p) => { if (typeof window !== "undefined" && window.navi
 import { Capacitor } from "@capacitor/core";
 import { Haptics, ImpactStyle, NotificationType } from "@capacitor/haptics";
 const nativeH = () => Capacitor.isNativePlatform();
-const impact = (style, ms) => () => { if (nativeH()) Haptics.impact({ style }).catch(() => {}); else vibrate(ms); };
-const notify = (type, ms) => () => { if (nativeH()) Haptics.notification({ type }).catch(() => {}); else vibrate(ms); };
+// Read the user's preference directly from localStorage (same key store.js
+// uses for KEYS.hapticsEnabled) rather than importing store.js, which would
+// create a circular import (store.js already imports this file).
+const hapticsAllowed = () => { try { const r = localStorage.getItem("et_hapticsEnabled"); return r === null ? true : JSON.parse(r); } catch { return true; } };
+const impact = (style, ms) => () => { if (!hapticsAllowed()) return; if (nativeH()) Haptics.impact({ style }).catch(() => {}); else vibrate(ms); };
+const notify = (type, ms) => () => { if (!hapticsAllowed()) return; if (nativeH()) Haptics.notification({ type }).catch(() => {}); else vibrate(ms); };
 export const HAPTICS = {
   light: impact(ImpactStyle.Light, 10),
   medium: impact(ImpactStyle.Medium, 20),

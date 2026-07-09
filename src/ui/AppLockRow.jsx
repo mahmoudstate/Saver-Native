@@ -1,16 +1,18 @@
 // Settings row that turns App Lock on/off.
-// Enabling sets a PIN fallback; disabling clears it. Native (iOS) only.
+// Enabling sets a PIN fallback; disabling clears it. Native apps only (iOS + Android).
 import { useState } from "react";
 import { Capacitor } from "@capacitor/core";
 import Ico from "./Ico.jsx";
 import PinSetup from "./PinSetup.jsx";
 import { setPin, clearPin, biometryInfo } from "../lib/appLock.js";
+import { useBiometryLabel } from "../hooks/useBiometryLabel.js";
 import { HAPTICS } from "../lib/format.js";
 
 export default function AppLockRow({ store, tr }) {
   const [setup, setSetup] = useState(false);
   const on = !!store.appLock;
   const native = Capacitor.isNativePlatform();
+  const biometry = useBiometryLabel();
 
   const toggle = async () => {
     HAPTICS.light();
@@ -26,7 +28,8 @@ export default function AppLockRow({ store, tr }) {
     } else {
       const { available } = await biometryInfo();
       if (!available) {
-        store.setAlert({ title: tr("privacy.appLock"), message: tr("lock.setUpBiometrics"), color: "var(--blue)" });
+        const key = Capacitor.getPlatform() === "android" ? "lock.setUpBiometricsAndroid" : "lock.setUpBiometrics";
+        store.setAlert({ title: tr("privacy.appLock"), message: tr(key, { biometry }), color: "var(--blue)" });
       }
       setSetup(true); // set a PIN either way (fallback)
     }
@@ -43,7 +46,7 @@ export default function AppLockRow({ store, tr }) {
     <>
       <div className="icard" onClick={toggle} style={{ cursor: "pointer" }}>
         <span className="circ" style={{ width: 40, height: 40, borderRadius: 12, background: "var(--blueDim)", color: "var(--blue)" }}><Ico name="lock" size={20} /></span>
-        <div><div className="nm">{tr("privacy.appLock")}</div><div className="mt">{tr("privacy.appLockSub")}</div></div>
+        <div><div className="nm">{tr("privacy.appLock")}</div><div className="mt">{tr("privacy.appLockSub", { biometry })}</div></div>
         <span style={{ marginInlineStart: "auto" }}>
           {/* flex-start/flex-end are logical (follow text direction), unlike
               translateX/left — this keeps the knob correct in both LTR and RTL. */}

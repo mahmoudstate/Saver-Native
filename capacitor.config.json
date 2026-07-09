@@ -13,7 +13,9 @@
       "resize": "native"
     },
     "LocalNotifications": {
-      "presentationOptions": ["badge", "sound", "banner", "list"]
+      "presentationOptions": ["badge", "sound", "banner", "list"],
+      "smallIcon": "ic_stat_notify",
+      "iconColor": "#5FE3C0"
     }
   }
 }

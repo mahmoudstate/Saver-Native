@@ -8,6 +8,12 @@
 	<false/>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Unlock Saver with Face ID to keep your financial data private.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Saver uses the camera to take a profile picture.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Saver uses your photo library to set a profile picture.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Saver saves your profile picture to your photo library.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleLocalizations</key>

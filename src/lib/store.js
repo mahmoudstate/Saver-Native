@@ -8,6 +8,7 @@ import { makeCalc, goalBalancesPerBank } from "./calc.js";
 import { useT } from "./i18n.js";
 import { applyFirstRunDefaults } from "./firstRunDefaults.js";
 import { useICloudAutoBackup } from "../hooks/useICloudAutoBackup.js";
+import { useAndroidDriveAutoBackup } from "../hooks/useAndroidDriveAutoBackup.js";
 import { useNativeRegionCorrection } from "../hooks/useNativeRegionCorrection.js";
 
 export const KEYS = {
@@ -20,6 +21,8 @@ export const KEYS = {
   lang: "et_lang", appLock: "et_appLock", needsLangChoice: "et_needsLangChoice",
   regionCorrected: "et_regionCorrected", iCloudBackupEnabled: "et_iCloudBackupEnabled",
   iCloudRestoreDismissed: "et_iCloudRestoreDismissed", iCloudBackupFailCount: "et_iCloudBackupFailCount",
+  androidDriveRestoreDismissed: "et_androidDriveRestoreDismissed",
+  hapticsEnabled: "et_hapticsEnabled",
 };
 
 export const DASH_SECTIONS = [
@@ -63,7 +66,7 @@ const ENTITIES = {
 // regionCorrected defaults to true so existing installs (no key saved yet) are
 // left alone, only a genuinely fresh install (see firstRunDefaults.js) sets
 // it to false, opting into the one-time native-region currency correction.
-const SCALARS = { currency: "EGP", username: "", avatar: "", theme: "system", accent: "mint", dashboard: DASH_DEFAULT, seenWelcome: false, notifReadKeys: [], notifDismissedKeys: [], lang: "en", appLock: false, notificationsEnabled: false, needsLangChoice: false, regionCorrected: true, iCloudBackupEnabled: true, iCloudRestoreDismissed: false };
+const SCALARS = { currency: "EGP", username: "", avatar: "", theme: "system", accent: "mint", dashboard: DASH_DEFAULT, seenWelcome: false, notifReadKeys: [], notifDismissedKeys: [], lang: "en", appLock: false, notificationsEnabled: false, needsLangChoice: false, regionCorrected: true, iCloudBackupEnabled: true, iCloudRestoreDismissed: false, androidDriveRestoreDismissed: false, hapticsEnabled: true };
 
 // Validate a backup payload before restoring — never mutates state.
 // Accepts both the current envelope ({_app:"Saver", _version, ...}) and legacy
@@ -107,6 +110,14 @@ export function useStore() {
 
   // silently mirror every change to iCloud Drive (encrypted, debounced, iOS only)
   useICloudAutoBackup(
+    data, data.iCloudBackupEnabled,
+    (ts) => { saveKey(KEYS.lastBackup, ts); saveKey(KEYS.iCloudBackupFailCount, 0); },
+    () => saveKey(KEYS.iCloudBackupFailCount, loadKey(KEYS.iCloudBackupFailCount, 0) + 1),
+  );
+  // same, but to the user's Google Drive app-data folder (Android only) —
+  // shares the enabled flag/last-backup/fail-count keys since only one
+  // platform's hook is ever active on a given device
+  useAndroidDriveAutoBackup(
     data, data.iCloudBackupEnabled,
     (ts) => { saveKey(KEYS.lastBackup, ts); saveKey(KEYS.iCloudBackupFailCount, 0); },
     () => saveKey(KEYS.iCloudBackupFailCount, loadKey(KEYS.iCloudBackupFailCount, 0) + 1),

@@ -1,5 +1,6 @@
 // Saver — clean app shell (new design). Logic from lib/*, UI rebuilt from the design showcase.
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { App as CapApp } from "@capacitor/app";
 import { useStore } from "./lib/store.js";
 import { useNativeStatusBar } from "./lib/useNativeStatusBar.js";
 import { useAppLock } from "./lib/useAppLock.js";
@@ -8,6 +9,7 @@ import { useKeyboardInsets } from "./lib/useKeyboardInsets.js";
 import { useLocalNotifications } from "./lib/useLocalNotifications.js";
 import { useNotificationTaps } from "./lib/useNotificationTaps.js";
 import { useICloudRestoreCheck } from "./hooks/useICloudRestoreCheck.js";
+import { useAndroidDriveRestoreCheck } from "./hooks/useAndroidDriveRestoreCheck.js";
 import iconUrl from "../icon.png";
 import LockScreen from "./ui/LockScreen.jsx";
 import BottomNav from "./ui/BottomNav.jsx";
@@ -56,17 +58,6 @@ import Celebration from "./screens/Celebration.jsx";
 import WhatsNew from "./ui/WhatsNew.jsx";
 import AllAccounts from "./screens/AllAccounts.jsx";
 import Breakdown from "./screens/Breakdown.jsx";
-import Ico from "./ui/Ico.jsx";
-
-function Placeholder({ tab }) {
-  const titles = { activity: "Activity", bills: "Bills", profile: "Profile" };
-  return (
-    <div className="content padnav">
-      <div className="hero"><div className="toprow"><div className="ttl">{titles[tab]}</div></div><div className="lbl">Coming next</div><div className="big" style={{ fontSize: 26 }}>Rebuilding…</div></div>
-      <div style={{ textAlign: "center", color: "var(--muted)", padding: "40px 20px", fontWeight: 600 }}><Ico name="sparkles" size={32} color="var(--ac)" style={{ margin: "0 auto 12px" }} />This screen is being rebuilt in the new design.</div>
-    </div>
-  );
-}
 
 export default function App() {
   useNativeStatusBar();
@@ -74,6 +65,7 @@ export default function App() {
   const store = useStore();
   useLocalNotifications(store);
   const checkingICloudRestore = useICloudRestoreCheck(store);
+  const checkingAndroidDriveRestore = useAndroidDriveRestoreCheck(store);
   const lock = useAppLock(store.appLock);
   const [tab, setTab] = useState("home");
   // Navigation stack of pushed detail screens; the top one renders as an overlay.
@@ -96,6 +88,19 @@ export default function App() {
   const back = () => setStack((s) => s.slice(0, -1));       // pop back to the previous screen
   const popN = (n) => setStack((s) => s.slice(0, -n));      // pop several at once
   const replace = (v) => setStack((s) => [...s.slice(0, -1), v]); // swap the top (sideways nav)
+  // Android hardware/gesture back button: pop the nav stack like the in-app
+  // back buttons, or exit the app when already at a tab root (no listener
+  // means Capacitor's default no-op, since this SPA has no browser history).
+  useEffect(() => {
+    const sub = CapApp.addListener("backButton", () => {
+      setStack((s) => {
+        if (s.length) return s.slice(0, -1);
+        CapApp.exitApp();
+        return s;
+      });
+    });
+    return () => { sub.then((s) => s.remove()); };
+  }, []);
   // Bottom-nav tap: clear the stack and land on a fresh tab (re-tapping Home resets it to the top).
   const navTab = (t) => {
     setBillsSeg(null); setStack([]);
@@ -111,7 +116,7 @@ export default function App() {
   // Hold off on Onboarding/LangPrompt until we know whether there's a previous
   // iCloud backup to offer, avoiding a flash of Onboarding interrupted a
   // moment later by a restore dialog.
-  if (checkingICloudRestore) return <div className="app" style={{ alignItems: "center", justifyContent: "center" }}><img src={iconUrl} alt="" style={{ width: 64, height: 64, borderRadius: 18 }} /></div>;
+  if (checkingICloudRestore || checkingAndroidDriveRestore) return <div className="app" style={{ alignItems: "center", justifyContent: "center" }}><img src={iconUrl} alt="" style={{ width: 64, height: 64, borderRadius: 18 }} /></div>;
   if (store.needsLangChoice) return <div className="app"><LangPrompt onDone={() => store.set("needsLangChoice", false)} /></div>;
   if (!store.seenWelcome) return <div className="app"><Onboarding onDone={() => { store.set("seenWelcome", true); setTour(true); }} /></div>;
 
@@ -121,7 +126,6 @@ export default function App() {
   else if (tab === "activity") tabScreen = <Activity store={store} dateFilter={activityDate} onPickDate={() => push({ type: "datePicker" })} onFilter={() => push({ type: "filter", hidePeriod: true, dateFilter: activityDate })} onEdit={(t) => push({ type: "edit", txn: t })} onAdd={() => push({ type: "add" })} onLearn={() => push({ type: "guideTopic", topicId: "add" })} />;
   else if (tab === "bills") tabScreen = <Bills store={store} initialSeg={billsSeg} onAdd={(seg) => push(seg === "inst" ? { type: "editInst", plan: null } : { type: "editSub", bill: null })} onOpenSub={(bill) => push({ type: "sub", bill })} onOpenInst={(i) => push({ type: "inst", instId: i.id })} />;
   else if (tab === "profile") tabScreen = <Profile store={store} go={(d) => { if (d === "accounts") push({ type: "accounts" }); else if (d === "goals") push({ type: "goals" }); else if (d === "budgets") { setBudgetsSeg("monthly"); setBudgetsMonth(currentMonth()); push({ type: "budgets" }); } else if (d === "categories") push({ type: "categories" }); else if (d === "appearance") push({ type: "appearance" }); else if (d === "privacy") push({ type: "privacy" }); else if (d === "manual") push({ type: "manual" }); else if (d === "quickactions") push({ type: "quickactions" }); else if (d === "customize") push({ type: "customize" }); else if (d === "editProfile") push({ type: "editProfile" }); else if (d === "about") push({ type: "about" }); else if (d === "whatsnew") setWhatsNew(true); else if (d === "plan") { try { window.location.href = "itms-apps://apps.apple.com/account/subscriptions"; } catch {} } }} />;
-  else tabScreen = <Placeholder tab={tab} />;
 
   // The pushed detail screen (overlay) — top of the stack. back() pops to the previous one.
   let viewScreen = null;

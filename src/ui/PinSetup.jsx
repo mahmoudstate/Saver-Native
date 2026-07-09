@@ -1,10 +1,12 @@
 // Two-step PIN setup overlay: enter a 4-digit PIN, then confirm it.
 import { useState } from "react";
 import Ico from "./Ico.jsx";
+import { useBiometryLabel } from "../hooks/useBiometryLabel.js";
 import { useT } from "../lib/i18n.js";
 
 export default function PinSetup({ onDone, onCancel }) {
   const tr = useT();
+  const biometry = useBiometryLabel();
   const [step, setStep] = useState(0); // 0 = enter, 1 = confirm
   const [first, setFirst] = useState("");
   const [pin, setPin] = useState("");
@@ -33,7 +35,7 @@ export default function PinSetup({ onDone, onCancel }) {
         {step === 0 ? tr("lock.setPin") : tr("lock.confirmPin")}
       </div>
       <div style={{ color: "var(--muted)", fontSize: 13, marginBottom: 26 }}>
-        {step === 0 ? tr("lock.setPinSub") : tr("lock.confirmPinSub")}
+        {step === 0 ? tr("lock.setPinSub", { biometry }) : tr("lock.confirmPinSub")}
       </div>
       <div style={{ display: "flex", gap: 14, marginBottom: 32, animation: err ? "shake .4s" : "none" }}>
         <style>{`@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}`}</style>
