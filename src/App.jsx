@@ -4,7 +4,7 @@ import { App as CapApp } from "@capacitor/app";
 import { useStore } from "./lib/store.js";
 import { useNativeStatusBar } from "./lib/useNativeStatusBar.js";
 import { useAppLock } from "./lib/useAppLock.js";
-import { HAPTICS, currentMonth } from "./lib/format.js";
+import { HAPTICS, currentMonth, APP_VERSION } from "./lib/format.js";
 import { useKeyboardInsets } from "./lib/useKeyboardInsets.js";
 import { useLocalNotifications } from "./lib/useLocalNotifications.js";
 import { useNotificationTaps } from "./lib/useNotificationTaps.js";
@@ -101,6 +101,16 @@ export default function App() {
     });
     return () => { sub.then((s) => s.remove()); };
   }, []);
+  // Show "What's New" once after an update, never for a fresh install: a
+  // first-ever launch has no stored version yet, so it just records the
+  // baseline silently instead of popping the sheet.
+  useEffect(() => {
+    try {
+      const seen = localStorage.getItem("et_lastSeenAppVersion");
+      if (seen === null) localStorage.setItem("et_lastSeenAppVersion", APP_VERSION);
+      else if (seen !== APP_VERSION) setWhatsNew(true);
+    } catch {}
+  }, []);
   // Bottom-nav tap: clear the stack and land on a fresh tab (re-tapping Home resets it to the top).
   const navTab = (t) => {
     setBillsSeg(null); setStack([]);
@@ -171,7 +181,7 @@ export default function App() {
       {viewScreen && <div className="pushview">{viewScreen}</div>}
       {!view && <BottomNav active={tab} onTab={navTab} onAdd={() => push({ type: "add" })} onQuickAdd={() => setQuickAdd(true)} />}
       {quickAdd && <QuickAddSheet store={store} onClose={() => setQuickAdd(false)} onSetup={() => { setQuickAdd(false); push({ type: "quickactions" }); }} onPick={(q) => { setQuickAdd(false); push({ type: "add", initial: { type: "expense", amount: +q.amount, bankId: q.bankId, expCatId: q.catId }, quickId: q.id }); }} />}
-      {whatsNew && <WhatsNew onClose={() => setWhatsNew(false)} />}
+      {whatsNew && <WhatsNew onClose={() => { try { localStorage.setItem("et_lastSeenAppVersion", APP_VERSION); } catch {} setWhatsNew(false); }} />}
       {tour && <Tour steps={APP_TOUR} onClose={() => setTour(false)} onNavigate={(g) => { if (g?.tab) { setStack([]); setTab(g.tab); } }} />}
       <Overlays store={store} />
     </div>

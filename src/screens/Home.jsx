@@ -1,5 +1,6 @@
 // Saver — Home: PORTED 1:1 from showcase screen 01 (same classes/markup), data injected.
 import { useState, useRef, useMemo, useLayoutEffect, useEffect, Fragment } from "react";
+import { App as CapApp } from "@capacitor/app";
 import Ico from "../ui/Ico.jsx";
 import Money from "../ui/Money.jsx";
 import ActivationCard from "../ui/ActivationCard.jsx";
@@ -14,12 +15,10 @@ import { useT } from "../lib/i18n.js";
 const KNOWN_SECTIONS = DASH_SECTIONS.map((s) => s.id);
 
 // Privacy mask state that persists across tab re-mounts (module scope), but
-// resets to masked on a full app reload (i.e. close + reopen). It only re-masks
-// after the app has been in the background longer than REHIDE_MS — not on
-// navigation between screens.
-let maskState = true;        // true = amounts masked
-let bgSince = 0;             // timestamp the app last went to background
-const REHIDE_MS = 60 * 1000; // re-mask after ~1 min away
+// resets to masked on a full app reload (i.e. close + reopen). Re-masks the
+// instant the app leaves the foreground (not on navigation between screens) —
+// must happen before iOS/Android snapshot the screen for the app switcher.
+let maskState = true; // true = amounts masked
 
 const Contactless = ({ s = 20 }) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" style={{ opacity: .9 }}><path d="M5 11a3 3 0 0 1 0 2M9 8.5a6.5 6.5 0 0 1 0 7M13 6a10 10 0 0 1 0 12" /></svg>;
 
@@ -66,16 +65,14 @@ export default function Home({ store, onTab, onAdd, onAddAccount, onAddBill, onA
   const [hide, setHide] = useState(maskState); // privacy-first: amounts masked on open
   const [page, setPage] = useState(0);
   const toggleHide = () => setHide((v) => (maskState = !v));
-  // Re-mask only after the app has been in the background past REHIDE_MS, so the
-  // app-switcher snapshot stays private but plain navigation never re-masks.
+  // Re-mask the instant the app leaves the foreground — a brief peek at the
+  // app switcher counts, since that's exactly when the OS snapshots the screen.
+  // Plain in-app navigation never touches this (no unmount/remount of Home).
   useEffect(() => {
-    const onVis = () => {
-      if (document.visibilityState === "hidden") { bgSince = Date.now(); return; }
-      if (bgSince && Date.now() - bgSince > REHIDE_MS) { maskState = true; setHide(true); }
-      bgSince = 0;
-    };
-    document.addEventListener("visibilitychange", onVis);
-    return () => document.removeEventListener("visibilitychange", onVis);
+    const sub = CapApp.addListener("appStateChange", ({ isActive }) => {
+      if (!isActive) { maskState = true; setHide(true); }
+    });
+    return () => { sub.then((s) => s.remove()); };
   }, []);
   const [budgetsOpen, setBudgetsOpen] = useState(false); // Home budgets card: expand to per-budget rows
   const [goalsOpen, setGoalsOpen] = useState(false); // Home goals card: expand to per-goal rows

@@ -894,12 +894,12 @@ export default {
   whatsnew: {
     title: "What's new · v{v}",
     ariaLabel: "What's new",
-    item1nm: "Total / Safe balance toggle",
-    item1mt: "One tap to see what's really spendable",
-    item2nm: "Goal vaults",
-    item2mt: "Turn on spending mode & pay from a goal",
-    item3nm: "New Bills views",
-    item3mt: "Timeline · Categories · History",
+    item1nm: "iCloud backup fixed",
+    item1mt: "Backups now connect reliably for everyone",
+    item2nm: "Face ID unlock fixed",
+    item2mt: "Prompts automatically when you reopen the app",
+    item3nm: "Vibration toggle",
+    item3mt: "Turn haptics on or off in Appearance",
   },
   onb: {
     welcome: "Welcome to Saver",
