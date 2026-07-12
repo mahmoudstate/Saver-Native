@@ -5,22 +5,22 @@
 import { useState, useMemo } from "react";
 import Ico from "./Ico.jsx";
 import BankLogo from "./BankLogo.jsx";
-import { BANK_PRESETS, BANK_REGIONS, POPULAR_BANK_IDS } from "../lib/banks.js";
-import { useT } from "../lib/i18n.js";
+import { BANK_PRESETS, POPULAR_BANK_IDS, getBankRegions, bankRegionLabel, bankDisplayName } from "../lib/banks.js";
+import { useLang } from "../lib/i18n.js";
 import { focusNext } from "../lib/focusNext.js";
 
 const popular = POPULAR_BANK_IDS.map((id) => BANK_PRESETS.find((b) => b.id === id)).filter(Boolean);
 
 function BankSheet({ activeDomain, onPick, onCustom, onClose }) {
-  const tr = useT();
+  const { t: tr, lang } = useLang();
   const [q, setQ] = useState("");
   const groups = useMemo(() => {
     const query = q.trim().toLowerCase();
-    return BANK_REGIONS.map((region) => ({
+    return getBankRegions(lang).map((region) => ({
       region,
       items: BANK_PRESETS.filter((b) => b.region === region && (!query || b.name.toLowerCase().includes(query))),
     })).filter((g) => g.items.length);
-  }, [q]);
+  }, [q, lang]);
 
   return (
     <>
@@ -42,15 +42,15 @@ function BankSheet({ activeDomain, onPick, onCustom, onClose }) {
           </div>
           {groups.map((g) => (
             <div key={g.region} style={{ marginBottom: 16 }}>
-              <div className="over" style={{ marginTop: 0 }}>{g.region}</div>
+              <div className="over" style={{ marginTop: 0 }}>{bankRegionLabel(g.region, lang)}</div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "14px 8px" }}>
                 {g.items.map((b) => (
-                  <div key={b.id} onClick={() => { onPick(b); onClose(); }} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 7, cursor: "pointer" }}>
+                  <div key={b.id} onClick={() => { onPick(b); onClose(); }} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 7, cursor: "pointer", minWidth: 0 }}>
                     <div style={{ position: "relative" }}>
-                      <BankLogo domain={b.id} name={b.name} color={b.color} size={52} />
+                      <BankLogo domain={b.id} name={bankDisplayName(b, lang)} color={b.color} size={52} />
                       {activeDomain === b.id && <span className="circ" style={{ position: "absolute", right: -3, bottom: -3, width: 19, height: 19, borderRadius: "50%", background: "var(--ac)", color: "var(--onacc)", border: "2px solid var(--surface)" }}><Ico name="check" size={11} /></span>}
                     </div>
-                    <span style={{ fontSize: 10.5, fontWeight: 600, textAlign: "center", lineHeight: 1.2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "100%", color: "var(--text)" }}>{b.name}</span>
+                    <span style={{ fontSize: 10.5, fontWeight: 600, textAlign: "center", lineHeight: 1.2, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", maxWidth: "100%", color: "var(--text)" }}>{bankDisplayName(b, lang)}</span>
                   </div>
                 ))}
               </div>
@@ -65,7 +65,7 @@ function BankSheet({ activeDomain, onPick, onCustom, onClose }) {
 }
 
 export default function BankPicker({ activeDomain, onPick, onCustom }) {
-  const tr = useT();
+  const { t: tr, lang } = useLang();
   const [open, setOpen] = useState(false);
   return (
     <>
@@ -73,7 +73,7 @@ export default function BankPicker({ activeDomain, onPick, onCustom }) {
         {popular.slice(0, 5).map((b) => (
           <div key={b.id} onClick={() => onPick(b)} style={{ cursor: "pointer", display: "flex", justifyContent: "center" }}>
             <span style={{ display: "inline-flex", borderRadius: 15, boxShadow: activeDomain === b.id ? "0 0 0 2px var(--surface),0 0 0 4px var(--ac)" : "none" }}>
-              <BankLogo domain={b.id} name={b.name} color={b.color} size={50} />
+              <BankLogo domain={b.id} name={bankDisplayName(b, lang)} color={b.color} size={50} />
             </span>
           </div>
         ))}

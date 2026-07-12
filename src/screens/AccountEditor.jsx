@@ -15,7 +15,8 @@ import { calcBankBalance } from "../lib/calc.js";
 import ColorField from "../ui/ColorField.jsx";
 import { loadColors } from "../ui/ColorSheet.jsx";
 import { CATS } from "../ui/cats.js";
-import { useT } from "../lib/i18n.js";
+import { useLang } from "../lib/i18n.js";
+import { bankDisplayName } from "../lib/banks.js";
 
 export default function AccountEditor({ store, account, onClose, onDeleted }) {
   const editing = !!account;
@@ -31,13 +32,13 @@ export default function AccountEditor({ store, account, onClose, onDeleted }) {
   const [alertOn, setAlertOn] = useState(account?.lowBalanceThreshold != null);
   const [threshold, setThreshold] = useState(account?.lowBalanceThreshold || 0);
   const [sheet, setSheet] = useState(null); // opening | threshold | palette | custom
-  const tr = useT();
+  const { t: tr, lang } = useLang();
 
   const canSave = name.trim().length > 0;
   const picked = kind === "bank" && (domain || custom);
 
   const toggleAlert = () => setAlertOn((v) => { const nv = !v; if (nv && !threshold) setSheet("threshold"); return nv; });
-  const pickBank = (b) => { setName(b.name); setColor(b.color); setDomain(b.id); setGlyph(""); setCustom(false); };
+  const pickBank = (b) => { setName(bankDisplayName(b, lang)); setColor(b.color); setDomain(b.id); setGlyph(""); setCustom(false); };
 
   const save = () => {
     if (!canSave) return;
