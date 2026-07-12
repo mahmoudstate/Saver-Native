@@ -1,5 +1,5 @@
 // Saver — formatting & time helpers (ported verbatim from legacy; LOGIC LOCKED)
-export const APP_VERSION = "1.0.1";
+export const APP_VERSION = "1.0.2";
 
 export const CURRENCIES = [
   { code: "EGP", name: "Egyptian Pound", flag: "🇪🇬" }, { code: "GBP", name: "British Pound", flag: "🇬🇧" },

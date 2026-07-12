@@ -896,12 +896,12 @@ export default {
   whatsnew: {
     title: "What's new · v{v}",
     ariaLabel: "What's new",
-    item1nm: "iCloud backup fixed",
-    item1mt: "Backups now connect reliably for everyone",
-    item2nm: "Face ID unlock fixed",
-    item2mt: "Prompts automatically when you reopen the app",
-    item3nm: "Vibration toggle",
-    item3mt: "Turn haptics on or off in Appearance",
+    item1nm: "New bank logos",
+    item1mt: "Real logos added for Saudi Arabia, Egypt, Kuwait, Qatar, and more UK banks",
+    item2nm: "New company logos",
+    item2mt: "Real logos added for dozens of bills and subscriptions",
+    item3nm: "New category icons",
+    item3mt: "More icons to choose from for your expense and income categories",
   },
   onb: {
     welcome: "Welcome to Saver",

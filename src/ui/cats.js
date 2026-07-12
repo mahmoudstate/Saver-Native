@@ -71,6 +71,24 @@ export const CATS = {
   interest: ["#0E9F6E", `<circle cx="12" cy="12" r="9"/><path d="M8.5 8.5 15.5 15.5M9.3 9.3h.01M14.7 14.7h.01"/>`],
   tips: ["#0E9F6E", `<circle cx="9.5" cy="10" r="5"/><path d="M9.5 7.5v5M8 9h2.3a1.2 1.2 0 0 1 0 2.4H8.1M14.5 6.4a5 5 0 0 1 0 9.2"/>`],
   pension: ["#16BFA6", `<path d="M12 4a8 8 0 0 1 8 7H4a8 8 0 0 1 8-7ZM12 11v7a2 2 0 0 0 4 0"/>`],
+  // ── more expense icons (round 2) ──
+  club: ["#0E9F6E", `<circle cx="12" cy="9" r="5"/><path d="M9 13.3 7 21l5-3 5 3-2-7.7"/>`],
+  maid: ["#A16207", `<path d="M12 3v10"/><path d="M7.5 21 9 15h6l1.5 6"/><path d="M8.3 21h7.4"/>`],
+  smoking: ["#78716C", `<rect x="2" y="14" width="14" height="4" rx="1"/><path d="M9 14v4M13 14v4"/><path d="M18 10c1 1 1 3 0 4M20.3 8.3c2 2 2 6.7 0 8.7"/>`],
+  events: ["#EC4899", `<path d="M4 20 12 4l3 3-8 13Z"/><path d="M14 6l2-2M17 9l2-1M15 3l1 2"/><circle cx="9" cy="15.5" r=".9" fill="currentColor" stroke="none"/><circle cx="11.5" cy="12" r=".9" fill="currentColor" stroke="none"/>`],
+  legal: ["#6366F1", `<path d="M12 3v18M4 21h16M7 7h10M7 7 3 15a4 4 0 0 0 8 0L7 7ZM17 7l-4 8a4 4 0 0 0 8 0l-4-8Z"/>`],
+  zakat: ["#16BFA6", `<path d="M5 21v-7a2 2 0 0 1 1-1.7l6-4.3 6 4.3a2 2 0 0 1 1 1.7v7"/><circle cx="12" cy="5" r="1.6"/><path d="M12 6.6V8"/><path d="M9 21v-4a3 3 0 0 1 6 0v4"/>`],
+  babysitter: ["#F59E0B", `<path d="M9 4h4l1 2h1a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-1v7a3 3 0 0 1-3 3 3 3 0 0 1-3-3V10H7a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h1L9 4Z"/><path d="M8 13h6"/>`],
+  fine: ["#EF4444", `<path d="M12 3 3 20h18L12 3Z"/><path d="M12 9.5v5M12 17.2h.01"/>`],
+  alimony: ["#3B82F6", `<path d="M4 8h16v11H4z"/><path d="M4 8l8 6 8-6"/><circle cx="18" cy="6" r="3"/><path d="M17 6h2M18 5v2"/>`],
+  bankfee: ["#0E9F6E", `<path d="M4 10h16L12 4 4 10ZM6 10v7M14 10v7M18 21H3.5"/><circle cx="18" cy="6.5" r="3.2"/><path d="M16.8 6.5h2.4"/>`],
+  topup: ["#8B5CF6", `<rect x="4" y="7" width="14" height="11" rx="2"/><path d="M4 10.5h14"/><circle cx="15" cy="14.3" r="1.4" fill="currentColor" stroke="none"/><path d="M19 5v4M17 7h4"/>`],
+  // ── more income icons (round 2) ──
+  cashback: ["#0E9F6E", `<circle cx="10" cy="10" r="6"/><path d="M10 7v6M8 8.5h2.3a1.6 1.6 0 0 1 0 3.2H8"/><path d="M17 15a5 5 0 0 1-5 5"/><path d="M17 21v-3.5h-3.5"/>`],
+  dividends: ["#0E9F6E", `<path d="M4 20V10M10 20V4M16 20v-7M4 20h16"/><circle cx="16" cy="9" r="2.4" fill="currentColor" stroke="none"/>`],
+  scholarship: ["#6366F1", `<path d="M12 4 3 8l9 4 9-4-9-4Z"/><path d="M7 10.5V15c0 1.4 2.2 2.5 5 2.5s5-1.1 5-2.5v-4.5"/><circle cx="19" cy="16" r="2.6"/><path d="M19 14.8v2.4M17.8 16h2.4"/>`],
+  inheritance: ["#A16207", `<path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4"/><path d="M9.5 12h6M9.5 15h6M9.5 9h3"/>`],
+  subsidy: ["#16BFA6", `<path d="M12 3 5 6v5c0 4.5 3 7.7 7 9 4-1.3 7-4.5 7-9V6l-7-3Z"/><circle cx="12" cy="11" r="3"/><path d="M12 9v4M10.5 10h3M10.5 12h2.3"/>`],
 };
 
 // map a transaction's category (glyph / id / icon) → one of our new category keys

@@ -4,9 +4,9 @@ import { APP_VERSION } from "../lib/format.js";
 import { useT } from "../lib/i18n.js";
 
 const ITEMS = [
-  { icon: "download", bg: "var(--acDim)", color: "var(--acText)", nm: "whatsnew.item1nm", mt: "whatsnew.item1mt" },
-  { icon: "lock", bg: "var(--yellowDim)", color: "var(--yellow)", nm: "whatsnew.item2nm", mt: "whatsnew.item2mt" },
-  { icon: "bell", bg: "var(--blueDim)", color: "var(--blue)", nm: "whatsnew.item3nm", mt: "whatsnew.item3mt" },
+  { icon: "card", bg: "var(--acDim)", color: "var(--acText)", nm: "whatsnew.item1nm", mt: "whatsnew.item1mt" },
+  { icon: "bills", bg: "var(--yellowDim)", color: "var(--yellow)", nm: "whatsnew.item2nm", mt: "whatsnew.item2mt" },
+  { icon: "palette", bg: "var(--blueDim)", color: "var(--blue)", nm: "whatsnew.item3nm", mt: "whatsnew.item3mt" },
 ];
 
 export default function WhatsNew({ onClose }) {

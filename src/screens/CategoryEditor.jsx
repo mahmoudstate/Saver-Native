@@ -10,8 +10,8 @@ import { focusNext } from "../lib/focusNext.js";
 import { useT } from "../lib/i18n.js";
 
 // Icons are split by type: expense icons show for an expense category, income icons for income.
-const EXPENSE_ICONS = ["food", "coffee", "drinks", "groceries", "shopping", "clothing", "jewelry", "beauty", "transport", "car", "fuel", "parking", "ticket", "travel", "hotel", "bill", "utilities", "electricity", "water", "wifi", "phone", "electronics", "home", "furniture", "repairs", "garden", "laundry", "health", "pharmacy", "fitness", "sports", "education", "books", "entertainment", "movie", "music", "gaming", "kids", "pet", "subscription", "insurance", "creditcard", "bank", "taxes", "charity", "gift"];
-const INCOME_ICONS = ["salary", "business", "freelance", "income", "investment", "crypto", "interest", "savings", "refund", "sales", "rental", "pension", "bonus", "tips", "gift"];
+const EXPENSE_ICONS = ["food", "coffee", "drinks", "groceries", "shopping", "clothing", "jewelry", "beauty", "transport", "car", "fuel", "parking", "ticket", "travel", "hotel", "bill", "utilities", "electricity", "water", "wifi", "phone", "electronics", "home", "furniture", "repairs", "garden", "laundry", "health", "pharmacy", "fitness", "sports", "education", "books", "entertainment", "movie", "music", "gaming", "kids", "pet", "subscription", "insurance", "creditcard", "bank", "taxes", "charity", "gift", "club", "maid", "smoking", "events", "legal", "zakat", "babysitter", "fine", "alimony", "bankfee", "topup"];
+const INCOME_ICONS = ["salary", "business", "freelance", "income", "investment", "crypto", "interest", "savings", "refund", "sales", "rental", "pension", "bonus", "tips", "gift", "cashback", "dividends", "scholarship", "inheritance", "subsidy"];
 // Curated set shown inline (first 11); the rest live behind "Show all".
 const QUICK_EXP = ["food", "groceries", "shopping", "transport", "car", "bill", "home", "health", "entertainment", "subscription", "gift"];
 const QUICK_INC = ["salary", "business", "freelance", "investment", "savings", "rental", "refund", "sales", "bonus", "tips", "income"];
