@@ -34,6 +34,16 @@ import paypal from "../assets/banks/paypal.svg";
 import adcb from "../assets/banks/adcb.svg";
 import banqueducaire from "../assets/banks/banqueducaire.svg";
 import egyptpost from "../assets/banks/egyptpost.svg";
+import boubyanbank from "../assets/banks/boubyanbank.svg";
+import kfh from "../assets/banks/kfh.svg";
+import warbabank from "../assets/banks/warbabank.svg";
+import burganbank from "../assets/banks/burganbank.svg";
+import gulfbank from "../assets/banks/gulfbank.svg";
+import commercialbankqatar from "../assets/banks/commercialbankqatar.svg";
+import dukhanbank from "../assets/banks/dukhanbank.svg";
+import masrafalrayan from "../assets/banks/masrafalrayan.svg";
+import qnb from "../assets/banks/qnb.svg";
+import qiib from "../assets/banks/qiib.svg";
 
 export const BANK_ICONS = {
   hsbc: { img: hsbc },
@@ -67,6 +77,16 @@ export const BANK_ICONS = {
   adcb: { img: adcb },
   banqueducaire: { img: banqueducaire },
   egyptpost: { img: egyptpost },
+  boubyanbank: { img: boubyanbank },
+  kfh: { img: kfh },
+  warbabank: { img: warbabank },
+  burganbank: { img: burganbank },
+  gulfbank: { img: gulfbank },
+  commercialbankqatar: { img: commercialbankqatar },
+  dukhanbank: { img: dukhanbank },
+  masrafalrayan: { img: masrafalrayan },
+  qnb: { img: qnb },
+  qiib: { img: qiib },
 };
 
 // Preset list for the bank picker — same anatomy as SUBSCRIPTION_SERVICES.
@@ -104,17 +124,27 @@ export const BANK_PRESETS = [
   { id: "aljazira", name: "Bank Aljazira", nameAr: "بنك الجزيرة", color: "#000000", region: "Saudi Arabia" },
   { id: "alinma", name: "Alinma Bank", nameAr: "مصرف الإنماء", color: "#002134", region: "Saudi Arabia" },
   { id: "awwalbank", name: "Bank Al Awwal", nameAr: "البنك الأول", color: "#FBC132", region: "Saudi Arabia" },
+  { id: "kfh", name: "Kuwait Finance House (KFH)", nameAr: "بيت التمويل الكويتي", color: "#00693C", region: "Kuwait" },
+  { id: "boubyanbank", name: "Boubyan Bank", nameAr: "بنك بوبيان", color: "#D22630", region: "Kuwait" },
+  { id: "gulfbank", name: "Gulf Bank", nameAr: "بنك الخليج", color: "#E03A3E", region: "Kuwait" },
+  { id: "burganbank", name: "Burgan Bank", nameAr: "بنك برقان", color: "#F79239", region: "Kuwait" },
+  { id: "warbabank", name: "Warba Bank", nameAr: "بنك وربة", color: "#2B2560", region: "Kuwait" },
+  { id: "qnb", name: "QNB (Qatar National Bank)", nameAr: "بنك قطر الوطني", color: "#870051", region: "Qatar" },
+  { id: "dukhanbank", name: "Dukhan Bank", nameAr: "بنك دخان", color: "#1B75BC", region: "Qatar" },
+  { id: "masrafalrayan", name: "Masraf Al Rayan", nameAr: "مصرف الريان", color: "#C19545", region: "Qatar" },
+  { id: "commercialbankqatar", name: "Commercial Bank of Qatar", nameAr: "البنك التجاري القطري", color: "#9F1C49", region: "Qatar" },
+  { id: "qiib", name: "QIIB", nameAr: "بنك قطر الدولي الإسلامي", color: "#CF343E", region: "Qatar" },
 ];
 export const BANK_REGIONS = [...new Set(BANK_PRESETS.map((b) => b.region))];
 export const POPULAR_BANK_IDS = ["hsbc", "barclays", "monzo", "revolut", "alrajhibank"];
 
 // Region section order + labels, language-aware. Arabic users see Saudi
-// Arabia first, then Egypt, then the rest — matching the app's primary
-// Arabic-speaking markets. English keeps the original declaration order.
-const REGION_NAME_AR = { "Saudi Arabia": "السعودية", "Egypt": "مصر", "UK": "بريطانيا" };
+// Arabia, Egypt, then Kuwait first, then the rest — matching the app's
+// primary Arabic-speaking markets. English keeps the original declaration order.
+const REGION_NAME_AR = { "Saudi Arabia": "السعودية", "Egypt": "مصر", "Kuwait": "الكويت", "Qatar": "قطر", "UK": "بريطانيا" };
 export function getBankRegions(lang) {
   if (lang !== "ar") return BANK_REGIONS;
-  const priority = ["Saudi Arabia", "Egypt"];
+  const priority = ["Saudi Arabia", "Egypt", "Kuwait", "Qatar"];
   return [...priority.filter((r) => BANK_REGIONS.includes(r)), ...BANK_REGIONS.filter((r) => !priority.includes(r))];
 }
 export function bankRegionLabel(region, lang) {
@@ -164,6 +194,16 @@ const BANK_ALIASES = {
   banqueducaire: "banqueducaire", bankofcairo: "banqueducaire", "بنكالقاهره": "banqueducaire",
   egyptpost: "egyptpost", "البريدالمصري": "egyptpost", "بريدمصر": "egyptpost",
   adcb: "adcb", "بنكابوظبيالتجاري": "adcb", "ابوظبيالتجاري": "adcb",
+  kfh: "kfh", kuwaitfinancehouse: "kfh", "بيتالتمويلالكويتي": "kfh", "بيتالتمويل": "kfh",
+  boubyanbank: "boubyanbank", boubyan: "boubyanbank", "بنكبوبيان": "boubyanbank", "بوبيان": "boubyanbank",
+  gulfbank: "gulfbank", "بنكالخليج": "gulfbank", "الخليج": "gulfbank",
+  burganbank: "burganbank", burgan: "burganbank", "بنكبرقان": "burganbank", "برقان": "burganbank",
+  warbabank: "warbabank", warba: "warbabank", "بنكوربه": "warbabank", "وربه": "warbabank",
+  qnb: "qnb", qatarnationalbank: "qnb", "بنكقطرالوطني": "qnb", "قطرالوطني": "qnb",
+  dukhanbank: "dukhanbank", dukhan: "dukhanbank", "بنكدخان": "dukhanbank", "دخان": "dukhanbank",
+  masrafalrayan: "masrafalrayan", alrayan: "masrafalrayan", "مصرفالريان": "masrafalrayan", "الريان": "masrafalrayan",
+  commercialbankqatar: "commercialbankqatar", "البنكالتجاريالقطري": "commercialbankqatar", "التجاريالقطري": "commercialbankqatar",
+  qiib: "qiib", "بنكقطرالدوليالاسلامي": "qiib", "قطرالدوليالاسلامي": "qiib",
 };
 
 const normalize = (s) =>

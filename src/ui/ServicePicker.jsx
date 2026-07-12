@@ -45,12 +45,12 @@ function ServiceSheet({ activeDomain, onPick, onCustom, onClose }) {
               <div className="over" style={{ marginTop: 0 }}>{g.cat}</div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "14px 8px" }}>
                 {g.items.map((s) => (
-                  <div key={s.id} onClick={() => { onPick(s); onClose(); }} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 7, cursor: "pointer" }}>
+                  <div key={s.id} onClick={() => { onPick(s); onClose(); }} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 7, cursor: "pointer", minWidth: 0 }}>
                     <div style={{ position: "relative" }}>
                       <ServiceLogo domain={s.domain} name={s.name} color={s.color} size={52} />
                       {activeDomain === s.domain && <span className="circ" style={{ position: "absolute", right: -3, bottom: -3, width: 19, height: 19, borderRadius: "50%", background: "var(--ac)", color: "var(--onacc)", border: "2px solid var(--surface)" }}><Ico name="check" size={11} /></span>}
                     </div>
-                    <span style={{ fontSize: 10.5, fontWeight: 600, textAlign: "center", lineHeight: 1.2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "100%", color: "var(--text)" }}>{s.name}</span>
+                    <span style={{ fontSize: 10.5, fontWeight: 600, textAlign: "center", lineHeight: 1.2, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", maxWidth: "100%", color: "var(--text)" }}>{s.name}</span>
                   </div>
                 ))}
               </div>

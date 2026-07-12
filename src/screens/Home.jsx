@@ -33,7 +33,7 @@ export function BankCard({ bank, available, frozen, low, money, masked, onClick,
       <div style={{ position: "relative", zIndex: 2, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 7, minWidth: 0 }}>
           <BankLogo domain={bank.domain} name={bank.name} glyph={bank.glyph} color={bank.color} size={grid ? 22 : 24} radius={8} />
-          <span style={{ fontWeight: 800, fontSize: grid ? 13.5 : 14.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{bank.name}</span>
+          <span style={{ fontWeight: 800, fontSize: grid ? 13.5 : 14.5, lineHeight: 1.15, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>{bank.name}</span>
         </div>
         {available < 0 ? <span style={{ width: 9, height: 9, borderRadius: 99, background: "#fff", flexShrink: 0 }} />
           : low ? <span style={{ display: "flex", alignItems: "center", gap: 3, background: "#F8B53D", color: "#3A2400", fontWeight: 800, fontSize: 10.5, letterSpacing: ".02em", padding: "4px 8px 4px 6px", borderRadius: 8, flexShrink: 0 }}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3A2400" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M19 12l-7 7-7-7" /></svg>{t("home.lowBadge")}</span>
