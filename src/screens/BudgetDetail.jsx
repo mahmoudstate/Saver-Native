@@ -31,7 +31,7 @@ export default function BudgetDetail({ store, budgetId, viewMonth, back, onEdit,
   const over = spent > limit;
   const left = limit - spent;
   const rows = budgetTxns(budget, txns, cm).sort((a, b) => (b.date || "").localeCompare(a.date || ""));
-  const bankName = (id) => banks.find((b) => b.id === id)?.name || "—";
+  const bankName = (id) => banks.find((b) => b.id === id)?.name || "-";
   const daysLeft = daysLeftInCycle(cyclePeriod(cm, budget.cycleStartDay).to, today());
   const safePerDay = limit > 0 ? Math.max(0, left) / daysLeft : null;
   const spentPerDay = spentPerActiveDay(rows);
@@ -51,7 +51,7 @@ export default function BudgetDetail({ store, budgetId, viewMonth, back, onEdit,
         <div style={{ display: "flex", marginTop: 14, paddingTop: 14, borderTop: "1px solid var(--border)" }}>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div className="over" style={{ margin: 0 }}>{tr("budget.safePerDay")}</div>
-            <div className="title tnum" style={{ fontSize: 17, marginTop: 4 }}>{safePerDay != null ? fmt(safePerDay) : "—"}</div>
+            <div className="title tnum" style={{ fontSize: 17, marginTop: 4 }}>{safePerDay != null ? fmt(safePerDay) : "-"}</div>
             <div className="caption" style={{ marginTop: 2 }}>{tr(daysLeft === 1 ? "budget.daysLeftOne" : "budget.daysLeftMany", { n: daysLeft })}</div>
           </div>
           <div style={{ width: 1, background: "var(--border)", margin: "2px 14px" }} />

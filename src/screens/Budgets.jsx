@@ -159,7 +159,7 @@ export default function Budgets({ store, back, onAdd, onOpenBudget, onOpenProjec
           <div className="tile" style={{ display: "flex", padding: 14, marginBottom: 16 }}>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div className="over" style={{ margin: 0 }}>{tr("budget.safePerDay")}</div>
-              <div className="title tnum" style={{ fontSize: 18, marginTop: 4 }}>{safePerDay != null ? fmt(safePerDay) : "—"}</div>
+              <div className="title tnum" style={{ fontSize: 18, marginTop: 4 }}>{safePerDay != null ? fmt(safePerDay) : "-"}</div>
               <div className="caption" style={{ marginTop: 2 }}>{safePerDay != null ? tr(daysLeft === 1 ? "budget.daysLeftOne" : "budget.daysLeftMany", { n: daysLeft }) : tr("budget.pastMonth")}</div>
             </div>
             <div style={{ width: 1, background: "var(--border)", margin: "2px 14px" }} />

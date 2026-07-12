@@ -136,7 +136,7 @@ export default function GoalDetail({ store, goalId, back, onReached, onEdit, onE
               <CatTile txn={t} cat={t.type === "saving" ? "deposit" : t.type === "goal_return" ? "goalReturn" : null} size={44} />
               <div style={{ minWidth: 0 }}>
                 <div className="nm">{title}</div>
-                <div className="mt">{(bankOf(t.bankId)?.name || "—")} · {t.date ? fmtDate(t.date) : ""}</div>
+                <div className="mt">{(bankOf(t.bankId)?.name || "-")} · {t.date ? fmtDate(t.date) : ""}</div>
                 {isLinked(t) && (
                   <div className="mt" style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 2 }}>
                     <LinkBadge groupId={t.splitGroupId} />

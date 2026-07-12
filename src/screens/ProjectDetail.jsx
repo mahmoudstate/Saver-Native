@@ -25,7 +25,7 @@ export default function ProjectDetail({ store, projectId, back, onEdit, onEditTx
   const perMonth = Math.round(spent / months);
   const range = project.startMonth ? `${monthName(+project.startMonth.split("-")[1] - 1)}–${monthName(+cm.split("-")[1] - 1)}` : "";
   const rows = budgetTxns(project, txns).sort((a, b) => (b.date || "").localeCompare(a.date || ""));
-  const bankName = (id) => banks.find((b) => b.id === id)?.name || "—";
+  const bankName = (id) => banks.find((b) => b.id === id)?.name || "-";
 
   const archived = project.status === "archived";
   const complete = () => store.setConfirm({

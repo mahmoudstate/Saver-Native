@@ -90,7 +90,7 @@ export default function AccountEditor({ store, account, onClose, onDeleted }) {
           </span>
         </div>
         <div className="lbl" style={{ color: "rgba(255,255,255,.82)" }}>{editing ? tr("add.account") : tr("editor.openingBalance")}</div>
-        <div className="big tnum" onClick={() => !editing && setSheet("opening")} style={{ color: "#fff", cursor: editing ? "default" : "pointer" }}>{editing ? (name || "—") : (opening > 0 ? fmt(opening) : <span style={{ opacity: .65 }}>{fmt(0)}</span>)}</div>
+        <div className="big tnum" onClick={() => !editing && setSheet("opening")} style={{ color: "#fff", cursor: editing ? "default" : "pointer" }}>{editing ? (name || "-") : (opening > 0 ? fmt(opening) : <span style={{ opacity: .65 }}>{fmt(0)}</span>)}</div>
         <div className="sub" style={{ color: "rgba(255,255,255,.85)" }}>{kind === "cash" ? tr("editor.cashWallet") : tr("editor.bankAccount")}</div>
       </div>
 

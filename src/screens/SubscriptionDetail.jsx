@@ -22,7 +22,7 @@ export default function SubscriptionDetail({ store, bill: billProp, back, onEdit
   const cm = currentMonth();
   const day = new Date().getDate();
   const bank = banks.find((b) => b.id === bill.bankId);
-  const bankName = bank?.name || "—";
+  const bankName = bank?.name || "-";
   const freq = freqOf(bill);
   const per = billPeriod(bill, today());
   const paidThis = isBillPaidForKey(bill, per.key);

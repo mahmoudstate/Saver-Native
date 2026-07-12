@@ -10,6 +10,7 @@ import { useLocalNotifications } from "./lib/useLocalNotifications.js";
 import { useNotificationTaps } from "./lib/useNotificationTaps.js";
 import { useICloudRestoreCheck } from "./hooks/useICloudRestoreCheck.js";
 import { useAndroidDriveRestoreCheck } from "./hooks/useAndroidDriveRestoreCheck.js";
+import { useNativeLangCorrection } from "./hooks/useNativeLangCorrection.js";
 import iconUrl from "../icon.png";
 import LockScreen from "./ui/LockScreen.jsx";
 import BottomNav from "./ui/BottomNav.jsx";
@@ -62,6 +63,7 @@ import Breakdown from "./screens/Breakdown.jsx";
 export default function App() {
   useNativeStatusBar();
   useKeyboardInsets();
+  useNativeLangCorrection();
   const store = useStore();
   useLocalNotifications(store);
   const checkingICloudRestore = useICloudRestoreCheck(store);

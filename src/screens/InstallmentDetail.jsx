@@ -29,7 +29,7 @@ export default function InstallmentDetail({ store, instId, back, onEdit }) {
 
   const label = inst.itemType || inst.company || inst.name || tr("instd.installmentFallback");
   const color = inst.color || "var(--ac)";
-  const bankName = banks.find((b) => b.id === inst.bankId)?.name || "—";
+  const bankName = banks.find((b) => b.id === inst.bankId)?.name || "-";
   const cm = currentMonth();
 
   const ensurePayments = () => {

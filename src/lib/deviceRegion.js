@@ -9,3 +9,15 @@ export async function getDeviceRegion() {
   const { region } = await ICloudBackupNative.getRegion();
   return region || null;
 }
+
+// True preferred app language (Settings > Saver > Language), read natively —
+// navigator.language can't be trusted for this in WKWebView (see i18n.js).
+// Returns "ar" / "en" / null.
+export async function getDeviceLanguage() {
+  if (Capacitor.getPlatform() !== "ios") return null;
+  try {
+    const { language } = await ICloudBackupNative.getLanguage();
+    if (!language) return null;
+    return language.toLowerCase().startsWith("ar") ? "ar" : "en";
+  } catch { return null; }
+}

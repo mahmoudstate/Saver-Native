@@ -14,7 +14,13 @@ const LANG_KEY = "et_lang";
 const OS_SNAPSHOT_KEY = "et_lang_os_snap"; // last-seen OS-derived language, to notice when it changes
 const RTL = new Set(["ar"]);
 
+// On iOS, navigator.language in WKWebView doesn't reliably reflect the per-app
+// Settings > Saver > Language override, so useNativeLangCorrection reads the
+// real preferred language natively and caches it here ("ar"/"en"). Prefer that
+// cache when present; fall back to navigator.language everywhere else.
+const NATIVE_LANG_KEY = "et_native_lang";
 const osLang = () => {
+  try { const c = localStorage.getItem(NATIVE_LANG_KEY); if (c === "ar" || c === "en") return c; } catch { /* ignore */ }
   try { return (navigator.language || "en").toLowerCase().startsWith("ar") ? "ar" : "en"; } catch { return "en"; }
 };
 

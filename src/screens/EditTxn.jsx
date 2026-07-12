@@ -82,7 +82,7 @@ export default function EditTxn({ store, txn, onClose }) {
       {editable && (
         <div className="field" onClick={() => setSheet("category")} style={{ cursor: "pointer", marginTop: 12 }}>
           <CatTile cat={catKeyOf(cat)} name={cat?.name} size={42} />
-          <div><div className="fl">{tr("add.category")}</div><div className="fv">{cat?.name || "—"}</div></div><span className="chev"><Ico name="chev" size={18} /></span>
+          <div><div className="fl">{tr("add.category")}</div><div className="fv">{cat?.name || "-"}</div></div><span className="chev"><Ico name="chev" size={18} /></span>
         </div>
       )}
 

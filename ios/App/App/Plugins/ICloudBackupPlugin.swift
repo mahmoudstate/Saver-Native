@@ -84,4 +84,11 @@ public class ICloudBackupPlugin: CAPPlugin {
         }
         call.resolve(["region": region ?? NSNull()])
     }
+
+    // Preferred app language, honouring the per-app Settings > Saver > Language
+    // override — navigator.language in WKWebView doesn't reflect it reliably.
+    @objc func getLanguage(_ call: CAPPluginCall) {
+        let language = Locale.preferredLanguages.first ?? Locale.current.identifier
+        call.resolve(["language": language])
+    }
 }

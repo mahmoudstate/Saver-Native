@@ -1,18 +1,32 @@
 // Saver — Appearance: ported 1:1 from showcase 24 (light/dark + 6 calm accents).
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import Ico from "../ui/Ico.jsx";
 import Money from "../ui/Money.jsx";
-import { fmt } from "../lib/format.js";
-import { ACCENTS } from "../lib/store.js";
+import OptionSheet from "../ui/OptionSheet.jsx";
+import { fmt, HAPTICS } from "../lib/format.js";
+import { ACCENTS, saveKey, KEYS } from "../lib/store.js";
 import { useLang } from "../lib/i18n.js";
 import { totalBalance } from "../lib/calc.js";
 
 export default function Appearance({ store, back }) {
   const { theme, accent, banks = [], txns = [], hapticsEnabled } = store;
-  const { t } = useLang();
+  const { t, lang, setLang } = useLang();
   const total = useMemo(() => totalBalance(banks, txns), [banks, txns]);
   const haptics = hapticsEnabled !== false;
-  const toggleHaptics = () => store.set("hapticsEnabled", !haptics);
+  const [langOpen, setLangOpen] = useState(false);
+  const pickLang = (v) => { HAPTICS.light(); setLang(v); setLangOpen(false); };
+  const toggleHaptics = () => {
+    const next = !haptics;
+    if (next) {
+      // Persist first so HAPTICS' localStorage gate passes, then confirm the
+      // switch with a real buzz the user can feel.
+      saveKey(KEYS.hapticsEnabled, true);
+      HAPTICS.success();
+    } else {
+      HAPTICS.light(); // one last tick while vibration is still enabled
+    }
+    store.set("hapticsEnabled", next);
+  };
 
   return (
     <div className="content padnav">
@@ -49,6 +63,27 @@ export default function Appearance({ store, back }) {
           </span>
         </span>
       </div>
+
+      <div className="over" style={{ marginTop: 16 }}>{t("appr.language")}</div>
+      <div className="icard" onClick={() => setLangOpen(true)} style={{ cursor: "pointer" }}>
+        <span className="circ" style={{ width: 40, height: 40, borderRadius: 12, background: "var(--acDim)", color: "var(--ac)" }}><Ico name="globe" size={20} /></span>
+        <div><div className="nm">{t("appr.language")}</div><div className="mt">{t("appr.langSub")}</div></div>
+        <span style={{ marginInlineStart: "auto", display: "inline-flex", alignItems: "center", gap: 6, background: "var(--track)", borderRadius: 99, padding: "8px 12px", fontWeight: 700, fontSize: 14.5 }}>
+          <span>{lang === "ar" ? "العربية" : "English"}</span>
+          <Ico name="down" size={15} />
+        </span>
+      </div>
+
+      {langOpen && (
+        <OptionSheet
+          title={t("appr.language")}
+          sub={t("appr.langSub")}
+          value={lang}
+          onPick={pickLang}
+          onClose={() => setLangOpen(false)}
+          options={[{ value: "en", label: "English" }, { value: "ar", label: "العربية" }]}
+        />
+      )}
     </div>
   );
 }

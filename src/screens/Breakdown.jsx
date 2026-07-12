@@ -56,7 +56,7 @@ export default function Breakdown({ store, back }) {
             <div className="over">{tr(mode === "expense" ? "brk.biggestExpense" : "brk.biggestDeposit")}</div>
             <div className="icard">
               <CatTile txn={biggest} size={44} />
-              <div><div className="nm">{biggest.catName || biggest.note || "—"}</div><div className="mt">{bankName(biggest.bankId)}{biggest.date ? " · " + rowDate(biggest.date) : ""}</div></div>
+              <div><div className="nm">{biggest.catName || biggest.note || "-"}</div><div className="mt">{bankName(biggest.bankId)}{biggest.date ? " · " + rowDate(biggest.date) : ""}</div></div>
               <div className={`amt ${mode === "expense" ? "out" : "in"} tnum`}>{mode === "expense" ? "−" : "+"}{fmt(biggest.amount)}</div>
             </div>
           </>}
