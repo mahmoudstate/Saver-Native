@@ -902,6 +902,10 @@ export default {
     item2mt: "Real logos added for dozens of bills and subscriptions",
     item3nm: "New category icons",
     item3mt: "More icons to choose from for your expense and income categories",
+    item4nm: "Swipe to go back",
+    item4mt: "Swipe across any screen to slide back to the one before it",
+    item5nm: "Drag to reorder",
+    item5mt: "Press and drag to reorder your accounts, categories, and budgets",
   },
   onb: {
     welcome: "Welcome to Saver",

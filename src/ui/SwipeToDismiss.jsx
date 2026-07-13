@@ -50,7 +50,7 @@ export default function SwipeToDismiss({ isOpen, onOpenChange, onDismiss, childr
   const sign = isRTL ? 1 : -1;
 
   return (
-    <div style={{ position: "relative", overflow: "hidden", borderRadius: 18 }}>
+    <div data-no-swipeback style={{ position: "relative", overflow: "hidden", borderRadius: 18 }}>
       <div onClick={() => { onDismiss(); onOpenChange(false); }} style={{
         position: "absolute", zIndex: 0, top: 0, bottom: 0, [isRTL ? "left" : "right"]: 0, width: REVEAL,
         background: "var(--red)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",

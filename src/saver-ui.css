@@ -388,7 +388,8 @@ body{background:var(--bg)}
 /* tab host: holds the current tab; stays mounted under any pushed view so back restores scroll */
 .app .tabhost{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden}
 /* pushed detail screen: opaque overlay above the tab (back removes it, tab is revealed where it was) */
-.app .pushview{position:absolute;inset:0;z-index:30;background:var(--bg);display:flex;flex-direction:column;overflow:hidden;animation:pushIn .24s var(--e-out) both}
+/* touch-action:pan-y keeps native vertical scrolling (smooth, real momentum, nested scrollers intact); the hook claims horizontal itself and preventDefaults touchmove once a back-swipe starts. Each stack depth is its own layer at the same z-index, so later DOM order sits on top; dragging the top reveals the static one beneath. */
+.app .pushview{position:absolute;inset:0;z-index:30;background:var(--bg);display:flex;flex-direction:column;overflow:hidden;animation:pushIn .24s var(--e-out) both;touch-action:pan-y;will-change:transform}
 @keyframes pushIn{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:none}}
 .app .nav{position:absolute}
 .hscroll{scrollbar-width:none}
