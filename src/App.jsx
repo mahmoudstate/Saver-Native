@@ -1,6 +1,7 @@
 // Saver — clean app shell (new design). Logic from lib/*, UI rebuilt from the design showcase.
 import { useState, useRef, useEffect, useCallback } from "react";
 import { App as CapApp } from "@capacitor/app";
+import { Capacitor } from "@capacitor/core";
 import { useStore } from "./lib/store.js";
 import { useNativeStatusBar } from "./lib/useNativeStatusBar.js";
 import { useAppLock } from "./lib/useAppLock.js";
@@ -96,7 +97,10 @@ export default function App() {
   // revealed on release is never rebuilt (no re-run entrance animation = no
   // shake) and nothing deeper can peek through. Returns a callback ref that
   // rebinds to whichever layer is currently on top.
-  const swipeBack = useEdgeSwipeBack({ enabled: !!view, onCommit: back });
+  // iOS only: Android relies on its own system/hardware back button (see the
+  // backButton listener below), so the swipe gesture would only fight Android's
+  // native edge-back. Web has no use for it either.
+  const swipeBack = useEdgeSwipeBack({ enabled: !!view && Capacitor.getPlatform() === "ios", onCommit: back });
   // Android hardware/gesture back button: pop the nav stack like the in-app
   // back buttons, or exit the app when already at a tab root (no listener
   // means Capacitor's default no-op, since this SPA has no browser history).
