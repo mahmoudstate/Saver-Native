@@ -3,7 +3,7 @@
 // Active / Completed. Segmented controls slide between options.
 import { useState, useMemo } from "react";
 import Ico from "../ui/Ico.jsx";
-import ServiceLogo from "../ui/ServiceLogo.jsx";
+import BillLogo from "../ui/BillLogo.jsx";
 import CatTile from "../ui/CatTile.jsx";
 import SegToggle from "../ui/SegToggle.jsx";
 import Money from "../ui/Money.jsx";
@@ -13,14 +13,12 @@ import { freqOf, billPeriod, isBillPaidForKey, monthlyEquiv, yearlyMult } from "
 import { useT } from "../lib/i18n.js";
 const guessCat = (t = "") => /phone|iphone|mobile|tablet|ipad/i.test(t) ? "phone" : /car|loan|auto|vehicle/i.test(t) ? "transport" : /laptop|pc|mac/i.test(t) ? "phone" : null;
 
+// Mint wash + mint border marking a settled bill. Paired with the check badge on
+// the logo; the status text stays, so paid never rides on colour alone.
+const paidRow = { background: "var(--paidRow)", borderColor: "var(--paidLine)" };
+
 // Small status dot (drawn, not an emoji) — same size as the Active dot.
 const Dot = ({ color, size = 8 }) => <span style={{ width: size, height: size, borderRadius: "50%", background: color, flexShrink: 0, display: "inline-block" }} />;
-
-function BillLogo({ bill, size = 44 }) {
-  if (bill.domain) return <ServiceLogo domain={bill.domain} name={bill.name} color={bill.color} size={size} />;
-  if (bill.glyph) return <CatTile cat={bill.glyph} name={bill.name} color={bill.color} size={size} />;
-  return <span className="circ" style={{ width: size, height: size, borderRadius: size * 0.3, background: bill.color || "var(--surface2)", color: "#fff", fontWeight: 800, fontSize: size * 0.34, flexShrink: 0 }}>{(bill.name || "?").slice(0, 1).toUpperCase()}</span>;
-}
 
 // "monthly · day 5" / "weekly · Mon" / "quarterly" — frequency + when it's due.
 function dueSummary(bill, tr) {
@@ -34,16 +32,18 @@ function dueSummary(bill, tr) {
 function SubCard({ bill, onOpen }) {
   const tr = useT();
   return (
-    <div className="icard" onClick={() => onOpen?.(bill)} style={{ cursor: "pointer" }}>
-      <BillLogo bill={bill} />
-      <div style={{ minWidth: 0 }}>
+    <div className="icard" onClick={() => onOpen?.(bill)} style={{ cursor: "pointer", ...(bill.isPaid ? paidRow : null) }}>
+      <BillLogo bill={bill} paid={bill.isPaid} ring="var(--paidRow)" />
+      <div style={{ minWidth: 0, flex: 1 }}>
         <div className="nm">{bill.name}</div>
-        <div className="mt" style={{ display: "flex", alignItems: "center", gap: 5, flexWrap: "wrap" }}>
-          <span>{bill.note ? bill.note + " · " : ""}{dueSummary(bill, tr)} ·</span>
-          <Dot color={bill.statusColor} size={7} /><span>{bill.status}</span>
-        </div>
+        {/* Status moved under the amount (matching Home), so this line stays the
+            plain "what and when" and no longer wraps onto a second row. */}
+        <div className="mt">{bill.note ? bill.note + " · " : ""}{dueSummary(bill, tr)}</div>
       </div>
-      <b className="amt tnum" style={{ flexShrink: 0, fontSize: 18, fontWeight: 800, letterSpacing: "-.3px" }}>{fmt(bill.amount)}</b>
+      <div style={{ flexShrink: 0, textAlign: "end", marginInlineStart: "auto" }}>
+        <b className="tnum" style={{ display: "block", fontSize: 18, fontWeight: 800, letterSpacing: "-.3px" }}>{fmt(bill.amount)}</b>
+        <div style={{ fontSize: 11.5, fontWeight: 700, marginTop: 2, color: bill.statusColor, whiteSpace: "nowrap" }}>{bill.status}</div>
+      </div>
     </div>
   );
 }

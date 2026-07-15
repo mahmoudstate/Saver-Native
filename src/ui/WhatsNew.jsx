@@ -5,6 +5,7 @@ import { useT } from "../lib/i18n.js";
 
 const ITEMS = [
   { icon: "device", bg: "var(--acDim)", color: "var(--acText)", nm: "whatsnew.item1nm", mt: "whatsnew.item1mt" },
+  { icon: "bills", bg: "var(--blueDim)", color: "var(--blue)", nm: "whatsnew.item2nm", mt: "whatsnew.item2mt" },
 ];
 
 export default function WhatsNew({ onClose }) {

@@ -1,24 +1,20 @@
 // Saver — Home: PORTED 1:1 from showcase screen 01 (same classes/markup), data injected.
-import { useState, useRef, useMemo, useLayoutEffect, useEffect, Fragment } from "react";
-import { App as CapApp } from "@capacitor/app";
+import { useState, useRef, useMemo, useLayoutEffect, Fragment } from "react";
 import Ico from "../ui/Ico.jsx";
 import Money from "../ui/Money.jsx";
 import ActivationCard from "../ui/ActivationCard.jsx";
 import BankLogo from "../ui/BankLogo.jsx";
+import BillLogo from "../ui/BillLogo.jsx";
+import CatTile from "../ui/CatTile.jsx";
 import { fmt, currentMonth, monthName, cardGradient, today, dayName } from "../lib/format.js";
 import { calcBankBalance, calcGoalSaved, calcFrozenForBank, totalBalance, totalSafe, totalFrozen, monthTxns, sumIncome, sumExpense, projectSpent, budgetSpentMonth } from "../lib/calc.js";
 import { freqOf, billPeriod, isBillPaidForKey } from "../lib/billfreq.js";
 import { DASH_SECTIONS, DASH_DEFAULT } from "../lib/store.js";
 import { unreadCount } from "../lib/notifications.js";
+import { useAmountMask } from "../lib/amountMask.js";
 import { useT } from "../lib/i18n.js";
 
 const KNOWN_SECTIONS = DASH_SECTIONS.map((s) => s.id);
-
-// Privacy mask state that persists across tab re-mounts (module scope), but
-// resets to masked on a full app reload (i.e. close + reopen). Re-masks the
-// instant the app leaves the foreground (not on navigation between screens) —
-// must happen before iOS/Android snapshot the screen for the app switcher.
-let maskState = true; // true = amounts masked
 
 const Contactless = ({ s = 20 }) => <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" style={{ opacity: .9 }}><path d="M5 11a3 3 0 0 1 0 2M9 8.5a6.5 6.5 0 0 1 0 7M13 6a10 10 0 0 1 0 12" /></svg>;
 
@@ -62,18 +58,8 @@ export default function Home({ store, onTab, onAdd, onAddAccount, onAddBill, onA
   const scrollRef = useRef(null);
   // restore the scroll position from when Home was last left (tab-switch memory)
   useLayoutEffect(() => { if (scrollRef.current) scrollRef.current.scrollTop = initialScroll; }, []);
-  const [hide, setHide] = useState(maskState); // privacy-first: amounts masked on open
+  const { hide, toggleHide } = useAmountMask(); // privacy-first: amounts masked on open
   const [page, setPage] = useState(0);
-  const toggleHide = () => setHide((v) => (maskState = !v));
-  // Re-mask the instant the app leaves the foreground — a brief peek at the
-  // app switcher counts, since that's exactly when the OS snapshots the screen.
-  // Plain in-app navigation never touches this (no unmount/remount of Home).
-  useEffect(() => {
-    const sub = CapApp.addListener("appStateChange", ({ isActive }) => {
-      if (!isActive) { maskState = true; setHide(true); }
-    });
-    return () => { sub.then((s) => s.remove()); };
-  }, []);
   const [budgetsOpen, setBudgetsOpen] = useState(false); // Home budgets card: expand to per-budget rows
   const [goalsOpen, setGoalsOpen] = useState(false); // Home goals card: expand to per-goal rows
   const [instOpen, setInstOpen] = useState(false); // installments card expand
@@ -107,8 +93,8 @@ export default function Home({ store, onTab, onAdd, onAddAccount, onAddBill, onA
     const projLimit = activeProj.reduce((s, p) => s + (p.amount || 0), 0);
     const budgetsList = mb.map((b) => ({ id: b.id, name: b.name, amount: b.amount || 0, spent: budgetSpentMonth(b, txns, cm) }));
     const goalsTarget = goals.reduce((a, g) => a + (g.goal || 0), 0);
-    const instList = activeInst.map((i) => { const paidCount = paidOf(i), paid = paidCount * i.installmentAmount; return { id: i.id, name: i.name || i.company || i.itemType || t("home.planFallback"), paidCount, total: i.totalInstallments, paid, remaining: Math.max(0, i.totalAmount - paid), totalAmount: i.totalAmount }; });
-    const billsList = mBills.map((b) => ({ id: b.id, name: b.name, amount: b.amount, paid: billPaid(b), dueDay: b.dueDay, frequency: freqOf(b), color: b.color, note: b.note })).sort((a, b) => (a.paid === b.paid ? 0 : a.paid ? 1 : -1));
+    const instList = activeInst.map((i) => { const paidCount = paidOf(i), paid = paidCount * i.installmentAmount; return { id: i.id, name: i.name || i.company || i.itemType || t("home.planFallback"), paidCount, total: i.totalInstallments, paid, remaining: Math.max(0, i.totalAmount - paid), totalAmount: i.totalAmount, glyph: i.glyph, color: i.color }; });
+    const billsList = mBills.map((b) => ({ id: b.id, name: b.name, amount: b.amount, paid: billPaid(b), dueDay: b.dueDay, frequency: freqOf(b), color: b.color, note: b.note, domain: b.domain, glyph: b.glyph })).sort((a, b) => (a.paid === b.paid ? 0 : a.paid ? 1 : -1));
     const projList = activeProj.map((p) => ({ id: p.id, name: p.name, amount: p.amount || 0, spent: projectSpent(p, txns) }));
     return { tb, ts, tf, inc, exp, net: inc - exp, goals, goalsSaved, goalsTarget, billsDue: unpaid.reduce((s, b) => s + b.amount, 0), unpaid: unpaid.length, paid: mBills.length - unpaid.length, limit, spent, budgetsList, instCount: activeInst.length, instRemaining, instDue, instList, billsList, projCount: activeProj.length, projSpent, projLimit, projList };
   }, [banks, txns, savings, bills, budgets, installments, cm]);
@@ -188,16 +174,19 @@ export default function Home({ store, onTab, onAdd, onAddAccount, onAddBill, onA
       SEC.bills = (<Fragment key="bills">{bills.length > 0 && (
         <div className="tile" style={{ marginBottom: 13 }}>
           <div onClick={() => onTab?.("bills")} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" }}><div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}><span style={circ(42, 13, "var(--blueDim)", "var(--blue)")}><Ico name="bills" size={21} /></span><div><div style={{ fontSize: 10.5, color: "var(--muted)", fontWeight: 800, textTransform: "uppercase", letterSpacing: ".05em" }}>{t("home.billsDue", { month: mName })}</div><div className="tnum" style={{ fontSize: 21, fontWeight: 800 }}>{money(d.billsDue)} <span style={{ fontSize: 13, color: "var(--muted)", fontWeight: 700 }}>{t("home.due")}</span></div></div></div><Ico name="chev" size={18} color="var(--faint)" /></div>
+          {/* Rows are spaced cards rather than divider-separated lines: the paid
+              wash needs its own edges, and a hairline under a tinted row reads as
+              a seam. Unpaid sits a shade off the tile so it still separates. */}
           {billsOpen ? (
-            <div style={{ marginTop: 6 }}>
-              {d.billsList.map((b, i) => (
-                <div key={b.id} onClick={() => onOpenBill?.(b)} style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 12, padding: "13px 0", borderBottom: i < d.billsList.length - 1 ? "1px solid var(--line)" : "none" }}>
-                  <span className="circ" style={{ width: 40, height: 40, borderRadius: 12, background: b.color || "var(--blue)", color: "#fff", fontWeight: 800, fontSize: 14, flexShrink: 0 }}>{(b.name || "?").trim().slice(0, 1).toUpperCase()}</span>
+            <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 6 }}>
+              {d.billsList.map((b) => (
+                <div key={b.id} onClick={() => onOpenBill?.(b)} style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 12, padding: "11px 10px", borderRadius: 12, background: b.paid ? "var(--paidRow)" : "var(--surface2)" }}>
+                  <BillLogo bill={b} size={40} paid={b.paid} ring={b.paid ? "var(--paidRow)" : "var(--surface2)"} />
                   <div style={{ minWidth: 0, flex: 1 }}>
                     <div style={{ fontSize: 13.5, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{b.name}</div>
                     <div style={{ fontSize: 11.5, color: "var(--muted)", fontWeight: 600, marginTop: 1 }}>{b.note ? b.note + " · " : ""}{t("freq." + b.frequency)}{b.dueDay ? " · " + (b.frequency === "weekly" ? dayName(Math.min(6, Math.max(0, b.dueDay | 0))) : t("bills.dayN", { n: b.dueDay })) : ""}</div>
                   </div>
-                  <div style={{ textAlign: "right", flexShrink: 0 }}>
+                  <div style={{ textAlign: "end", flexShrink: 0 }}>
                     <div className="tnum" style={{ fontSize: 14.5, fontWeight: 800 }}>{money(b.amount)}</div>
                     <div style={{ fontSize: 11, fontWeight: 700, marginTop: 2, color: b.paid ? "var(--success)" : "var(--yellow)" }}>{b.paid ? t("bills.paid") : t("bills.dueWord")}</div>
                   </div>
@@ -221,13 +210,16 @@ export default function Home({ store, onTab, onAdd, onAddAccount, onAddBill, onA
               {d.instList.map((i) => {
                 const pct = i.totalAmount > 0 ? Math.round((i.paid / i.totalAmount) * 100) : 0;
                 return (
-                  <div key={i.id} onClick={() => onOpenInst?.(i)} style={{ cursor: "pointer", display: "flex", flexDirection: "column", gap: 6 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 10 }}>
-                      <span style={{ fontSize: 13, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{i.name}</span>
-                      <span className="tnum" style={{ fontSize: 12, fontWeight: 800, color: "var(--orange)", flexShrink: 0 }}>{i.paidCount}/{i.total}</span>
+                  <div key={i.id} onClick={() => onOpenInst?.(i)} style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 12 }}>
+                    <CatTile cat={i.glyph} name={i.name} color={i.color} size={40} />
+                    <div style={{ display: "flex", flexDirection: "column", gap: 6, flex: 1, minWidth: 0 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 10 }}>
+                        <span style={{ fontSize: 13, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{i.name}</span>
+                        <span className="tnum" style={{ fontSize: 12, fontWeight: 800, color: "var(--orange)", flexShrink: 0 }}>{i.paidCount}/{i.total}</span>
+                      </div>
+                      <div style={{ height: 6, borderRadius: 4, background: "var(--surface2)" }}><i style={{ display: "block", width: `${Math.min(100, pct)}%`, height: "100%", borderRadius: 4, background: "var(--orange)" }} /></div>
+                      <div className="tnum" style={{ fontSize: 11.5, fontWeight: 600, color: "var(--muted)" }}>{t("home.instProgress", { paid: money(i.paid), remaining: money(i.remaining), total: fmt(i.totalAmount) })}</div>
                     </div>
-                    <div style={{ height: 6, borderRadius: 4, background: "var(--surface2)" }}><i style={{ display: "block", width: `${Math.min(100, pct)}%`, height: "100%", borderRadius: 4, background: "var(--orange)" }} /></div>
-                    <div className="tnum" style={{ fontSize: 11.5, fontWeight: 600, color: "var(--muted)" }}>{t("home.instProgress", { paid: money(i.paid), remaining: money(i.remaining), total: fmt(i.totalAmount) })}</div>
                   </div>
                 );
               })}

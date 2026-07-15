@@ -1,4 +1,6 @@
-// Full-screen lock gate. Prompts biometric on mount; PIN entry as fallback.
+// Full-screen lock gate. The biometric prompt is driven by useAppLock, not here:
+// this screen stays quiet while the system sheet is up, and only falls back to
+// PIN entry (or a retry button) once biometrics actually fail.
 import { useState, useEffect, useCallback } from "react";
 import logo from "../../icon.png";
 import Ico from "./Ico.jsx";
@@ -6,7 +8,7 @@ import { verifyPin, hasPin } from "../lib/appLock.js";
 import { useBiometryLabel } from "../hooks/useBiometryLabel.js";
 import { useT } from "../lib/i18n.js";
 
-export default function LockScreen({ onUnlock, tryBiometric }) {
+export default function LockScreen({ onUnlock, tryBiometric, biometryState = "idle" }) {
   const tr = useT();
   const biometry = useBiometryLabel();
   const [pin, setPin] = useState("");
@@ -16,8 +18,13 @@ export default function LockScreen({ onUnlock, tryBiometric }) {
 
   useEffect(() => { hasPin().then(setPinExists); }, []);
 
-  // Auto-prompt Face ID / Touch ID once on mount.
-  useEffect(() => { tryBiometric?.(); }, [tryBiometric]);
+  // Biometrics failed and a PIN exists: go straight to the keypad, iOS-style.
+  useEffect(() => {
+    if (biometryState === "failed" && pinExists) setPinMode(true);
+  }, [biometryState, pinExists]);
+
+  // Nothing but the logo until biometrics have actually failed.
+  const quiet = biometryState !== "failed";
 
   const submit = useCallback(async (value) => {
     if (await verifyPin(value)) { onUnlock?.(); }
@@ -34,20 +41,20 @@ export default function LockScreen({ onUnlock, tryBiometric }) {
 
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 1000, background: "var(--bg)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", userSelect: "none", paddingTop: "var(--safe-top)", paddingBottom: "var(--safe-bottom)" }}>
-      <img src={logo} alt="Saver" style={{ width: 84, height: 84, borderRadius: 20, marginBottom: 22 }} />
-      <div style={{ color: "var(--text)", fontSize: 20, fontWeight: 800, marginBottom: 6 }}>{tr("lock.locked")}</div>
+      <img src={logo} alt="Saver" style={{ width: 84, height: 84, borderRadius: 20, marginBottom: quiet ? 0 : 22 }} />
 
-      {!pinMode && (
+      {/* While the system biometric sheet is up this reads as a splash screen:
+          logo only, no copy. Text and entry appear once biometrics fail. */}
+      {!quiet && (
+        <div style={{ color: "var(--text)", fontSize: 20, fontWeight: 800, marginBottom: 6 }}>{tr("lock.locked")}</div>
+      )}
+
+      {!quiet && !pinMode && (
         <>
           <div style={{ color: "var(--muted)", fontSize: 13, marginBottom: 28 }}>{tr("lock.unlockToContinue")}</div>
           <button onClick={() => tryBiometric?.()} style={btn}>
             <Ico name="lock" size={18} color="#fff" /> {tr("lock.unlockFaceId", { biometry })}
           </button>
-          {pinExists && (
-            <button onClick={() => setPinMode(true)} style={{ ...btn, background: "transparent", color: "var(--ac)", marginTop: 12 }}>
-              {tr("lock.enterPinInstead")}
-            </button>
-          )}
         </>
       )}
 
@@ -68,6 +75,9 @@ export default function LockScreen({ onUnlock, tryBiometric }) {
             <button onClick={() => tap("0")} style={key}>0</button>
             <button onClick={del} style={{ ...key, fontSize: 20 }}>⌫</button>
           </div>
+          <button onClick={() => tryBiometric?.()} style={{ ...btn, background: "transparent", color: "var(--ac)", marginTop: 22 }}>
+            {tr("lock.unlockFaceId", { biometry })}
+          </button>
         </>
       )}
     </div>

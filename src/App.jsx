@@ -5,6 +5,7 @@ import { Capacitor } from "@capacitor/core";
 import { useStore } from "./lib/store.js";
 import { useNativeStatusBar } from "./lib/useNativeStatusBar.js";
 import { useAppLock } from "./lib/useAppLock.js";
+import { useAmountMaskLifecycle } from "./lib/amountMask.js";
 import { HAPTICS, currentMonth, APP_VERSION } from "./lib/format.js";
 import { useKeyboardInsets } from "./lib/useKeyboardInsets.js";
 import { useLocalNotifications } from "./lib/useLocalNotifications.js";
@@ -73,6 +74,9 @@ export default function App() {
   const checkingICloudRestore = useICloudRestoreCheck(store);
   const checkingAndroidDriveRestore = useAndroidDriveRestoreCheck(store);
   const lock = useAppLock(store.appLock);
+  // Lives here, not in Home: the lock screen unmounts Home, and the amount mask
+  // has to keep tracking foreground/background across that.
+  useAmountMaskLifecycle();
   const [tab, setTab] = useState("home");
   // Navigation stack of pushed detail screens; the top one renders as an overlay.
   // A real stack (not a single slot) so Back always returns to the previous screen.
@@ -167,7 +171,7 @@ export default function App() {
   // Switch tab from inside a screen (e.g. Home's Bills card) without forcing a reset.
   const openTab = (t) => { setBillsSeg(null); setStack([]); setTab(t); };
 
-  if (lock.locked) return <div className="app"><LockScreen onUnlock={lock.unlock} tryBiometric={lock.tryBiometric} /></div>;
+  if (lock.locked) return <div className="app"><LockScreen onUnlock={lock.unlock} tryBiometric={lock.tryBiometric} biometryState={lock.biometryState} /></div>;
   // Hold off on Onboarding/LangPrompt until we know whether there's a previous
   // iCloud backup to offer, avoiding a flash of Onboarding interrupted a
   // moment later by a restore dialog.
