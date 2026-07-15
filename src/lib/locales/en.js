@@ -896,16 +896,8 @@ export default {
   whatsnew: {
     title: "What's new · v{v}",
     ariaLabel: "What's new",
-    item1nm: "New bank logos",
-    item1mt: "Real logos added for Saudi Arabia, Egypt, Kuwait, Qatar, and more UK banks",
-    item2nm: "New company logos",
-    item2mt: "Real logos added for dozens of bills and subscriptions",
-    item3nm: "New category icons",
-    item3mt: "More icons to choose from for your expense and income categories",
-    item4nm: "Swipe to go back",
-    item4mt: "Swipe across any screen to slide back to the one before it",
-    item5nm: "Drag to reorder",
-    item5mt: "Press and drag to reorder your accounts, categories, and budgets",
+    item1nm: "Home screen widgets",
+    item1mt: "Add Saver widgets to your home screen: safe to spend, each bank's balance, and quick add",
   },
   onb: {
     welcome: "Welcome to Saver",

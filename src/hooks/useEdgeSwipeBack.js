@@ -132,8 +132,14 @@ export function useEdgeSwipeBack({ enabled, onCommit }) {
         done = true;
         node.removeEventListener("transitionend", settle);
         clearTimeout(fb);
-        reset();
-        if (commit) cfg.current.onCommit();
+        if (commit) {
+          // Leave the screen parked off-screen and let React unmount it. Clearing
+          // the transform here would snap it back over the previous screen for one
+          // frame before the pop lands → the flash the user saw.
+          cfg.current.onCommit();
+        } else {
+          reset();
+        }
       };
       node.style.transform = commit ? `translate3d(${isRTL() ? -width() : width()}px,0,0)` : "translate3d(0,0,0)";
       node.addEventListener("transitionend", settle);

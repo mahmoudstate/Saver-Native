@@ -61,6 +61,7 @@ import WhatsNew from "./ui/WhatsNew.jsx";
 import AllAccounts from "./screens/AllAccounts.jsx";
 import Breakdown from "./screens/Breakdown.jsx";
 import { useEdgeSwipeBack } from "./hooks/useEdgeSwipeBack.js";
+import { useWidgetSync } from "./hooks/useWidgetSync.js";
 
 export default function App() {
   useNativeStatusBar();
@@ -68,6 +69,7 @@ export default function App() {
   useNativeLangCorrection();
   const store = useStore();
   useLocalNotifications(store);
+  useWidgetSync(store);
   const checkingICloudRestore = useICloudRestoreCheck(store);
   const checkingAndroidDriveRestore = useAndroidDriveRestoreCheck(store);
   const lock = useAppLock(store.appLock);
@@ -114,6 +116,36 @@ export default function App() {
     });
     return () => { sub.then((s) => s.remove()); };
   }, []);
+  // Home screen widget deep links (savertrack://…): the + button and each
+  // widget face route straight to the matching screen. Always reset the stack
+  // first so we land cleanly wherever the user tapped from.
+  useEffect(() => {
+    const handleUrl = (url) => {
+      if (!url || !url.startsWith("savertrack://")) return;
+      const [action, arg] = url.slice("savertrack://".length).split("/");
+      setStack([]);
+      if (action === "add") push({ type: "add" });
+      else if (action === "home") setTab("home");
+      else if (action === "bills") setTab("bills");
+      else if (action === "account" && arg) {
+        const bank = (store.banks || []).find((b) => b.id === arg);
+        if (bank) push({ type: "account", bank });
+      } else if (action === "quick" && arg) {
+        // A widget quick-action shortcut: open Add pre-filled, same as picking
+        // it from the in-app quick-add sheet.
+        const q = (store.quickActions || []).find((x) => x.id === arg);
+        if (q) push({ type: "add", initial: { type: "expense", amount: +q.amount, bankId: q.bankId, expCatId: q.catId }, quickId: q.id });
+        else push({ type: "add" });
+      }
+    };
+    const sub = CapApp.addListener("appUrlOpen", ({ url }) => handleUrl(url));
+    // Cold start: if a widget tap launched the app, the listener above was
+    // registered too late to catch it, so appUrlOpen never fires. Pick up that
+    // initial URL directly (this is why quick-action taps did nothing when the
+    // app was fully closed).
+    CapApp.getLaunchUrl().then((r) => { if (r?.url) handleUrl(r.url); }).catch(() => {});
+    return () => { sub.then((s) => s.remove()); };
+  }, [store.banks, store.quickActions]);
   // Show "What's New" once after an update, never for a fresh install: a
   // first-ever launch has no stored version yet, so it just records the
   // baseline silently instead of popping the sheet.

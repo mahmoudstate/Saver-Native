@@ -3,10 +3,15 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 60;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		096E71B2300577A9007FB8A6 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 096E71B1300577A9007FB8A6 /* WidgetKit.framework */; };
+		096E71B4300577A9007FB8A6 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 096E71B3300577A9007FB8A6 /* SwiftUI.framework */; };
+		096E71C2300577AA007FB8A6 /* SaverWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 096E71AF300577A9007FB8A6 /* SaverWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		096E71CA30057FEB007FB8A6 /* SaverWidgetPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 096E71C930057FEB007FB8A6 /* SaverWidgetPlugin.swift */; };
+		096E71CB30057FEB007FB8A6 /* SaverWidgetPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = 096E71C830057FEB007FB8A6 /* SaverWidgetPlugin.m */; };
 		09B676252FFA003000ED10D7 /* ICloudBackupPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09B676242FFA003000ED10D7 /* ICloudBackupPlugin.swift */; };
 		09B676272FFA0B6D00ED10D7 /* ICloudBackupPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = 09B676262FFA0B6D00ED10D7 /* ICloudBackupPlugin.m */; };
 		09B6762A2FFA277100ED10D7 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 09B676292FFA277100ED10D7 /* PrivacyInfo.xcprivacy */; };
@@ -21,7 +26,37 @@
 		9A11000000000000000004 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 9A11000000000000000003 /* InfoPlist.strings */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		096E71BF300577AA007FB8A6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 504EC2FC1FED79650016851F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 096E71AE300577A9007FB8A6;
+			remoteInfo = SaverWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		096E71C1300577AA007FB8A6 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				096E71C2300577AA007FB8A6 /* SaverWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		096E71AF300577A9007FB8A6 /* SaverWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SaverWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		096E71B1300577A9007FB8A6 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		096E71B3300577A9007FB8A6 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		096E71C730057B0B007FB8A6 /* SaverWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SaverWidgetExtension.entitlements; sourceTree = "<group>"; };
+		096E71C830057FEB007FB8A6 /* SaverWidgetPlugin.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = SaverWidgetPlugin.m; path = Plugins/SaverWidgetPlugin.m; sourceTree = "<group>"; };
+		096E71C930057FEB007FB8A6 /* SaverWidgetPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SaverWidgetPlugin.swift; path = Plugins/SaverWidgetPlugin.swift; sourceTree = "<group>"; };
 		09B676232FF9FC7D00ED10D7 /* App.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = App.entitlements; sourceTree = "<group>"; };
 		09B676242FFA003000ED10D7 /* ICloudBackupPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ICloudBackupPlugin.swift; path = Plugins/ICloudBackupPlugin.swift; sourceTree = "<group>"; };
 		09B676262FFA0B6D00ED10D7 /* ICloudBackupPlugin.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = ICloudBackupPlugin.m; path = Plugins/ICloudBackupPlugin.m; sourceTree = "<group>"; };
@@ -41,7 +76,30 @@
 		9A11000000000000000002 /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		096E71C5300577AA007FB8A6 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 096E71AE300577A9007FB8A6 /* SaverWidgetExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		096E71B5300577A9007FB8A6 /* SaverWidget */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (096E71C5300577AA007FB8A6 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = SaverWidget; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
+		096E71AC300577A9007FB8A6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				096E71B4300577A9007FB8A6 /* SwiftUI.framework in Frameworks */,
+				096E71B2300577A9007FB8A6 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		504EC3011FED79650016851F /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -53,11 +111,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		096E71B0300577A9007FB8A6 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				096E71B1300577A9007FB8A6 /* WidgetKit.framework */,
+				096E71B3300577A9007FB8A6 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		504EC2FB1FED79650016851F = {
 			isa = PBXGroup;
 			children = (
+				096E71C730057B0B007FB8A6 /* SaverWidgetExtension.entitlements */,
 				958DCC722DB07C7200EA8C5F /* debug.xcconfig */,
 				504EC3061FED79650016851F /* App */,
+				096E71B5300577A9007FB8A6 /* SaverWidget */,
+				096E71B0300577A9007FB8A6 /* Frameworks */,
 				504EC3051FED79650016851F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -66,6 +136,7 @@
 			isa = PBXGroup;
 			children = (
 				504EC3041FED79650016851F /* App.app */,
+				096E71AF300577A9007FB8A6 /* SaverWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -77,6 +148,8 @@
 				09B676262FFA0B6D00ED10D7 /* ICloudBackupPlugin.m */,
 				09B676242FFA003000ED10D7 /* ICloudBackupPlugin.swift */,
 				09B676232FF9FC7D00ED10D7 /* App.entitlements */,
+				096E71C830057FEB007FB8A6 /* SaverWidgetPlugin.m */,
+				096E71C930057FEB007FB8A6 /* SaverWidgetPlugin.swift */,
 				50379B222058CBB4000EE86E /* capacitor.config.json */,
 				504EC3071FED79650016851F /* AppDelegate.swift */,
 				504EC30B1FED79650016851F /* Main.storyboard */,
@@ -94,6 +167,28 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		096E71AE300577A9007FB8A6 /* SaverWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 096E71C6300577AA007FB8A6 /* Build configuration list for PBXNativeTarget "SaverWidgetExtension" */;
+			buildPhases = (
+				096E71AB300577A9007FB8A6 /* Sources */,
+				096E71AC300577A9007FB8A6 /* Frameworks */,
+				096E71AD300577A9007FB8A6 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				096E71B5300577A9007FB8A6 /* SaverWidget */,
+			);
+			name = SaverWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = SaverWidgetExtension;
+			productReference = 096E71AF300577A9007FB8A6 /* SaverWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		504EC3031FED79650016851F /* App */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 504EC3161FED79650016851F /* Build configuration list for PBXNativeTarget "App" */;
@@ -101,10 +196,12 @@
 				504EC3001FED79650016851F /* Sources */,
 				504EC3011FED79650016851F /* Frameworks */,
 				504EC3021FED79650016851F /* Resources */,
+				096E71C1300577AA007FB8A6 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				096E71C0300577AA007FB8A6 /* PBXTargetDependency */,
 			);
 			name = App;
 			packageProductDependencies = (
@@ -120,9 +217,12 @@
 		504EC2FC1FED79650016851F /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 920;
+				LastSwiftUpdateCheck = 2650;
 				LastUpgradeCheck = 920;
 				TargetAttributes = {
+					096E71AE300577A9007FB8A6 = {
+						CreatedOnToolsVersion = 26.5;
+					};
 					504EC3031FED79650016851F = {
 						CreatedOnToolsVersion = 9.2;
 						LastSwiftMigration = 2650;
@@ -148,11 +248,19 @@
 			projectRoot = "";
 			targets = (
 				504EC3031FED79650016851F /* App */,
+				096E71AE300577A9007FB8A6 /* SaverWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		096E71AD300577A9007FB8A6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		504EC3021FED79650016851F /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -171,10 +279,19 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		096E71AB300577A9007FB8A6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		504EC3001FED79650016851F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				096E71CA30057FEB007FB8A6 /* SaverWidgetPlugin.swift in Sources */,
+				096E71CB30057FEB007FB8A6 /* SaverWidgetPlugin.m in Sources */,
 				09B676252FFA003000ED10D7 /* ICloudBackupPlugin.swift in Sources */,
 				09B676272FFA0B6D00ED10D7 /* ICloudBackupPlugin.m in Sources */,
 				504EC3081FED79650016851F /* AppDelegate.swift in Sources */,
@@ -182,6 +299,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		096E71C0300577AA007FB8A6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 096E71AE300577A9007FB8A6 /* SaverWidgetExtension */;
+			targetProxy = 096E71BF300577AA007FB8A6 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		504EC30B1FED79650016851F /* Main.storyboard */ = {
@@ -212,6 +337,92 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		096E71C3300577AA007FB8A6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CODE_SIGN_ENTITLEMENTS = SaverWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 7;
+				DEVELOPMENT_TEAM = 2NHZ48U82L;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SaverWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = SaverWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0.3;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.savertrack.app.SaverWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		096E71C4300577AA007FB8A6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CODE_SIGN_ENTITLEMENTS = SaverWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 7;
+				DEVELOPMENT_TEAM = 2NHZ48U82L;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SaverWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = SaverWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0.3;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.savertrack.app.SaverWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		504EC3141FED79650016851F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 958DCC722DB07C7200EA8C5F /* debug.xcconfig */;
@@ -329,7 +540,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = 2NHZ48U82L;
 				INFOPLIST_FILE = App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
@@ -337,7 +548,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.2;
+				MARKETING_VERSION = 1.0.3;
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\" \"-DDEBUG\"";
 				PRODUCT_BUNDLE_IDENTIFIER = com.savertrack.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -356,7 +567,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = 2NHZ48U82L;
 				INFOPLIST_FILE = App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
@@ -364,7 +575,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.2;
+				MARKETING_VERSION = 1.0.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.savertrack.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "";
@@ -377,6 +588,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		096E71C6300577AA007FB8A6 /* Build configuration list for PBXNativeTarget "SaverWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				096E71C3300577AA007FB8A6 /* Debug */,
+				096E71C4300577AA007FB8A6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		504EC2FF1FED79650016851F /* Build configuration list for PBXProject "App" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

@@ -4,11 +4,7 @@ import { APP_VERSION } from "../lib/format.js";
 import { useT } from "../lib/i18n.js";
 
 const ITEMS = [
-  { icon: "back", bg: "var(--purpleDim)", color: "var(--purple)", nm: "whatsnew.item4nm", mt: "whatsnew.item4mt" },
-  { icon: "grip", bg: "var(--orangeDim)", color: "var(--orange)", nm: "whatsnew.item5nm", mt: "whatsnew.item5mt" },
-  { icon: "card", bg: "var(--acDim)", color: "var(--acText)", nm: "whatsnew.item1nm", mt: "whatsnew.item1mt" },
-  { icon: "bills", bg: "var(--yellowDim)", color: "var(--yellow)", nm: "whatsnew.item2nm", mt: "whatsnew.item2mt" },
-  { icon: "palette", bg: "var(--blueDim)", color: "var(--blue)", nm: "whatsnew.item3nm", mt: "whatsnew.item3mt" },
+  { icon: "device", bg: "var(--acDim)", color: "var(--acText)", nm: "whatsnew.item1nm", mt: "whatsnew.item1mt" },
 ];
 
 export default function WhatsNew({ onClose }) {
