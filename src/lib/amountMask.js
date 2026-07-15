@@ -30,22 +30,33 @@ export function toggleMask() {
   set(next);
 }
 
+// Restores what you had if you're back inside the grace window, otherwise the
+// window has lapsed and the mask stays. Either way the window is spent.
+function restore() {
+  const inGrace = unmaskedAt && Date.now() - unmaskedAt < GRACE_MS;
+  unmaskedAt = 0;
+  if (inGrace) set(false);
+}
+
 // Owns the foreground/background transitions. Call once, from the app shell,
 // above any early return — it has to keep running while the lock screen is up.
 export function useAmountMaskLifecycle() {
   useEffect(() => {
-    const sub = CapApp.addListener("appStateChange", ({ isActive }) => {
-      if (!isActive) {
-        unmaskedAt = masked ? 0 : Date.now();
-        set(true);
-      } else if (unmaskedAt && Date.now() - unmaskedAt < GRACE_MS) {
-        unmaskedAt = 0;
-        set(false);
-      } else {
-        unmaskedAt = 0;
-      }
-    });
-    return () => { sub.then((s) => s.remove()); };
+    const subs_ = [
+      CapApp.addListener("appStateChange", ({ isActive }) => {
+        if (!isActive) {
+          unmaskedAt = masked ? 0 : Date.now();
+          set(true);
+        } else restore();
+      }),
+      // `resume` lands on willEnterForeground — before the first paint — while
+      // appStateChange:isActive lands on didBecomeActive, late enough that you
+      // see a beat of masked amounts before they come back. Whichever fires
+      // first spends the window; the other is then a no-op. Masking stays on
+      // appStateChange: it must happen before the app-switcher snapshot.
+      CapApp.addListener("resume", restore),
+    ];
+    return () => { subs_.forEach((p) => p.then((s) => s.remove())); };
   }, []);
 }
 
