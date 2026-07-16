@@ -123,6 +123,7 @@ export default function App() {
   // Home screen widget deep links (savertrack://…): the + button and each
   // widget face route straight to the matching screen. Always reset the stack
   // first so we land cleanly wherever the user tapped from.
+  const launchUrlHandled = useRef(false);
   useEffect(() => {
     const handleUrl = (url) => {
       if (!url || !url.startsWith("savertrack://")) return;
@@ -146,8 +147,14 @@ export default function App() {
     // Cold start: if a widget tap launched the app, the listener above was
     // registered too late to catch it, so appUrlOpen never fires. Pick up that
     // initial URL directly (this is why quick-action taps did nothing when the
-    // app was fully closed).
-    CapApp.getLaunchUrl().then((r) => { if (r?.url) handleUrl(r.url); }).catch(() => {});
+    // app was fully closed). Guard it so it fires exactly once: getLaunchUrl keeps
+    // returning the same launch URL, and this effect re-runs whenever banks or
+    // quickActions change — without the guard, editing a shortcut re-handled the
+    // launch URL and bounced you to the Add sheet.
+    if (!launchUrlHandled.current) {
+      launchUrlHandled.current = true;
+      CapApp.getLaunchUrl().then((r) => { if (r?.url) handleUrl(r.url); }).catch(() => {});
+    }
     return () => { sub.then((s) => s.remove()); };
   }, [store.banks, store.quickActions]);
   // Show "What's New" once after an update, never for a fresh install: a

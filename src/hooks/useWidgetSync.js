@@ -13,6 +13,12 @@ export function useWidgetSync(store) {
   const txns = store.txns;
   const savings = store.savings;
   const currency = store.currency;
+  // Everything the snapshot reads has to be watched, or the widget quietly keeps
+  // showing an older one: editing quick actions never re-synced, so a new
+  // shortcut only appeared on the next launch.
+  const quickActions = store.quickActions;
+  const expCats = store.expCats;
+  const bills = store.bills;
   useEffect(() => {
     if (Capacitor.getPlatform() !== "ios") return;
     let cancelled = false;
@@ -23,5 +29,5 @@ export function useWidgetSync(store) {
       })
       .catch(() => { /* ignore */ });
     return () => { cancelled = true; };
-  }, [banks, txns, savings, currency]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [banks, txns, savings, currency, quickActions, expCats, bills]); // eslint-disable-line react-hooks/exhaustive-deps
 }
