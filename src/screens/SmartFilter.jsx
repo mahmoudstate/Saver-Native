@@ -11,8 +11,12 @@ function Chip({ on, children, onClick }) {
 const row = { display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 18 };
 
 export default function SmartFilter({ store, initial, dateFilter, hidePeriod, onApply, back }) {
-  const { txns = [], banks = [], expCats = [], incCats = [] } = store;
+  const { txns = [], banks = [], bills = [], expCats = [], incCats = [] } = store;
   const cats = [...expCats, ...incCats];
+  // Bill types the user actually has bills for, deduped. Bill payments record as
+  // catId "bill_<type>", so the chip filters on that whole id.
+  const billTypes = [...new Set(bills.map((b) => b.typeId || "other"))]
+    .map((typeId) => ({ id: `bill_${typeId}`, typeId }));
   const tr = useT();
   // When a date range is already chosen on Activity (or carried by an existing
   // filter), lock it in and hide the period chips — the date is set up-front.
@@ -22,16 +26,17 @@ export default function SmartFilter({ store, initial, dateFilter, hidePeriod, on
   const [period, setPeriod] = useState(initial?.period || "month");
   const [shows, setShows] = useState(initial?.shows || []);
   const [catSel, setCatSel] = useState(initial?.cats || []);
+  const [billCatSel, setBillCatSel] = useState(initial?.billCats || []);
   const [accSel, setAccSel] = useState(initial?.accounts || []);
 
   const toggle = (arr, set, id) => set(arr.includes(id) ? arr.filter((x) => x !== id) : [...arr, id]);
-  const filter = { period: noPeriod ? "all" : period, shows, cats: catSel, accounts: accSel, ...(lockedRange ? { from: lockedRange.from, to: lockedRange.to, dateLabel: lockedRange.label } : {}) };
+  const filter = { period: noPeriod ? "all" : period, shows, cats: catSel, billCats: billCatSel, accounts: accSel, ...(lockedRange ? { from: lockedRange.from, to: lockedRange.to, dateLabel: lockedRange.label } : {}) };
   const { count, total } = summarize(applyFilter(txns, filter));
 
   return (
     <div className="content padnav">
       <div className="hero">
-        <div className="toprow"><div className="hib" onClick={back}><Ico name="back" size={20} /></div><div className="ttl">{tr("filter.title")}</div><div className="grow" /><div className="hchip" onClick={() => { setPeriod("all"); setShows([]); setCatSel([]); setAccSel([]); }}>{tr("filter.reset")}</div></div>
+        <div className="toprow"><div className="hib" onClick={back}><Ico name="back" size={20} /></div><div className="ttl">{tr("filter.title")}</div><div className="grow" /><div className="hchip" onClick={() => { setPeriod("all"); setShows([]); setCatSel([]); setBillCatSel([]); setAccSel([]); }}>{tr("filter.reset")}</div></div>
         <div className="lbl">{tr("filter.buildView")}</div><div className="big" style={{ fontSize: 28 }}>{tr("filter.smartFilter")}</div><div className="sub">{tr("filter.smartSub")}</div>
       </div>
 
@@ -50,6 +55,11 @@ export default function SmartFilter({ store, initial, dateFilter, hidePeriod, on
       {cats.length > 0 && <>
         <div className="over">{tr("filter.categories")}</div>
         <div style={row}><Chip on={catSel.length === 0} onClick={() => setCatSel([])}>{tr("filter.all")}</Chip>{cats.map((c) => <Chip key={c.id} on={catSel.includes(c.id)} onClick={() => toggle(catSel, setCatSel, c.id)}>{c.name}</Chip>)}</div>
+      </>}
+
+      {billTypes.length > 0 && <>
+        <div className="over">{tr("filter.billCategories")}</div>
+        <div style={row}><Chip on={billCatSel.length === 0} onClick={() => setBillCatSel([])}>{tr("filter.all")}</Chip>{billTypes.map((b) => <Chip key={b.id} on={billCatSel.includes(b.id)} onClick={() => toggle(billCatSel, setBillCatSel, b.id)}>{tr("billtype." + b.typeId)}</Chip>)}</div>
       </>}
 
       <div className="over">{tr("filter.accounts")}</div>

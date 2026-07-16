@@ -6,6 +6,7 @@ import Ico from "../ui/Ico.jsx";
 import StepSheet from "../ui/StepSheet.jsx";
 import MenuSheet from "../ui/MenuSheet.jsx";
 import Money from "../ui/Money.jsx";
+import BillLogo from "../ui/BillLogo.jsx";
 import { fmt, today, currentMonth, monthName, monthLabel } from "../lib/format.js";
 import { useT } from "../lib/i18n.js";
 
@@ -114,8 +115,13 @@ export default function InstallmentDetail({ store, instId, back, onEdit }) {
     <div className="content padnav">
       <div className="hero">
         <div className="toprow"><div className="hib" onClick={back}><Ico name="back" size={20} /></div><div className="ttl">{label}</div><div className="grow" /><div className="hib" onClick={() => onEdit?.(inst)} style={{ marginInlineEnd: 8 }}><Ico name="pencil" size={18} /></div><div className="hib" onClick={() => setMenu(true)}><Ico name="more" size={20} /></div></div>
-        <div className="lbl">{inst.company ? inst.company + " · " : ""}{tr("instd.perMo", { amt: fmt(inst.installmentAmount) })}</div>
-        <Money className="big tnum" v={remaining} />
+        {/* Logo sits at the head of the descriptor line — beside the text that
+            names the plan, and clear of the ring card, which stays all numbers. */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <BillLogo bill={{ domain: inst.domain, glyph: inst.glyph, color: inst.color, name: label }} size={40} />
+          <div className="lbl" style={{ margin: 0 }}>{inst.company ? inst.company + " · " : ""}{tr("instd.perMo", { amt: fmt(inst.installmentAmount) })}</div>
+        </div>
+        <Money className="big tnum" v={remaining} style={{ marginTop: 6 }} />
         <div className="sub">{inst.stopped ? tr("instd.stopped") : done ? tr("instd.fullyPaid") : tr("instd.nextDue", { month: nextDueMonth, amt: fmt(amountFor(paid + 1)) })}</div>
       </div>
 

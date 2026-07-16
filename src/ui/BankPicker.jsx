@@ -45,7 +45,7 @@ function BankSheet({ activeDomain, onPick, onCustom, onClose }) {
               <div className="over" style={{ marginTop: 0 }}>{bankRegionLabel(g.region, lang)}</div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "14px 8px" }}>
                 {g.items.map((b) => (
-                  <div key={b.id} onClick={() => { onPick(b); onClose(); }} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 7, cursor: "pointer", minWidth: 0 }}>
+                  <div key={b.id} onClick={() => onPick(b)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 7, cursor: "pointer", minWidth: 0 }}>
                     <div style={{ position: "relative" }}>
                       <BankLogo domain={b.id} name={bankDisplayName(b, lang)} color={b.color} size={52} />
                       {activeDomain === b.id && <span className="circ" style={{ position: "absolute", right: -3, bottom: -3, width: 19, height: 19, borderRadius: "50%", background: "var(--ac)", color: "var(--onacc)", border: "2px solid var(--surface)" }}><Ico name="check" size={11} /></span>}

@@ -46,28 +46,39 @@ enum WSpace {
 // MARK: - Type
 
 // One scale, three jobs: a label that names things, a hero number, and row text.
-// Rounded matches the app's own numerals; monospacedDigit keeps columns of money
-// aligned, which is most of what separates a finished money widget from a rough one.
+//
+// Text is Cairo, the app's own face — the system font was rendering Arabic names
+// in SF Arabic, so a bank called "سلفه شريف" didn't look like it does in the app.
+// Numbers stay SF Rounded: it's what gives the amounts their shape, and Cairo has
+// no rounded numerals to match. monospacedDigit keeps columns of money aligned,
+// which is most of what separates a finished money widget from a rough one.
 enum WFont {
-    static let label = Font.system(size: 11, weight: .bold)
+    private static func cairo(_ size: CGFloat, _ weight: Weight) -> Font {
+        Font.custom(weight == .semibold ? "Cairo-SemiBold" : "Cairo-Bold", size: size)
+    }
+    enum Weight { case semibold, bold }
+
+    static let label = cairo(11, .bold)
     static let heroLarge = Font.system(size: 34, weight: .heavy, design: .rounded).monospacedDigit()
     static let hero = Font.system(size: 30, weight: .heavy, design: .rounded).monospacedDigit()
     static let heroSmall = Font.system(size: 22, weight: .heavy, design: .rounded).monospacedDigit()
-    static let rowName = Font.system(size: 14, weight: .semibold)
+    static let rowName = cairo(14, .semibold)
     static let rowValue = Font.system(size: 17, weight: .heavy, design: .rounded).monospacedDigit()
-    static let caption = Font.system(size: 11, weight: .semibold)
+    static let caption = cairo(11, .semibold)
 }
 
 // MARK: - Metrics
 
-// Heights are derived from content plus the one padding, never picked by eye.
-// The budget they have to fit, on a 393pt iPhone, is the widget minus the system
-// content margin: 138x138 small, 332x138 medium, 332x350 large. Medium is the
-// tight one — 138 total means a header plus a tile row leaves the tile 46pt of
-// content, which is why a tile stacking logo/name/amount (61pt) could only ever
-// render by shrinking the number.
+// Heights are derived from content plus the one padding, never picked by eye —
+// and sized for the SMALLEST widget, because widget size follows the device.
+// A medium widget is 364x170 on a 430pt iPhone but only 338x158 on a 393pt one,
+// so the content budget is 138 on the big phones and 126 on the small ones. Fit
+// 126 or the layout collapses on half the devices: a 44pt header plus two 38pt
+// rows and their gaps needs 136, which is what pushed the bills rows together.
 enum WMetric {
-    static let cardRadius: CGFloat = 18
+    /// Kept well under half the shortest card (34pt rows): at 18 the radius met
+    /// in the middle and the rows rendered as capsules instead of cards.
+    static let cardRadius: CGFloat = 12
     static let logo: CGFloat = 22
     static let addButton: CGFloat = 34
 
@@ -78,6 +89,12 @@ enum WMetric {
     static let rowMax: CGFloat = 52
     /// padding + label + tight + hero line + padding.
     static let headerHeight: CGFloat = 68
+    /// A one-line header: label and value side by side.
+    static let headerCompact: CGFloat = 40
+    /// A row that shares a medium widget with a header: 126 - 40 header - 8 gap
+    /// leaves 78 for two rows and the gap between them, so 34 each with room over.
+    static let rowCompact: CGFloat = 34
+    static let logoCompact: CGFloat = 20
     /// padding + button + padding.
     static var barHeight: CGFloat { WSpace.card * 2 + addButton }
 }

@@ -14,10 +14,18 @@ import PickerSheet from "../ui/PickerSheet.jsx";
 import ColorField from "../ui/ColorField.jsx";
 import IconField from "../ui/IconField.jsx";
 import CatTile from "../ui/CatTile.jsx";
+import ServicePicker from "../ui/ServicePicker.jsx";
+import ServiceLogo from "../ui/ServiceLogo.jsx";
 import { fmt, today, HAPTICS } from "../lib/format.js";
 import { focusNext } from "../lib/focusNext.js";
 import BankLogo from "../ui/BankLogo.jsx";
 import { useT } from "../lib/i18n.js";
+
+// A brand logo when a company was picked, otherwise the chosen category glyph.
+function Brand({ domain, glyph, name, color, size = 42 }) {
+  if (domain) return <ServiceLogo domain={domain} name={name} color={color} size={size} />;
+  return <CatTile cat={glyph} name={name} color={color} size={size} />;
+}
 
 const r2 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
 // "YYYY-MM" n months from the current month (n negative = past).
@@ -35,6 +43,7 @@ export default function InstallmentEditor({ store, plan, onClose }) {
   const [company, setCompany] = useState(plan?.company || (plan && !plan.itemType ? plan.name : "") || "");
   const [color, setColor] = useState(plan?.color || "var(--ac)");
   const [glyph, setGlyph] = useState(plan?.glyph || "phone");
+  const [domain, setDomain] = useState(plan?.domain || "");
   const [count, setCount] = useState(plan?.totalInstallments || 12);
   const [monthly, setMonthly] = useState(plan?.installmentAmount || 0);
   const [total, setTotal] = useState(plan?.totalAmount || 0);
@@ -67,7 +76,7 @@ export default function InstallmentEditor({ store, plan, onClose }) {
     HAPTICS.success();
     const dp = Math.max(0, downPayment || 0);
     const tot = total > 0 ? total : r2(count * monthly);
-    const base = { itemType: item.trim(), company: company.trim(), name: title, color, glyph, totalInstallments: count, installmentAmount: monthly, totalAmount: tot, downPayment: dp, dueDay: clampDay(dueDay), reminderDays: Math.min(7, Math.max(0, reminderDays | 0)), note: note.trim(), bankId, startDate };
+    const base = { itemType: item.trim(), company: company.trim(), name: title, color, glyph, domain, totalInstallments: count, installmentAmount: monthly, totalAmount: tot, downPayment: dp, dueDay: clampDay(dueDay), reminderDays: Math.min(7, Math.max(0, reminderDays | 0)), note: note.trim(), bankId, startDate };
 
     if (editing) {
       store.set("installments", (list) => list.map((i) => (i.id === plan.id ? { ...i, ...base } : i)));
@@ -127,7 +136,7 @@ export default function InstallmentEditor({ store, plan, onClose }) {
       {step === 0 && <>
         <div className="over">{tr("inst.tellUs")}</div>
         <label className="field">
-          <CatTile cat={glyph} name={title} color={color} size={42} />
+          <Brand domain={domain} glyph={glyph} name={title} color={color} size={42} />
           <div style={{ flex: 1 }}><div className="fl">{tr("inst.payingOff")}</div>
             <input value={item} onChange={(e) => setItem(e.target.value)} onKeyDown={focusNext} enterKeyHint="next" placeholder={tr("inst.itemPlaceholder")} style={{ border: "none", background: "none", outline: "none", color: "var(--text)", font: "inherit", fontSize: 15, fontWeight: 700, marginTop: 2, width: "100%" }} />
           </div>
@@ -137,8 +146,14 @@ export default function InstallmentEditor({ store, plan, onClose }) {
             <input value={company} onChange={(e) => setCompany(e.target.value)} onKeyDown={focusNext} enterKeyHint="done" placeholder={tr("inst.providerPlaceholder")} style={{ border: "none", background: "none", outline: "none", color: "var(--text)", font: "inherit", fontSize: 15, fontWeight: 700, marginTop: 2, width: "100%" }} />
           </div>
         </label>
+
+        {/* Pick a company logo — sets the provider name, colour and logo. */}
+        <div className="over" style={{ marginTop: 18 }}>{tr("inst.orPickCompany")}</div>
+        <ServicePicker activeDomain={domain} onPick={(svc) => { setCompany(svc.name); setColor(svc.color); setDomain(svc.domain); }} onCustom={() => setDomain("")} />
+
         <ColorField value={color} onChange={setColor} style={{ marginTop: 12 }} />
-        <div style={{ marginTop: 14 }}><IconField glyph={glyph} color={color} onPick={setGlyph} /></div>
+        {/* Choosing your own icon drops any picked brand logo. */}
+        <div style={{ marginTop: 14 }}><IconField glyph={glyph} color={color} onPick={(g) => { setGlyph(g); setDomain(""); }} /></div>
       </>}
 
       {/* ───── STEP 2 · The numbers ───── */}

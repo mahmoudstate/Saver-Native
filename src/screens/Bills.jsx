@@ -4,7 +4,6 @@
 import { useState, useMemo } from "react";
 import Ico from "../ui/Ico.jsx";
 import BillLogo from "../ui/BillLogo.jsx";
-import CatTile from "../ui/CatTile.jsx";
 import SegToggle from "../ui/SegToggle.jsx";
 import Money from "../ui/Money.jsx";
 import { fmt, currentMonth, monthLabel, today, dayName } from "../lib/format.js";
@@ -132,7 +131,7 @@ export default function Bills({ store, onAdd, onOpenSub, onOpenInst, initialSeg 
 
   const InstCard = (i) => (
     <div className="bcard" key={i.id} onClick={() => onOpenInst?.(i)} style={{ cursor: "pointer", opacity: i.stopped ? .7 : 1 }}>
-      <div className="top"><CatTile cat={i.glyph || guessCat(i.itemType || i.company)} name={i.itemType || i.company} color={i.color} size={40} /><div className="nm">{i.itemType || i.company}</div><div className="rt tnum">{fmt(i.installmentAmount)}{tr("bills.perMo")}</div></div>
+      <div className="top"><BillLogo bill={{ domain: i.domain, glyph: i.glyph || guessCat(i.itemType || i.company), color: i.color, name: i.itemType || i.company }} size={40} /><div className="nm">{i.itemType || i.company}</div><div className="rt tnum">{fmt(i.installmentAmount)}{tr("bills.perMo")}</div></div>
       <div className="nums"><div className="a tnum" style={{ fontSize: 14, fontWeight: 700, color: "var(--muted)" }}>{i.stopped ? tr("bills.stoppedPrefix") : ""}{tr("bills.paidOf", { paid: i.paid, total: i.totalInstallments })}</div><div className="b tnum">{i.done ? tr("bills.done") : tr("bills.leftAmt", { amt: fmt(i.remaining) })}</div></div>
       <div className="pbar bar"><i style={{ width: `${Math.min(100, i.pct)}%`, background: i.done ? "var(--success)" : "var(--ac)" }} /></div>
     </div>

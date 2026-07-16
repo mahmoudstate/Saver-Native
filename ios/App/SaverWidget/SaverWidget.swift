@@ -625,10 +625,10 @@ struct MonthSpentWidget: Widget {
 private struct BillRowCard: View {
     let bill: BillRow
     var body: some View {
-        SurfaceCard {
-            HStack(spacing: WSpace.gap) {
-                LogoCircle(logo: bill.logo, logoFull: bill.logoFull == true, color: bill.color, abbrev: bill.abbrev, size: WMetric.logo)
-                VStack(alignment: .leading, spacing: 1) {
+        SurfaceCard(padding: WSpace.card - 1) {
+            HStack(spacing: WSpace.gap - 1) {
+                LogoCircle(logo: bill.logo, logoFull: bill.logoFull == true, color: bill.color, abbrev: bill.abbrev, size: WMetric.logoCompact)
+                VStack(alignment: .leading, spacing: 0) {
                     Text(bill.name).font(WFont.rowName).foregroundColor(.primary)
                         .lineLimit(1).minimumScaleFactor(0.7)
                     Text(bill.due).font(WFont.caption)
@@ -641,7 +641,7 @@ private struct BillRowCard: View {
             }
             .frame(maxHeight: .infinity)
         }
-        .frame(minHeight: WMetric.row, maxHeight: WMetric.rowMax)
+        .frame(minHeight: WMetric.rowCompact, maxHeight: WMetric.rowMax)
     }
 }
 
@@ -681,23 +681,23 @@ struct BillsView: View {
         .widgetURL(URL(string: "savertrack://bills"))
     }
 
-    // Medium: total-due header, then the soonest bills each on their own card.
+    // Medium: a one-line total-due header, then the soonest bills on their own
+    // cards. Two rows, not three: 138pt of widget only pays for a 44pt header,
+    // a gap and two 39pt rows — a third would squeeze them all together.
     private var medium: some View {
-        let list = data.bills.list ?? []
+        let list = Array((data.bills.list ?? []).prefix(2))
         return VStack(spacing: WSpace.gap) {
             SurfaceCard {
                 HStack(spacing: WSpace.gap) {
-                    VStack(alignment: .leading, spacing: WSpace.tight) {
-                        Text("BILLS DUE").font(WFont.label).foregroundColor(.secondary)
-                        Text(data.bills.count > 0 ? data.bills.total : "All paid")
-                            .font(WFont.hero).foregroundColor(.primary)
-                            .lineLimit(1).minimumScaleFactor(0.4)
-                    }
+                    Text("BILLS DUE").font(WFont.label).foregroundColor(.secondary)
                     Spacer(minLength: 0)
+                    Text(data.bills.count > 0 ? data.bills.total : "All paid")
+                        .font(WFont.heroSmall).foregroundColor(.primary)
+                        .lineLimit(1).minimumScaleFactor(0.4)
                 }
                 .frame(maxHeight: .infinity)
             }
-            .frame(height: WMetric.headerHeight)
+            .frame(height: WMetric.headerCompact)
             if list.isEmpty {
                 Spacer(minLength: 0)
             } else {

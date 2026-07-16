@@ -22,7 +22,9 @@ const inPeriod = (date, period) => {
   return true;
 };
 
-const isBill = (t) => t.catId === "bill" || t.catIcon === "zap" || /subscription/i.test(t.catName || "");
+// Bill payments record as catId "bill_<type>" (e.g. bill_streaming); the old
+// exact "bill" check never matched them, so filtering by Bills showed nothing.
+const isBill = (t) => t.catId === "bill" || (t.catId || "").startsWith("bill_") || t.catIcon === "zap" || /subscription/i.test(t.catName || "");
 const isInstallment = (t) => t.catId === "installment" || t.catIcon === "installment" || t.catIcon === "wallet-cards";
 
 // explicit from/to (YYYY-MM-DD) override the named period — used when the date
@@ -52,6 +54,8 @@ export function applyFilter(txns, f) {
     inDates(t.date, f) &&
     showMatch(t, f.shows) &&
     (!f.cats?.length || f.cats.includes(t.catId)) &&
+    // Bill-type filter: catIds are "bill_<type>", so we match on the whole id.
+    (!f.billCats?.length || f.billCats.includes(t.catId)) &&
     (!f.accounts?.length || f.accounts.includes(t.bankId) || f.accounts.includes(t.toBankId) || f.accounts.includes(t.fromBankId))
   );
 }

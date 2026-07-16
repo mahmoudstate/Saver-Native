@@ -5,7 +5,6 @@ import Money from "../ui/Money.jsx";
 import ActivationCard from "../ui/ActivationCard.jsx";
 import BankLogo from "../ui/BankLogo.jsx";
 import BillLogo from "../ui/BillLogo.jsx";
-import CatTile from "../ui/CatTile.jsx";
 import { fmt, currentMonth, monthName, cardGradient, today, dayName } from "../lib/format.js";
 import { calcBankBalance, calcGoalSaved, calcFrozenForBank, totalBalance, totalSafe, totalFrozen, monthTxns, sumIncome, sumExpense, projectSpent, budgetSpentMonth } from "../lib/calc.js";
 import { freqOf, billPeriod, isBillPaidForKey } from "../lib/billfreq.js";
@@ -93,7 +92,7 @@ export default function Home({ store, onTab, onAdd, onAddAccount, onAddBill, onA
     const projLimit = activeProj.reduce((s, p) => s + (p.amount || 0), 0);
     const budgetsList = mb.map((b) => ({ id: b.id, name: b.name, amount: b.amount || 0, spent: budgetSpentMonth(b, txns, cm) }));
     const goalsTarget = goals.reduce((a, g) => a + (g.goal || 0), 0);
-    const instList = activeInst.map((i) => { const paidCount = paidOf(i), paid = paidCount * i.installmentAmount; return { id: i.id, name: i.name || i.company || i.itemType || t("home.planFallback"), paidCount, total: i.totalInstallments, paid, remaining: Math.max(0, i.totalAmount - paid), totalAmount: i.totalAmount, glyph: i.glyph, color: i.color }; });
+    const instList = activeInst.map((i) => { const paidCount = paidOf(i), paid = paidCount * i.installmentAmount; return { id: i.id, name: i.name || i.company || i.itemType || t("home.planFallback"), paidCount, total: i.totalInstallments, paid, remaining: Math.max(0, i.totalAmount - paid), totalAmount: i.totalAmount, glyph: i.glyph, color: i.color, domain: i.domain }; });
     const billsList = mBills.map((b) => ({ id: b.id, name: b.name, amount: b.amount, paid: billPaid(b), dueDay: b.dueDay, frequency: freqOf(b), color: b.color, note: b.note, domain: b.domain, glyph: b.glyph })).sort((a, b) => (a.paid === b.paid ? 0 : a.paid ? 1 : -1));
     const projList = activeProj.map((p) => ({ id: p.id, name: p.name, amount: p.amount || 0, spent: projectSpent(p, txns) }));
     return { tb, ts, tf, inc, exp, net: inc - exp, goals, goalsSaved, goalsTarget, billsDue: unpaid.reduce((s, b) => s + b.amount, 0), unpaid: unpaid.length, paid: mBills.length - unpaid.length, limit, spent, budgetsList, instCount: activeInst.length, instRemaining, instDue, instList, billsList, projCount: activeProj.length, projSpent, projLimit, projList };
@@ -211,7 +210,7 @@ export default function Home({ store, onTab, onAdd, onAddAccount, onAddBill, onA
                 const pct = i.totalAmount > 0 ? Math.round((i.paid / i.totalAmount) * 100) : 0;
                 return (
                   <div key={i.id} onClick={() => onOpenInst?.(i)} style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 12 }}>
-                    <CatTile cat={i.glyph} name={i.name} color={i.color} size={40} />
+                    <BillLogo bill={{ domain: i.domain, glyph: i.glyph, color: i.color, name: i.name }} size={40} />
                     <div style={{ display: "flex", flexDirection: "column", gap: 6, flex: 1, minWidth: 0 }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 10 }}>
                         <span style={{ fontSize: 13, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{i.name}</span>
