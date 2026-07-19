@@ -898,10 +898,18 @@ export default {
   whatsnew: {
     title: "What's new · v{v}",
     ariaLabel: "What's new",
-    item1nm: "Home screen widgets",
-    item1mt: "Add Saver widgets to your home screen: safe to spend, each bank's balance, and quick add",
-    item2nm: "Clearer paid bills",
-    item2mt: "Paid bills now stand out with a mint card and a check on the logo, so you can see what's settled at a glance",
+    ios: {
+      item1nm: "Home screen widgets",
+      item1mt: "Add Saver widgets to your home screen: safe to spend, each bank's balance, and quick add",
+      item2nm: "Clearer paid bills",
+      item2mt: "Paid bills now stand out with a mint card and a check on the logo, so you can see what's settled at a glance",
+    },
+    android: {
+      item1nm: "Google Drive backup",
+      item1mt: "Auto-backup to Google Drive is on by default, so your data is always safe",
+      item2nm: "Clearer paid bills",
+      item2mt: "Paid bills now stand out with a mint card and a check on the logo, so you can see what's settled at a glance",
+    },
   },
   onb: {
     welcome: "Welcome to Saver",

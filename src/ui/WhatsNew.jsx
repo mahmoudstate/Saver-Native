@@ -1,11 +1,14 @@
 // Saver — What's New sheet: ported 1:1 from showcase 28.
+import { Capacitor } from "@capacitor/core";
 import Ico from "./Ico.jsx";
 import { APP_VERSION } from "../lib/format.js";
 import { useT } from "../lib/i18n.js";
 
+const platform = Capacitor.getPlatform() === "android" ? "android" : "ios";
+
 const ITEMS = [
-  { icon: "device", bg: "var(--acDim)", color: "var(--acText)", nm: "whatsnew.item1nm", mt: "whatsnew.item1mt" },
-  { icon: "bills", bg: "var(--blueDim)", color: "var(--blue)", nm: "whatsnew.item2nm", mt: "whatsnew.item2mt" },
+  { icon: platform === "android" ? "download" : "device", bg: "var(--acDim)", color: "var(--acText)", nm: `whatsnew.${platform}.item1nm`, mt: `whatsnew.${platform}.item1mt` },
+  { icon: "bills", bg: "var(--blueDim)", color: "var(--blue)", nm: `whatsnew.${platform}.item2nm`, mt: `whatsnew.${platform}.item2mt` },
 ];
 
 export default function WhatsNew({ onClose }) {
