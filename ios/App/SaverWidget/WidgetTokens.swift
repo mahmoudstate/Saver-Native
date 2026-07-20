@@ -65,6 +65,13 @@ enum WFont {
     static let rowName = cairo(14, .semibold)
     static let rowValue = Font.system(size: 17, weight: .heavy, design: .rounded).monospacedDigit()
     static let caption = cairo(11, .semibold)
+    /// Quick Add leads with the category NAME (what the shortcut is), bold and
+    /// white like a title; the amount it logs is the supporting line beneath.
+    static let quickName = cairo(14, .bold)
+    static let quickValue = Font.system(size: 13, weight: .bold, design: .rounded).monospacedDigit()
+    /// A goal's "saved of target" line — the amount is the point, so it's a
+    /// touch larger and bolder than a plain caption, in white.
+    static let goalDetail = Font.system(size: 12, weight: .semibold, design: .rounded).monospacedDigit()
 }
 
 // MARK: - Metrics
@@ -76,10 +83,16 @@ enum WFont {
 // 126 or the layout collapses on half the devices: a 44pt header plus two 38pt
 // rows and their gaps needs 136, which is what pushed the bills rows together.
 enum WMetric {
-    /// Kept well under half the shortest card (34pt rows): at 18 the radius met
-    /// in the middle and the rows rendered as capsules instead of cards.
-    static let cardRadius: CGFloat = 12
+    /// Tight on purpose (was 12, then 9): a fixed radius reads rounder the smaller
+    /// the card, and the compact rows/tiles were still going pill-ish. 6 keeps a
+    /// crisp card corner at every size.
+    static let cardRadius: CGFloat = 6
     static let logo: CGFloat = 22
+    /// The medium accounts tile drops the bank name and leans on the logo to
+    /// identify the account, so the logo grows (was 18) — but the tile only gets
+    /// what the 68pt header leaves of a 126pt budget, so 24 is the ceiling that
+    /// still stacks a logo over the amount without overflowing.
+    static let logoTile: CGFloat = 24
     static let addButton: CGFloat = 34
 
     /// padding + logo + padding.
@@ -94,6 +107,9 @@ enum WMetric {
     /// A row that shares a medium widget with a header: 126 - 40 header - 8 gap
     /// leaves 78 for two rows and the gap between them, so 34 each with room over.
     static let rowCompact: CGFloat = 34
+    /// Three single-line rows in that same 78pt budget, with two 4pt (tight) gaps
+    /// between them instead of two 8pt ones: (78 - 8) / 3 ≈ 23.
+    static let rowCompact3: CGFloat = 23
     static let logoCompact: CGFloat = 20
     /// padding + button + padding.
     static var barHeight: CGFloat { WSpace.card * 2 + addButton }
@@ -102,17 +118,26 @@ enum WMetric {
 // MARK: - Surface
 
 /// The card every section sits on. One fill, one radius, one padding.
+///
+/// In the Home Screen's Tinted and Clear appearances WidgetKit renders the whole
+/// hierarchy as a tint silhouette built from each view's coverage, so an opaque
+/// card fill turns into a solid white/tinted block that swallows its own text.
+/// In those modes (`renderingMode != .fullColor`) the fill drops to a faint wash
+/// — enough to keep the card readable as a group, light enough that the text on
+/// top stays the brightest thing in the silhouette.
 struct SurfaceCard<Content: View>: View {
+    @Environment(\.widgetRenderingMode) private var renderingMode
     var padding: CGFloat = WSpace.card
     @ViewBuilder var content: () -> Content
 
     var body: some View {
         let shape = RoundedRectangle(cornerRadius: WMetric.cardRadius, style: .continuous)
+        let flat = renderingMode != .fullColor
         content()
             .padding(padding)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-            .background(WColor.card, in: shape)
-            .overlay(shape.strokeBorder(WColor.cardBorder.opacity(0.12), lineWidth: 0.75))
+            .background(flat ? Color.white.opacity(0.12) : WColor.card, in: shape)
+            .overlay(shape.strokeBorder(WColor.cardBorder.opacity(flat ? 0 : 0.12), lineWidth: 0.75))
     }
 }
 
@@ -128,6 +153,24 @@ extension View {
             self.containerBackground(for: .widget) { Rectangle().fill(WColor.stage) }
         } else {
             self.padding(14).background(Rectangle().fill(WColor.stage))
+        }
+    }
+
+    /// In the Home Screen's Tinted (dark, no-colour) icon appearance, WidgetKit
+    /// renders the widget as two tone groups: an "accented" group painted in the
+    /// user's bright tint, and a "default" group rendered dim. Anything left in
+    /// the default group with a mid-tone colour (mint, `.saverMintText`) drops to
+    /// nearly the same value as the card behind it and reads as gone — which is
+    /// why the amounts vanished in tinted mode. `widgetAccentable(true)` moves the
+    /// key figures into the BRIGHT group so they stay legible. (An earlier attempt
+    /// used `false` — the exact wrong direction, it kept them dim — and
+    /// `widgetAccentedRenderingMode`, which is `Image`-only and won't build on a
+    /// generic view.)
+    @ViewBuilder func prominentInTint() -> some View {
+        if #available(iOSApplicationExtension 16.0, *) {
+            self.widgetAccentable(true)
+        } else {
+            self
         }
     }
 }

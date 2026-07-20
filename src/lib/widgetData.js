@@ -13,10 +13,6 @@ import { CATS } from "../ui/cats.js";
 const DEFAULT_COLOR = "#5FE3C0";
 const _imgCache = new Map();
 
-// Grouped number without a currency symbol — keeps the per-bank figures big
-// and legible in the compact banks widget (the header already says it's money).
-const plain = (v) => Math.round(v || 0).toLocaleString("en-US");
-
 const abbrev = (name = "") => {
   const words = name.trim().split(/\s+/).filter(Boolean);
   if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase();
@@ -24,6 +20,9 @@ const abbrev = (name = "") => {
 };
 
 // Draw an image or SVG source onto a square canvas and return a PNG data-URL.
+// Non-square sources (most bank/company logos) are scaled to fit inside the
+// square rather than stretched to fill it, the same as CSS `object-fit: contain`
+// — drawing straight into a size×size box distorted anything not already square.
 // Resolves to null on any failure so the widget just falls back to a plain tile.
 function rasterize(src, size = 120) {
   if (!src) return Promise.resolve(null);
@@ -35,7 +34,10 @@ function rasterize(src, size = 120) {
         try {
           const c = document.createElement("canvas");
           c.width = c.height = size;
-          c.getContext("2d").drawImage(img, 0, 0, size, size);
+          const scale = Math.min(size / img.naturalWidth, size / img.naturalHeight);
+          const w = img.naturalWidth * scale;
+          const h = img.naturalHeight * scale;
+          c.getContext("2d").drawImage(img, (size - w) / 2, (size - h) / 2, w, h);
           const out = c.toDataURL("image/png");
           _imgCache.set(src, out);
           resolve(out);
@@ -92,6 +94,7 @@ export async function buildWidgetData(store) {
         name: g.name,
         saved: fmt(saved),
         target: fmt(g.goal),
+        remaining: fmt(Math.max(0, g.goal - saved)),
         percent: Math.min(100, Math.round((saved / g.goal) * 100)),
         color: g.color || DEFAULT_COLOR,
       };
@@ -115,7 +118,7 @@ export async function buildWidgetData(store) {
         id: b.id,
         name: b.name,
         abbrev: abbrev(b.name),
-        available: plain(calc.safeToSpend(b.id)),
+        available: fmt(calc.safeToSpend(b.id)),
         color: b.color || DEFAULT_COLOR,
         logo: icon?.img ? await rasterize(icon.img, 120) : null,
         logoFull: !!icon?.full,
@@ -123,21 +126,22 @@ export async function buildWidgetData(store) {
     })
   );
 
-  const unpaid = bills
-    .map((b) => { const p = billPeriod(b, todayISO); return { b, dueIn: p.dueIn, paid: isBillPaidForKey(b, p.key) }; })
+  const withStatus = bills.map((b) => { const p = billPeriod(b, todayISO); return { b, dueIn: p.dueIn, paid: isBillPaidForKey(b, p.key) }; });
+  const unpaid = withStatus
     .filter((x) => !x.paid)
     .sort((a, z) => (a.dueIn ?? 9999) - (z.dueIn ?? 9999));
+  const paidCount = withStatus.filter((x) => x.paid).length;
 
-  // The soonest three unpaid bills, each with its logo and a short due label —
-  // the medium bills widget lists these the way accounts and goals are listed.
+  // The soonest six unpaid bills, each with its logo and a short due label —
+  // the medium bills widget lays these out as a two-column grid.
   const dueLabel = (n) => n == null ? "" : n < 0 ? `${Math.abs(n)}d overdue` : n === 0 ? "Due today" : n === 1 ? "Tomorrow" : `In ${n}d`;
   const billsList = await Promise.all(
-    unpaid.slice(0, 3).map(async ({ b, dueIn }) => {
+    unpaid.slice(0, 6).map(async ({ b, dueIn }) => {
       const ic = billIcon(b);
       return {
         id: b.id,
         name: b.name,
-        amount: plain(+b.amount || 0),
+        amount: fmt(+b.amount || 0),
         due: dueLabel(dueIn),
         overdue: dueIn != null && dueIn < 0,
         color: b.color || DEFAULT_COLOR,
@@ -170,6 +174,7 @@ export async function buildWidgetData(store) {
     goals,
     bills: {
       count: unpaid.length,
+      paidCount,
       total: fmt(unpaid.reduce((s, x) => s + (+x.b.amount || 0), 0)),
       list: billsList,
       nextName: unpaid[0]?.b.name || "",

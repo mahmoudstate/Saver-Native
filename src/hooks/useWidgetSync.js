@@ -2,11 +2,20 @@
 // App Group storage whenever the money data changes, and once on launch. iOS
 // only for now. Safe no-op until the native SaverWidget plugin is wired, so
 // the web build never breaks.
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Capacitor, registerPlugin } from "@capacitor/core";
+import { App as CapApp } from "@capacitor/app";
 import { buildWidgetData } from "../lib/widgetData.js";
 
 const SaverWidget = registerPlugin("SaverWidget");
+
+function pushToWidget(store) {
+  return buildWidgetData(store)
+    .then((data) => {
+      try { SaverWidget.sync({ data: JSON.stringify(data) }); } catch { /* plugin not ready */ }
+    })
+    .catch(() => { /* ignore */ });
+}
 
 export function useWidgetSync(store) {
   const banks = store.banks;
@@ -19,6 +28,10 @@ export function useWidgetSync(store) {
   const quickActions = store.quickActions;
   const expCats = store.expCats;
   const bills = store.bills;
+
+  const storeRef = useRef(store);
+  storeRef.current = store;
+
   useEffect(() => {
     if (Capacitor.getPlatform() !== "ios") return;
     let cancelled = false;
@@ -30,4 +43,18 @@ export function useWidgetSync(store) {
       .catch(() => { /* ignore */ });
     return () => { cancelled = true; };
   }, [banks, txns, savings, currency, quickActions, expCats, bills]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // WidgetKit's timeline policy is `.never` — once a widget is placed, it only
+  // redraws when the app explicitly tells WidgetKit to reload. If a widget got
+  // added (or a backup got restored) in the gap before the effect above
+  // finished its async build, it's stuck on that snapshot until something else
+  // changes the data. Re-pushing on every foreground return closes that gap
+  // within seconds of reopening the app, independent of which field changed.
+  useEffect(() => {
+    if (Capacitor.getPlatform() !== "ios") return;
+    const h = CapApp.addListener("appStateChange", ({ isActive }) => {
+      if (isActive) pushToWidget(storeRef.current);
+    });
+    return () => { h.then((l) => l.remove()); };
+  }, []);
 }

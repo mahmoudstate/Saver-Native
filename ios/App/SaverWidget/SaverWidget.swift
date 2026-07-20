@@ -35,6 +35,7 @@ struct Goal: Codable, Identifiable {
     var name: String
     var saved: String
     var target: String
+    var remaining: String?
     var percent: Int
     var color: String
 }
@@ -53,6 +54,7 @@ struct BillRow: Codable, Identifiable {
 
 struct Bills: Codable {
     var count: Int
+    var paidCount: Int?
     var total: String
     var nextName: String
     var nextAmount: String
@@ -85,12 +87,12 @@ struct WidgetData: Codable {
             Quick(id: "q2", label: "Coffee", amount: "30", color: "#D97706", icon: nil),
             Quick(id: "q3", label: "Transport", amount: "40", color: "#2563EB", icon: nil),
         ],
-        goal: Goal(id: "g1", name: "New phone", saved: "600", target: "1,000", percent: 60, color: "#7C3AED"),
+        goal: Goal(id: "g1", name: "New phone", saved: "600", target: "1,000", remaining: "400", percent: 60, color: "#7C3AED"),
         goals: [
-            Goal(id: "g1", name: "New phone", saved: "600", target: "1,000", percent: 60, color: "#7C3AED"),
-            Goal(id: "g2", name: "Emergency fund", saved: "2,400", target: "10,000", percent: 24, color: "#2563EB"),
+            Goal(id: "g1", name: "New phone", saved: "600", target: "1,000", remaining: "400", percent: 60, color: "#7C3AED"),
+            Goal(id: "g2", name: "Emergency fund", saved: "2,400", target: "10,000", remaining: "7,600", percent: 24, color: "#2563EB"),
         ],
-        bills: Bills(count: 2, total: "320", nextName: "Netflix", nextAmount: "120", nextDueIn: 3, list: [
+        bills: Bills(count: 2, paidCount: 6, total: "320", nextName: "Netflix", nextAmount: "120", nextDueIn: 3, list: [
             BillRow(id: "b1", name: "Netflix", amount: "120", due: "In 3d", overdue: false, color: "#E50914", abbrev: "NE", logo: nil, logoFull: nil),
             BillRow(id: "b2", name: "Spotify", amount: "20", due: "In 8d", overdue: false, color: "#1ED760", abbrev: "SP", logo: nil, logoFull: nil),
         ])
@@ -147,12 +149,19 @@ extension Color {
 // MARK: - Shared pieces
 
 private struct AddCircle: View {
+    @Environment(\.widgetRenderingMode) private var renderingMode
     var size: CGFloat = 34
     var body: some View {
+        // In Tinted/Clear the solid mint disc would flatten to a solid white
+        // coin; there it becomes a faint disc with a bright "+" so it still reads
+        // as a button instead of a blob.
+        let flat = renderingMode != .fullColor
         ZStack {
-            Circle().fill(Color.saverMint).frame(width: size, height: size)
-            Image(systemName: "plus").font(.system(size: size * 0.48, weight: .bold)).foregroundColor(.saverMintInk)
+            Circle().fill(flat ? Color.white.opacity(0.22) : Color.saverMint).frame(width: size, height: size)
+            Image(systemName: "plus").font(.system(size: size * 0.48, weight: .bold))
+                .foregroundColor(flat ? .primary : .saverMintInk)
         }
+        .prominentInTint()
     }
 }
 
@@ -179,6 +188,7 @@ private struct StatFace: View {
             Text(value).font(WFont.hero).foregroundColor(tint)
                 .minimumScaleFactor(0.4).lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .prominentInTint()
             Text(support).font(WFont.caption).foregroundColor(.secondary)
                 .lineLimit(1).minimumScaleFactor(0.7)
                 .padding(.top, 2)
@@ -259,10 +269,12 @@ private struct QuickTile: View {
                         Image(systemName: "tag.fill").font(.system(size: 13, weight: .semibold)).foregroundColor(Color(hex: quick.color))
                     }
                 }
+                .prominentInTint()
                 Spacer(minLength: WSpace.tight)
-                Text(quick.amount).font(WFont.rowValue).foregroundColor(.primary)
-                    .lineLimit(1).minimumScaleFactor(0.5)
-                Text(quick.label).font(WFont.caption).foregroundColor(.secondary)
+                Text(quick.label).font(WFont.quickName).foregroundColor(.primary)
+                    .lineLimit(1).minimumScaleFactor(0.6)
+                    .prominentInTint()
+                Text(quick.amount).font(WFont.quickValue).foregroundColor(.secondary)
                     .lineLimit(1).minimumScaleFactor(0.6)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -335,14 +347,29 @@ struct QuickAddWidget: Widget {
 // monogram fallback. Shared by accounts and bills so a logo looks the same in
 // both. Takes raw fields rather than a Bank so any row type can use it.
 private struct LogoCircle: View {
+    @Environment(\.widgetRenderingMode) private var renderingMode
     let logo: String?
     let logoFull: Bool
     let color: String
     let abbrev: String
     var size: CGFloat
     var body: some View {
+        // Tinted/Clear flatten every opaque fill to a solid tint coin, so a
+        // full-bleed logo becomes a white blob and a bare mark loses its shape.
+        // In those modes every logo gets the same faint disc the + button gets,
+        // with the mark (or monogram) inset on top so it reads as a contained
+        // icon rather than a raw white shape.
+        let flat = renderingMode != .fullColor
         ZStack {
-            if let ui = decodeImage(logo) {
+            if flat {
+                // Tinted and especially Clear force every image to a flat tint
+                // silhouette, so a raster brand mark turns into a white blob with
+                // no way to opt out (widgetAccentedRenderingMode only helps in
+                // Tinted, not Clear). Show a clean lettered badge in the faint
+                // disc instead — legible and consistent in both modes.
+                Circle().fill(Color.white.opacity(0.22)).frame(width: size, height: size)
+                Text(abbrev).font(.system(size: size * 0.36, weight: .heavy)).foregroundColor(.primary)
+            } else if let ui = decodeImage(logo) {
                 if logoFull {
                     Image(uiImage: ui).resizable().scaledToFill().frame(width: size, height: size).clipShape(Circle())
                 } else {
@@ -359,6 +386,7 @@ private struct LogoCircle: View {
             }
         }
         .frame(width: size, height: size)
+        .prominentInTint()
     }
 }
 
@@ -382,6 +410,7 @@ private struct AvailableHeader: View {
                         Text("AVAILABLE TO SPEND").font(WFont.label).foregroundColor(.secondary)
                         Text(value).font(prominent ? WFont.heroLarge : WFont.hero).foregroundColor(.saverMintText)
                             .lineLimit(1).minimumScaleFactor(0.4)
+                            .prominentInTint()
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
@@ -400,40 +429,41 @@ private struct AvailableHeader: View {
 // and carries its own tap target. Flips for Arabic on its own.
 private struct BankRowCard: View {
     let bank: Bank
+    /// Sized by the caller: with only a few accounts the large widget has the
+    /// height for a logo that nearly fills the row.
+    var logoSize: CGFloat = WMetric.logo
     var body: some View {
         SurfaceCard {
             HStack(spacing: WSpace.gap) {
-                BankLogoCircle(bank: bank, size: WMetric.logo)
+                BankLogoCircle(bank: bank, size: logoSize)
                 Text(bank.name).font(WFont.rowName).foregroundColor(.primary)
                     .lineLimit(1).minimumScaleFactor(0.7)
                 Spacer(minLength: WSpace.gap)
                 Text(bank.available).font(WFont.rowValue).foregroundColor(.saverMintText)
                     .lineLimit(1).minimumScaleFactor(0.6)
                     .layoutPriority(1)
+                    .prominentInTint()
             }
         }
-        .frame(minHeight: WMetric.row, maxHeight: WMetric.rowMax)
+        .frame(minHeight: WSpace.card * 2 + logoSize, maxHeight: .infinity)
     }
 }
 
-// Medium tile: one account as its own card. Laid out across rather than down —
-// the medium widget only leaves a tile 46pt of content, and a logo stacked over
-// a name over an amount needs 61. Side by side, the same three facts need 39.
+// Medium tile: one account as its own card. The bank name is dropped — the
+// logo identifies the account (its whole point), which frees the tile to give
+// the logo real size and stack the amount right under it, centred, so three
+// tiles read as three clear badges rather than cramped rows.
 private struct BankTile: View {
     let bank: Bank
     var body: some View {
-        SurfaceCard {
-            HStack(spacing: WSpace.tight + 2) {
-                BankLogoCircle(bank: bank, size: WMetric.logo)
-                VStack(alignment: .leading, spacing: 1) {
-                    Text(bank.name).font(WFont.caption).foregroundColor(.secondary)
-                        .lineLimit(1).minimumScaleFactor(0.7)
-                    Text(bank.available).font(WFont.rowValue).foregroundColor(.saverMintText)
-                        .lineLimit(1).minimumScaleFactor(0.65)
-                }
-                Spacer(minLength: 0)
+        SurfaceCard(padding: WSpace.tight) {
+            VStack(spacing: WSpace.tight) {
+                BankLogoCircle(bank: bank, size: WMetric.logoTile)
+                Text(bank.available).font(WFont.rowValue).foregroundColor(.saverMintText)
+                    .lineLimit(1).minimumScaleFactor(0.5)
+                    .prominentInTint()
             }
-            .frame(maxHeight: .infinity)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 }
@@ -449,19 +479,20 @@ struct BanksView: View {
     // that account, the way each YouTube tile opens its own tab.
     private var large: some View {
         let shown = Array(data.banks.prefix(6))
+        // Few accounts leave room for a logo that nearly fills the row; six need
+        // it small to fit. The rows share the height evenly either way.
+        let logoSize: CGFloat = shown.count <= 3 ? 48 : (shown.count == 4 ? 44 : 22)
         return VStack(spacing: WSpace.gap) {
             AvailableHeader(value: data.safeToSpend, prominent: true)
-            // The rows own the rest of the widget and share it between them, so
-            // fewer accounts means taller cards rather than a hole at the bottom.
-            // Centred, so once they hit their ceiling the slack splits evenly.
             VStack(spacing: WSpace.gap) {
                 ForEach(shown) { bank in
                     Link(destination: URL(string: "savertrack://account/\(bank.id)")!) {
-                        BankRowCard(bank: bank)
+                        BankRowCard(bank: bank, logoSize: logoSize)
                     }
+                    .frame(maxHeight: .infinity)
                 }
             }
-            .frame(maxHeight: .infinity, alignment: .center)
+            .frame(maxHeight: .infinity)
         }
         .saverStage()
     }
@@ -472,7 +503,7 @@ struct BanksView: View {
         let shown = Array(data.banks.prefix(3))
         return VStack(spacing: WSpace.gap) {
             AvailableHeader(value: data.safeToSpend)
-            HStack(spacing: WSpace.gap) {
+            HStack(spacing: WSpace.tight) {
                 ForEach(shown) { bank in
                     Link(destination: URL(string: "savertrack://account/\(bank.id)")!) {
                         BankTile(bank: bank)
@@ -497,17 +528,20 @@ struct BanksWidget: Widget {
 
 // MARK: - 5. Savings goals (rings, batteries-style)
 
-// A goal as a progress ring with the percent inside and its name beneath. Just
-// the dial + label; the surrounding card is the caller's, so the tile and the
-// full-widget hero can share it.
+// A goal as a progress ring with the percent inside, then its name and money
+// beneath: how much is set aside of the target, and how much is still to go.
+// The surrounding card is the caller's, so every size can share this.
 private struct GoalRing: View {
     let goal: Goal
     var ring: CGFloat
-    /// The line under the name — the saved amount in a tile, "saved of target"
-    /// on the small widget where there's room for both.
-    var subtitle: String?
+    var nameFont: Font = WFont.caption
+    /// "£X of £Y" — the amount set aside against the target. Shown in white,
+    /// the point of the tile.
+    var savedLine: String?
+    /// "£Z left" — what's still to save. Secondary.
+    var remainingLine: String?
     var body: some View {
-        VStack(spacing: WSpace.gap) {
+        VStack(spacing: WSpace.tight) {
             ZStack {
                 Circle().stroke(Color.primary.opacity(0.14), lineWidth: ring * 0.1)
                 Circle().trim(from: 0, to: CGFloat(goal.percent) / 100)
@@ -517,11 +551,17 @@ private struct GoalRing: View {
                     .foregroundColor(.primary).lineLimit(1).minimumScaleFactor(0.5)
             }
             .frame(width: ring, height: ring)
+            .prominentInTint()
             VStack(spacing: 1) {
-                Text(goal.name).font(WFont.caption).foregroundColor(.primary)
+                Text(goal.name).font(nameFont).foregroundColor(.primary)
                     .lineLimit(1).minimumScaleFactor(0.6)
-                if let subtitle {
-                    Text(subtitle).font(WFont.caption).foregroundColor(.secondary)
+                if let savedLine {
+                    Text(savedLine).font(WFont.goalDetail).foregroundColor(.primary)
+                        .lineLimit(1).minimumScaleFactor(0.5)
+                        .prominentInTint()
+                }
+                if let remainingLine {
+                    Text(remainingLine).font(WFont.caption).foregroundColor(.secondary)
                         .lineLimit(1).minimumScaleFactor(0.6)
                 }
             }
@@ -545,10 +585,12 @@ struct GoalView: View {
             .saverStage()
             .widgetURL(URL(string: "savertrack://home"))
         } else if family == .systemSmall {
-            // One dial filling its own card, with the amount underneath.
+            // One dial filling its own card, with the name and money underneath.
             Link(destination: URL(string: "savertrack://home")!) {
                 SurfaceCard {
-                    GoalRing(goal: goals[0], ring: 74, subtitle: "\(goals[0].saved) of \(goals[0].target)")
+                    GoalRing(goal: goals[0], ring: 66, nameFont: WFont.rowName,
+                             savedLine: "\(goals[0].saved) of \(goals[0].target)",
+                             remainingLine: goals[0].remaining.map { "\($0) left" })
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             }
@@ -559,13 +601,18 @@ struct GoalView: View {
             // like the bills widget: the system paints a legibility sheen on the
             // widget's top edge, and over exposed black (bare text) it reads as a
             // grey gradient, while over a card it's barely there.
-            let ring: CGFloat = goals.count >= 4 ? 48 : 56
+            // Fewer goals get more money detail: 1-2 show "of target" and what's
+            // left, 3 shows "of target", 4 just the name — the tiles narrow as
+            // they multiply, so the text has to thin out with them.
+            let count = goals.count
+            let ring: CGFloat = count >= 4 ? 40 : (count == 3 ? 48 : 46)
+            let nameFont: Font = count <= 2 ? WFont.rowName : WFont.caption
             VStack(spacing: WSpace.gap) {
                 SurfaceCard {
                     HStack {
                         Text("GOALS").font(WFont.label).foregroundColor(.secondary)
                         Spacer()
-                        Text(goals.count == 1 ? "1 active" : "\(goals.count) active")
+                        Text(count == 1 ? "1 active" : "\(count) active")
                             .font(WFont.caption).foregroundColor(.secondary)
                     }
                     .frame(maxHeight: .infinity)
@@ -575,7 +622,9 @@ struct GoalView: View {
                     ForEach(goals) { goal in
                         Link(destination: URL(string: "savertrack://home")!) {
                             SurfaceCard {
-                                GoalRing(goal: goal, ring: ring, subtitle: goals.count <= 3 ? goal.saved : nil)
+                                GoalRing(goal: goal, ring: ring, nameFont: nameFont,
+                                         savedLine: count <= 3 ? "\(goal.saved) of \(goal.target)" : nil,
+                                         remainingLine: count <= 2 ? goal.remaining.map { "\($0) left" } : nil)
                                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                             }
                         }
@@ -622,26 +671,63 @@ struct MonthSpentWidget: Widget {
 
 // One upcoming bill on its own card: logo, name over its due label, amount at
 // the trailing edge. Same rhythm as an account row.
+//
+// `compact` drops the due-date line to a single-line row — only used when 3
+// bills share the medium widget, since the smallest supported iPhone's 126pt
+// content budget (see WMetric) only fits three two-line rows if each is
+// squeezed past legibility; three single-line rows fit with room to spare.
 private struct BillRowCard: View {
     let bill: BillRow
+    var compact: Bool = false
     var body: some View {
-        SurfaceCard(padding: WSpace.card - 1) {
+        SurfaceCard(padding: compact ? WSpace.tight : WSpace.card - 1) {
             HStack(spacing: WSpace.gap - 1) {
-                LogoCircle(logo: bill.logo, logoFull: bill.logoFull == true, color: bill.color, abbrev: bill.abbrev, size: WMetric.logoCompact)
-                VStack(alignment: .leading, spacing: 0) {
+                LogoCircle(logo: bill.logo, logoFull: bill.logoFull == true, color: bill.color, abbrev: bill.abbrev, size: compact ? WMetric.logoCompact - 4 : WMetric.logoCompact)
+                if compact {
                     Text(bill.name).font(WFont.rowName).foregroundColor(.primary)
                         .lineLimit(1).minimumScaleFactor(0.7)
-                    Text(bill.due).font(WFont.caption)
-                        .foregroundColor(bill.overdue ? Color(hex: "#F2766E") : .secondary)
-                        .lineLimit(1).minimumScaleFactor(0.7)
+                } else {
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text(bill.name).font(WFont.rowName).foregroundColor(.primary)
+                            .lineLimit(1).minimumScaleFactor(0.7)
+                        Text(bill.due).font(WFont.caption)
+                            .foregroundColor(bill.overdue ? Color(hex: "#F2766E") : .secondary)
+                            .lineLimit(1).minimumScaleFactor(0.7)
+                    }
                 }
                 Spacer(minLength: WSpace.gap)
                 Text(bill.amount).font(WFont.rowValue).foregroundColor(.primary)
                     .lineLimit(1).minimumScaleFactor(0.6)
+                    .prominentInTint()
             }
             .frame(maxHeight: .infinity)
         }
-        .frame(minHeight: WMetric.rowCompact, maxHeight: WMetric.rowMax)
+        .frame(minHeight: compact ? WMetric.rowCompact3 : WMetric.rowCompact, maxHeight: WMetric.rowMax)
+    }
+}
+
+// A bill for the medium widget's two-column grid: logo, name, amount pinned to
+// the trailing edge so the chip uses its full width instead of leaving a gap.
+// The chip fills whatever height its row is handed, so few bills grow to fill
+// the widget rather than stranding an empty black lower half.
+private struct BillChip: View {
+    let bill: BillRow
+    /// With only one or two bills the chips grow tall to fill the widget, so
+    /// their contents scale up to match instead of floating small in a big card.
+    var big: Bool = false
+    var body: some View {
+        SurfaceCard(padding: big ? WSpace.gap : WSpace.tight) {
+            HStack(spacing: big ? WSpace.gap : WSpace.tight) {
+                LogoCircle(logo: bill.logo, logoFull: bill.logoFull == true, color: bill.color, abbrev: bill.abbrev, size: big ? 34 : WMetric.logoCompact - 2)
+                Text(bill.name).font(big ? WFont.rowName : WFont.caption).foregroundColor(.primary)
+                    .lineLimit(1).minimumScaleFactor(0.6)
+                Spacer(minLength: WSpace.tight)
+                Text(bill.amount).font(big ? WFont.heroSmall : WFont.rowValue).foregroundColor(.primary)
+                    .lineLimit(1).minimumScaleFactor(0.5)
+                    .prominentInTint()
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
     }
 }
 
@@ -652,65 +738,117 @@ struct BillsView: View {
         if family == .systemMedium { medium } else { small }
     }
 
-    // Small: the total due as the hero, with the very next bill on its own card.
+    // Small: totals only — the amount due as the hero, the unpaid count under it,
+    // and a summary card at the foot. Never a single bill's name: this widget is
+    // the whole picture, not one row of it.
     private var small: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        let paid = data.bills.paidCount ?? 0
+        let due = data.bills.count > 0
+        return VStack(alignment: .leading, spacing: 0) {
             Text("BILLS DUE").font(WFont.label).foregroundColor(.secondary)
             Spacer(minLength: WSpace.gap)
-            Text(data.bills.count > 0 ? data.bills.total : "0")
+            Text(due ? data.bills.total : "0")
                 .font(WFont.hero).foregroundColor(.primary)
                 .lineLimit(1).minimumScaleFactor(0.4)
-            Text(data.bills.count > 0 ? "\(data.bills.count) unpaid" : "All paid")
+                .prominentInTint()
+            Text(due ? "\(data.bills.count) unpaid" : "All paid")
                 .font(WFont.caption).foregroundColor(.secondary)
                 .lineLimit(1).minimumScaleFactor(0.7)
             Spacer(minLength: WSpace.gap)
-            if !data.bills.nextName.isEmpty {
-                SurfaceCard {
-                    VStack(alignment: .leading, spacing: 1) {
-                        Text(data.bills.nextName).font(WFont.caption).foregroundColor(.primary)
-                            .lineLimit(1).minimumScaleFactor(0.7)
-                        Text(data.bills.nextAmount).font(WFont.rowValue).foregroundColor(.primary)
-                            .lineLimit(1).minimumScaleFactor(0.5)
-                    }
+            SurfaceCard {
+                HStack(spacing: WSpace.gap) {
+                    Image(systemName: due ? "list.bullet" : "checkmark.circle.fill")
+                        .foregroundColor(due ? .secondary : .saverMintText)
+                        .prominentInTint()
+                    Text(due
+                        ? "\(data.bills.count) \(data.bills.count == 1 ? "bill" : "bills") due"
+                        : (paid > 0 ? "\(paid) \(paid == 1 ? "bill" : "bills") paid" : "Nothing due right now"))
+                        .font(WFont.caption).foregroundColor(.secondary)
+                        .lineLimit(1).minimumScaleFactor(0.7)
                 }
-                .frame(height: WMetric.barHeight)
+                .frame(maxHeight: .infinity)
             }
+            .frame(height: WMetric.barHeight)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         .saverStage()
         .widgetURL(URL(string: "savertrack://bills"))
     }
 
-    // Medium: a one-line total-due header, then the soonest bills on their own
-    // cards. Two rows, not three: 138pt of widget only pays for a 44pt header,
-    // a gap and two 39pt rows — a third would squeeze them all together.
+    // Medium: a one-line total-due header, then the soonest unpaid bills as a
+    // two-column grid (up to 6). Two columns show more of a long unpaid list and
+    // avoid the thin single rows the earlier three-row version had.
     private var medium: some View {
-        let list = Array((data.bills.list ?? []).prefix(2))
-        return VStack(spacing: WSpace.gap) {
+        let list = Array((data.bills.list ?? []).prefix(6))
+        let rows = stride(from: 0, to: list.count, by: 2).map { Array(list[$0 ..< min($0 + 2, list.count)]) }
+        // More unpaid bills than the six on show — say so next to the total, so
+        // the header figure reconciles with the grid instead of looking wrong.
+        let overflow = data.bills.count > list.count
+        return VStack(spacing: WSpace.tight) {
             SurfaceCard {
                 HStack(spacing: WSpace.gap) {
                     Text("BILLS DUE").font(WFont.label).foregroundColor(.secondary)
                     Spacer(minLength: 0)
+                    if overflow {
+                        Text("\(data.bills.count) bills").font(WFont.caption).foregroundColor(.secondary)
+                    }
                     Text(data.bills.count > 0 ? data.bills.total : "All paid")
                         .font(WFont.heroSmall).foregroundColor(.primary)
                         .lineLimit(1).minimumScaleFactor(0.4)
+                        .prominentInTint()
                 }
                 .frame(maxHeight: .infinity)
             }
             .frame(height: WMetric.headerCompact)
             if list.isEmpty {
-                Spacer(minLength: 0)
+                // Nothing due — fill the widget with a settled-state card instead
+                // of a black void, so the widget carries its weight either way.
+                allPaidCard
             } else {
-                VStack(spacing: WSpace.gap) {
-                    ForEach(list) { bill in
-                        Link(destination: URL(string: "savertrack://bills")!) { BillRowCard(bill: bill) }
+                // Rows share the height evenly, so two bills grow to fill the
+                // widget the same way six do — no stranded black at the foot. A
+                // lone final bill takes the whole width rather than half.
+                VStack(spacing: WSpace.tight) {
+                    ForEach(rows.indices, id: \.self) { i in
+                        HStack(spacing: WSpace.tight) {
+                            ForEach(rows[i]) { bill in
+                                Link(destination: URL(string: "savertrack://bills")!) { BillChip(bill: bill, big: list.count <= 2) }
+                                    .frame(maxWidth: .infinity)
+                            }
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
                 }
-                .frame(maxHeight: .infinity, alignment: .center)
+                .frame(maxHeight: .infinity)
             }
         }
         .saverStage()
         .widgetURL(URL(string: "savertrack://bills"))
+    }
+
+    // The all-paid fill: a mint check, the reassurance, and the count of what's
+    // been settled — a full card, not an empty rectangle.
+    private var allPaidCard: some View {
+        let paid = data.bills.paidCount ?? 0
+        return SurfaceCard {
+            HStack(spacing: WSpace.gap + 2) {
+                ZStack {
+                    Circle().fill(Color.saverMint.opacity(0.16)).frame(width: 44, height: 44)
+                    Image(systemName: "checkmark").font(.system(size: 20, weight: .bold)).foregroundColor(.saverMintText)
+                }
+                .prominentInTint()
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("All caught up").font(WFont.rowName).foregroundColor(.primary)
+                        .lineLimit(1).minimumScaleFactor(0.7)
+                    Text(paid > 0 ? "\(paid) \(paid == 1 ? "bill" : "bills") paid this month" : "No bills due right now")
+                        .font(WFont.caption).foregroundColor(.secondary)
+                        .lineLimit(1).minimumScaleFactor(0.7)
+                }
+                Spacer(minLength: 0)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        }
+        .frame(maxHeight: .infinity)
     }
 }
 

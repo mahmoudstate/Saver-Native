@@ -8,7 +8,10 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "cap:patch": "node scripts/patch-ios-plugins.mjs",
+    "cap:copy": "cap copy ios && node scripts/patch-ios-plugins.mjs",
+    "cap:sync": "cap sync ios && node scripts/patch-ios-plugins.mjs"
   },
   "dependencies": {
     "@aparajita/capacitor-biometric-auth": "^10.0.0",
