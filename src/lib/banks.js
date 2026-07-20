@@ -72,7 +72,7 @@ export const BANK_ICONS = {
   nbe: { img: nbe, full: true },
   banquemisr: { img: banquemisr, full: true },
   cib: { img: cib, full: true },
-  instapay: { img: instapay },
+  instapay: { img: instapay, full: true },
   vodafonecash: { img: vodafonecash, full: true },
   paypal: { img: paypal, full: true },
   adcb: { img: adcb, full: true },

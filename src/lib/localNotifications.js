@@ -159,6 +159,29 @@ function backupReminderNotification(now) {
   };
 }
 
+// Next Monday 09:00 local at/after `now`: if today is already Monday and
+// 9am hasn't passed yet, that's today; otherwise the following Monday. The
+// notification's own content is static (the real numbers only exist once the
+// week is over, and this can be scheduled weeks ahead), tapping it is what
+// takes the user to Breakdown pre-filtered to the week that just ended.
+function nextWeeklyRecapTime(now) {
+  const d = new Date(now);
+  d.setHours(9, 0, 0, 0);
+  d.setDate(d.getDate() + ((1 - d.getDay() + 7) % 7));
+  if (d <= now) d.setDate(d.getDate() + 7);
+  return d;
+}
+
+function weeklyRecapNotification(now) {
+  const at = nextWeeklyRecapTime(now);
+  return {
+    id: idFor(`weekly-recap-${at.toISOString().slice(0, 10)}`),
+    title: pinLeft(translate("notif.weeklyRecapTitle")),
+    body: pinLeft(translate("notif.weeklyRecapBody")),
+    schedule: { at }, sound: "default", extra: { kind: "weeklyRecap" },
+  };
+}
+
 export async function syncScheduledNotifications(store) {
   if (!native()) return;
   try {
@@ -204,6 +227,7 @@ export async function syncScheduledNotifications(store) {
     });
 
     notifications.push(...expenseReminderNotifications(store, now));
+    notifications.push(weeklyRecapNotification(now));
     if (!store.iCloudBackupEnabled) {
       const backupReminder = backupReminderNotification(now);
       if (backupReminder) notifications.push(backupReminder);

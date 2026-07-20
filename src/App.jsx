@@ -14,6 +14,8 @@ import { useICloudRestoreCheck } from "./hooks/useICloudRestoreCheck.js";
 import { useAndroidDriveRestoreCheck } from "./hooks/useAndroidDriveRestoreCheck.js";
 import { useNativeLangCorrection } from "./hooks/useNativeLangCorrection.js";
 import iconUrl from "../icon.png";
+import NotifPrompt from "./ui/NotifPrompt.jsx";
+import WidgetGuide from "./ui/WidgetGuide.jsx";
 import LockScreen from "./ui/LockScreen.jsx";
 import BottomNav from "./ui/BottomNav.jsx";
 import Overlays from "./ui/Modal.jsx";
@@ -88,11 +90,14 @@ export default function App() {
   const [budgetsMonth, setBudgetsMonth] = useState(currentMonth()); // remembered viewed month (survives detail back, resets on fresh entry)
   const [quickAdd, setQuickAdd] = useState(false);
   const [activityDate, setActivityDate] = useState(null); // Activity date filter (month / day range)
+  const [breakdownDate, setBreakdownDate] = useState(null); // Breakdown date filter (independent of Activity's)
   const homeScroll = useRef(0); // remember Home scroll across tab switches (restore on first return, reset on re-tap)
   const [whatsNew, setWhatsNew] = useState(false);
+  const [notifPrompt, setNotifPrompt] = useState(false);
+  const [widgetGuide, setWidgetGuide] = useState(false);
   const [tour, setTour] = useState(false); // interactive coach-mark tour over Home
   const push = (v) => setStack((s) => [...s, v]);          // open a deeper screen
-  useNotificationTaps(store, push);
+  useNotificationTaps(store, push, setBreakdownDate);
   // NOTE: back is wired straight to onClick/onClose in screens, so it must take NO
   // numeric arg (the click event would land there). Use popN for multi-level pops.
   const back = useCallback(() => setStack((s) => s.slice(0, -1)), []); // pop back to the previous screen
@@ -160,11 +165,27 @@ export default function App() {
   // Show "What's New" once after an update, never for a fresh install: a
   // first-ever launch has no stored version yet, so it just records the
   // baseline silently instead of popping the sheet.
+  // The notification pre-permission sheet and the widget how-to each show once,
+  // ever, one at a time, in this order: notifications, then the widget guide,
+  // right away for a fresh install (no What's New to queue behind), or right
+  // after What's New closes for an updating user. Either step is skipped if
+  // it was already shown (or, for notifications, already enabled), so the
+  // next one in line offers immediately instead of leaving a permanent gap.
+  const canOfferNotif = () => Capacitor.isNativePlatform() && !store.notificationsEnabled && !localStorage.getItem("et_notifPromptShown");
+  const canOfferWidgetGuide = () => Capacitor.isNativePlatform() && !localStorage.getItem("et_widgetGuideShown");
+  const offerNotifOrWidgetGuide = () => {
+    if (canOfferNotif()) setNotifPrompt(true);
+    else if (canOfferWidgetGuide()) setWidgetGuide(true);
+  };
   useEffect(() => {
     try {
       const seen = localStorage.getItem("et_lastSeenAppVersion");
-      if (seen === null) localStorage.setItem("et_lastSeenAppVersion", APP_VERSION);
-      else if (seen !== APP_VERSION) setWhatsNew(true);
+      if (seen === null) {
+        localStorage.setItem("et_lastSeenAppVersion", APP_VERSION);
+        offerNotifOrWidgetGuide();
+      } else if (seen !== APP_VERSION) {
+        setWhatsNew(true);
+      }
     } catch {}
   }, []);
   // Bottom-nav tap: clear the stack and land on a fresh tab (re-tapping Home resets it to the top).
@@ -228,8 +249,8 @@ export default function App() {
     if (v?.type === "budget") return <BudgetDetail store={store} budgetId={v.budgetId} viewMonth={v.viewMonth} back={back} onEdit={(b) => push({ type: "editBudget", budget: b })} onEditTxn={(t) => push({ type: "edit", txn: t })} />;
     if (v?.type === "project") return <ProjectDetail store={store} projectId={v.projectId} back={back} onEdit={(p) => push({ type: "editBudget", budget: p })} onEditTxn={(t) => push({ type: "edit", txn: t })} />;
     if (v?.type === "allAccounts") return <AllAccounts store={store} back={back} onOpenBank={(b) => push({ type: "account", bank: b })} onAdd={() => push({ type: "editAccount", account: null })} />;
-    if (v?.type === "breakdown") return <Breakdown store={store} back={back} />;
-    if (v?.type === "datePicker") return <DatePicker initial={activityDate} onApply={(d) => setActivityDate(d.mode === "all" ? null : d)} back={back} />;
+    if (v?.type === "breakdown") return <Breakdown store={store} back={back} dateFilter={breakdownDate} onPickDate={() => push({ type: "datePicker", initial: breakdownDate, onApply: setBreakdownDate })} />;
+    if (v?.type === "datePicker") return <DatePicker initial={v.initial !== undefined ? v.initial : activityDate} onApply={v.onApply || ((d) => setActivityDate(d.mode === "all" ? null : d))} back={back} />;
     if (v?.type === "filter") return <SmartFilter store={store} initial={v.filter} dateFilter={v.dateFilter} hidePeriod={v.hidePeriod} back={back} onApply={(f) => replace({ type: "results", filter: f })} />;
     if (v?.type === "results") return <FilterResults store={store} filter={v.filter} back={back} onEditFilter={() => replace({ type: "filter", filter: v.filter })} onEdit={(t) => push({ type: "edit", txn: t })} />;
     return null;
@@ -247,7 +268,15 @@ export default function App() {
       ))}
       {!view && <BottomNav active={tab} onTab={navTab} onAdd={() => push({ type: "add" })} onQuickAdd={() => setQuickAdd(true)} />}
       {quickAdd && <QuickAddSheet store={store} onClose={() => setQuickAdd(false)} onSetup={() => { setQuickAdd(false); push({ type: "quickactions" }); }} onPick={(q) => { setQuickAdd(false); push({ type: "add", initial: { type: "expense", amount: +q.amount, bankId: q.bankId, expCatId: q.catId }, quickId: q.id }); }} />}
-      {whatsNew && <WhatsNew onClose={() => { try { localStorage.setItem("et_lastSeenAppVersion", APP_VERSION); } catch {} setWhatsNew(false); }} />}
+      {whatsNew && <WhatsNew onClose={() => {
+        try { localStorage.setItem("et_lastSeenAppVersion", APP_VERSION); offerNotifOrWidgetGuide(); } catch {}
+        setWhatsNew(false);
+      }} />}
+      {notifPrompt && <NotifPrompt store={store} onClose={() => {
+        try { localStorage.setItem("et_notifPromptShown", "1"); if (canOfferWidgetGuide()) setWidgetGuide(true); } catch {}
+        setNotifPrompt(false);
+      }} />}
+      {widgetGuide && <WidgetGuide onClose={() => { try { localStorage.setItem("et_widgetGuideShown", "1"); } catch {} setWidgetGuide(false); }} />}
       {tour && <Tour steps={APP_TOUR} onClose={() => setTour(false)} onNavigate={(g) => { if (g?.tab) { setStack([]); setTab(g.tab); } }} />}
       <Overlays store={store} />
     </div>
