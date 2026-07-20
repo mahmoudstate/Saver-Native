@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="699.5 311.25 232 232">
+ <rect x="699.5" y="311.25" width="232" height="232" fill="#fff"/>
+ <defs>
+  <path id="nbeBowl" d="M770.9,374.8c-0.4,2.4-0.6,4.8-0.6,7.3c0,25,20.2,45.2,45.2,45.2c24.9,0,45.2-20.2,45.2-45.2
+	c0-2.5-0.2-4.9-0.6-7.3H770.9z"/>
+  <clipPath id="nbeBowlClip"><use xlink:href="#nbeBowl"/></clipPath>
+  <radialGradient id="nbeGrad1" cx="83.3605" cy="-106.5605" r="4.6479" gradientTransform="matrix(61.6586 0 0 -61.6586 -4455.2983 -6208.8394)" gradientUnits="userSpaceOnUse">
+   <stop offset="0" stop-color="#FBED21"/>
+   <stop offset="0.3684" stop-color="#F8C522"/>
+   <stop offset="0.7253" stop-color="#EF6024"/>
+   <stop offset="1" stop-color="#EF6024"/>
+  </radialGradient>
+  <path id="nbeBars" d="M770.6,442.3v62.8c0,15.5,11.2,18.3,17,18.7h3.4v-81.5H770.6z M805.3,523.9h20.4v-81.6h-20.4V523.9z
+	 M840,442.3v81.5h3.5c5.6-0.4,16-3,17-16.7v-64.8H840z"/>
+  <clipPath id="nbeBarsClip"><use xlink:href="#nbeBars"/></clipPath>
+  <radialGradient id="nbeGrad2" cx="84.8291" cy="-109.569" r="4.6479" gradientTransform="matrix(51.4271 0 0 -51.4271 -3638.5383 -5226.8594)" gradientUnits="userSpaceOnUse">
+   <stop offset="0" stop-color="#FBED21"/>
+   <stop offset="0.8791" stop-color="#EF6024"/>
+   <stop offset="1" stop-color="#EF6024"/>
+  </radialGradient>
+ </defs>
+ <path fill="#007236" d="M872.6,330.6H758.4c-15.2,0-27.6,12.3-27.6,27.6v115.9c0,14.2,8.6,25.9,22.3,27.4V353.1H878v148.3
+	c13.6-1.6,22.2-13.3,22.2-27.4V358.1C900.2,342.9,887.9,330.6,872.6,330.6"/>
+ <rect x="770.3" y="374.8" width="90.4" height="52.4" fill="url(#nbeGrad1)" clip-path="url(#nbeBowlClip)"/>
+ <rect x="770.6" y="442.3" width="89.8" height="81.6" fill="url(#nbeGrad2)" clip-path="url(#nbeBarsClip)"/>
+</svg>
